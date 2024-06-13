@@ -8,6 +8,6 @@ export const useManifestData = () => {
       await fetchManifestData();
       return getStoredManifestData();
     },
-    staleTime: Infinity, // Manifest data doesn't change often
+    staleTime: 1000 * 60 * 60 * 24 * 7, // 1 week
   });
 };

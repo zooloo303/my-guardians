@@ -1,9 +1,13 @@
+"use client";
+import Image from "next/image";
+import { Input } from "../ui/input";
+import { Button } from "../ui/button";
+import { useRouter } from "next/navigation";
+import { resetAuthContext } from "@/lib/actions";
 import { CircleUser, Search } from "lucide-react";
 import { ModeToggle } from "@/components/Navbar/theme-toggle";
-import Image from "next/image";
-import React from "react";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
+import { useAuthContext } from "@/components/Auth/AuthContext";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,6 +18,17 @@ import {
 } from "../ui/dropdown-menu";
 
 const Navbar: React.FC = () => {
+  const router = useRouter();
+  const { displayName, setAuthInfo } = useAuthContext();
+
+  const handleLogout = async () => {
+    await resetAuthContext();
+    setAuthInfo(null, null); // Clear the context state
+    localStorage.removeItem("membershipId");
+    localStorage.removeItem("displayName");
+    router.push("/login");
+  };
+
   return (
     <header className="sticky top-0 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
       <nav className="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6">
@@ -21,6 +36,8 @@ const Navbar: React.FC = () => {
       </nav>
 
       <div className="flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
+        <span className="text-base">Hi, {displayName}</span>{" "}
+        {/* Moved this span into the flex container */}
         <form className="ml-auto flex-1 sm:flex-initial">
           <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -44,7 +61,7 @@ const Navbar: React.FC = () => {
             <DropdownMenuItem>Settings</DropdownMenuItem>
             <DropdownMenuItem>Support</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Logout</DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
         <ModeToggle />

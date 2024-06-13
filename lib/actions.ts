@@ -10,7 +10,7 @@ export async function handleLogin(userId: string) {
   });
 }
 
-export async function resetAuthCookies() {
+export async function resetAuthContext() {
   cookies().set("session_userid", "");
 }
 

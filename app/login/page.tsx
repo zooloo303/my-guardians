@@ -26,10 +26,23 @@ const Login = () => {
   }, [membershipId, fetchProfile]);
 
   useEffect(() => {
-    if (!manifestLoading && !profileLoading && manifestData && profileData) {
+    if (
+      membershipId &&
+      !manifestLoading &&
+      !profileLoading &&
+      manifestData &&
+      profileData
+    ) {
       router.push("/");
     }
-  }, [manifestLoading, profileLoading, manifestData, profileData, router]);
+  }, [
+    membershipId,
+    manifestLoading,
+    profileLoading,
+    manifestData,
+    profileData,
+    router,
+  ]);
 
   if (!membershipId) {
     return (
