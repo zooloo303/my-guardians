@@ -268,4 +268,8 @@ export interface StatsProps {
   stats: { [statHash: string]: Stat };
   manifestData: any;
 }
-
+export interface InventoryItem {
+  bucketHash: number;
+  itemHash: number;
+  itemInstanceId: string;
+}

@@ -1,15 +1,13 @@
 import MyCharacters from "@/components/Character/myCharacters";
-import ProfileInventory from "@/components/Item/profileInventory";
-import CharacterEquipment from "@/components/Item/characterEquipment";
-import CharacterInventory from "@/components/Item/characterInventory";
+import CharacterEquipment from "@/components/Item/CharacterEquipment";
+import InventorySearch from "@/components/Item/InventorySearch";
 
 export default function Home() {
   return (
     <main className="flex flex-col gap-4 p-4">
         <MyCharacters />
         <CharacterEquipment />
-        <CharacterInventory />
-        <ProfileInventory />
+        <InventorySearch />
     </main>
   );
 }

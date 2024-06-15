@@ -120,6 +120,15 @@ export const defaultDamageType: { [key: number]: string } = {
 6: 'stasis-damage.png',
 7: 'strand-damage.png',
 }
+export const damageType: { [key: number]: string } = {
+  1: 'Kinetic',
+  2: 'Arc',
+  3: 'Solar',
+  4: 'Void',
+  5: 'raid.svg',
+  6: 'Stasis',
+  7: 'Strand',
+  }
 
 export const subclassBucketHash = [ 
   3284755031, //subclass

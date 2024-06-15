@@ -45,11 +45,7 @@ const WeaponFilters: React.FC<WeaponFiltersProps> = ({ onFilterChange }) => {
     <TooltipProvider>
       <ToggleGroup type="multiple">
         {/* Damage Type Filters */}
-        {renderToggleGroupItem(
-          "Kinetic",
-          "/kinetic-damage.png",
-          "kinetic-damage"
-        )}
+        {renderToggleGroupItem("Kinetic", "/kinetic-damage.png", "kinetic" )}
         {renderToggleGroupItem("Stasis", "/stasis-damage.png", "stasis-damage")}
         {renderToggleGroupItem("Strand", "/strand-damage.png", "strand-damage")}
         {renderToggleGroupItem("Solar", "/solar-damage.png", "solar-damage")}
@@ -59,19 +55,19 @@ const WeaponFilters: React.FC<WeaponFiltersProps> = ({ onFilterChange }) => {
         {/* Item Category Filters */}
         {renderToggleGroupItem("Auto Rifle", "/auto-rifle.svg", "auto-rifle")}
         {renderToggleGroupItem(
-          "Trace Rifles",
+          "Trace Rifle",
           "/beam-weapon.svg",
           "trace-rifle"
         )}
-        {renderToggleGroupItem("Bows", "/bow.svg", "bow")}
+        {renderToggleGroupItem("Combat Bow", "/bow.svg", "bow")}
         {renderToggleGroupItem(
           "Fusion Rifle",
           "/fusion-rifle.svg",
           "fusion-rifle"
         )}
-        {renderToggleGroupItem("Glaives", "/glaive.svg", "glaive")}
+        {renderToggleGroupItem("Glaive", "/glaive.svg", "glaive")}
         {renderToggleGroupItem(
-          "Grenade Launchers",
+          "Grenade Launcher",
           "/grenade-launcher-ff.svg",
           "grenade-launcher-ff"
         )}
@@ -98,7 +94,7 @@ const WeaponFilters: React.FC<WeaponFiltersProps> = ({ onFilterChange }) => {
         )}
         {renderToggleGroupItem("Shotgun", "/shotgun.svg", "shotgun")}
         {renderToggleGroupItem("Sidearm", "/sidearm.svg", "sidearm")}
-        {renderToggleGroupItem("Submachine Guns", "/smg.svg", "smg")}
+        {renderToggleGroupItem("Submachine Gun", "/smg.svg", "smg")}
         {renderToggleGroupItem("Sniper Rifle", "/sniper.svg", "sniper")}
         {renderToggleGroupItem("Sword", "/sword-heavy.svg", "sword")}
       </ToggleGroup>

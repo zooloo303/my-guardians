@@ -24,7 +24,7 @@ const ArmorFilters: React.FC<ArmorFiltersProps> = ({ onFilterChange }) => {
   };
 
   const renderToggleGroupItem = (value: string, src: string, alt: string) => (
-    <Tooltip>
+    <Tooltip key={value}>
       <TooltipTrigger asChild>
         <ToggleGroupItem
           value={value}
@@ -45,19 +45,15 @@ const ArmorFilters: React.FC<ArmorFiltersProps> = ({ onFilterChange }) => {
     <TooltipProvider>
       <ToggleGroup type="multiple">
         {/* Class Type Filters */}
-        {renderToggleGroupItem(
-          "Warlock",
-          "/class-warlock.svg",
-          "class-warlock"
-        )}
+        {renderToggleGroupItem("Warlock", "/class-warlock.svg", "class-warlock" )}
         {renderToggleGroupItem("Hunter", "/class-hunter.svg", "class-hunter")}
         {renderToggleGroupItem("Titan", "/class-titan.svg", "class-titan")}
 
         {/* Item Category Filters */}
-        {renderToggleGroupItem("Helmets", "/helmet.svg", "helmet")}
-        {renderToggleGroupItem("Arms", "/arms.svg", "arms")}
-        {renderToggleGroupItem("Chest", "/chest.svg", "chest")}
-        {renderToggleGroupItem("Legs", "/legs.svg", "legs")}
+        {renderToggleGroupItem("Helmet", "/helmet.svg", "helmet")}
+        {renderToggleGroupItem("Gauntlets", "/arms.svg", "arms")}
+        {renderToggleGroupItem("Chest Armor", "/chest.svg", "chest")}
+        {renderToggleGroupItem("Leg Armor", "/legs.svg", "legs")}
         {renderToggleGroupItem("Class Items", "/class.svg", "class")}
       </ToggleGroup>
     </TooltipProvider>
