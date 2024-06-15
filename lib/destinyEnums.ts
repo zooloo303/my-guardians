@@ -137,8 +137,16 @@ export const weaponBucketHash = [
   953998645, // Power Weapon
   4023194814 // Ghost
 ];
-
-export  const statOrder = [
+export const unwantedBucketHash = [
+  3284755031, 
+  444348033, 
+  497170007, 
+  1801258597, 
+  2401704334, 
+  2422292810,
+  3621873013,
+];
+export const statOrder = [
   "1935470627", // Power
   "2996146975", // Mobility
   "392767087", // Resilience
@@ -147,3 +155,21 @@ export  const statOrder = [
   "144602215", // Intellect
   "4244567218", // Strength
 ];
+export const itemOrder = [
+  1498876634, //Kinetic Weapons
+  2465295065, //Energy Weapons
+  953998645, //Power Weapons
+  4023194814, //Ghost
+  3448274439, //Helmet
+  3551918588, //Gauntlets
+  14239492, //Chest Armor
+  20886954, //Leg Armor
+  1585787867, //Class Armor
+  2025709351, //Vehicle
+  284967655, //Ships
+  4274335291, //Emblems
+  3683254069, //Finishers
+  375726501, //Engrams
+  1345459588, //Quests
+];
+

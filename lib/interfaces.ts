@@ -16,27 +16,11 @@ export interface ProfileData {
     profileInventory: {
       data: {
         items: Array<{
-          itemName: string;
-          itemIcon: string;
-          locationDescription: string;
-          itemCategoryNames: string[];
-          damageTypeIcon: string | undefined;
-          tierTypeName: string;
-          powerLevel: number;
-          characterId: string | undefined;
+          itemInstanceId: string;
           itemHash: number;
-          itemInstanceId?: string;
-          quantity: number;
-          bindStatus: number;
-          location: number;
           bucketHash: number;
-          transferStatus: number;
-          lockable: boolean;
-          state: number;
-          dismantlePermission: number;
-          isWrapper: boolean;
-          tooltipNotificationIndexes: number[];
-        }>;
+          location: number;
+          }>;
         userInfo: {
           bungieGlobalDisplayName: string;
           membershipType: number;
@@ -88,19 +72,11 @@ export interface ProfileData {
       data: {
         [characterId: string]: {
           items: Array<{
+            itemInstanceId: string;
             itemHash: number;
-            itemInstanceId?: string;
-            quantity: number;
-            bindStatus: number;
             location: number;
             bucketHash: number;
-            transferStatus: number;
-            lockable: boolean;
-            state: number;
-            dismantlePermission: number;
-            isWrapper: boolean;
-            tooltipNotificationIndexes: number[];
-          }>;
+            }>;
         };
       };
     };
