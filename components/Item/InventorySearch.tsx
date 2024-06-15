@@ -44,17 +44,29 @@ const InventorySearch: React.FC = () => {
   };
 
   const filterItems = (items: InventoryItem[]): InventoryItem[] => {
-    return sortItems(items).filter((item) => {
-      const itemData = manifestData.DestinyInventoryItemDefinition[item.itemHash];
-      const matchesSearch = itemData.displayProperties.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const sortedItems = sortItems(items);
 
-      const matchesWeaponFilters = weaponFilters.every(
+    if (searchQuery) {
+      return sortedItems.filter((item) => {
+        const itemData = manifestData.DestinyInventoryItemDefinition[item.itemHash];
+        return itemData.displayProperties.name.toLowerCase().includes(searchQuery.toLowerCase());
+      });
+    }
+
+    if (searchType === null) {
+      return [];
+    }
+
+    return sortedItems.filter((item) => {
+      const itemData = manifestData.DestinyInventoryItemDefinition[item.itemHash];
+
+      const matchesWeaponFilters = weaponFilters.length === 0 || weaponFilters.every(
         (filter) =>
           itemData.itemTypeDisplayName === filter ||
           damageType[itemData.defaultDamageType] === filter
       );
 
-      const matchesArmorFilters = armorFilters.every((filter) =>
+      const matchesArmorFilters = armorFilters.length === 0 || armorFilters.every((filter) =>
         classes[itemData.classType] === filter || itemData.itemTypeDisplayName === filter
       );
 
@@ -62,21 +74,21 @@ const InventorySearch: React.FC = () => {
         ? matchesWeaponFilters
         : searchType === "armor"
         ? matchesArmorFilters
-        : true;
+        : false;
 
-      return matchesSearch && matchesFilters;
+      return matchesFilters;
     });
   };
 
   const handleWeaponFilterChange = (filters: string[]) => {
     setWeaponFilters(filters);
-    setSearchType("weapons");
+    setSearchType(filters.length > 0 ? "weapons" : null);
     setArmorFilters([]); // Clear armor filters
   };
 
   const handleArmorFilterChange = (filters: string[]) => {
     setArmorFilters(filters);
-    setSearchType("armor");
+    setSearchType(filters.length > 0 ? "armor" : null);
     setWeaponFilters([]); // Clear weapon filters
   };
 
