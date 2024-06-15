@@ -46,6 +46,8 @@ const InventorySearch: React.FC = () => {
   const filterItems = (items: InventoryItem[]): InventoryItem[] => {
     const sortedItems = sortItems(items);
 
+    const classItemNames = ["Warlock Bond", "Hunter Cloak", "Titan Mark"];
+
     if (searchQuery) {
       return sortedItems.filter((item) => {
         const itemData = manifestData.DestinyInventoryItemDefinition[item.itemHash];
@@ -60,14 +62,16 @@ const InventorySearch: React.FC = () => {
     return sortedItems.filter((item) => {
       const itemData = manifestData.DestinyInventoryItemDefinition[item.itemHash];
 
-      const matchesWeaponFilters = weaponFilters.length === 0 || weaponFilters.every(
+      const matchesWeaponFilters = weaponFilters.every(
         (filter) =>
           itemData.itemTypeDisplayName === filter ||
           damageType[itemData.defaultDamageType] === filter
       );
 
-      const matchesArmorFilters = armorFilters.length === 0 || armorFilters.every((filter) =>
-        classes[itemData.classType] === filter || itemData.itemTypeDisplayName === filter
+      const matchesArmorFilters = armorFilters.every((filter) =>
+        classes[itemData.classType] === filter ||
+        itemData.itemTypeDisplayName === filter ||
+        classItemNames.includes(itemData.itemTypeDisplayName)
       );
 
       const matchesFilters = searchType === "weapons"

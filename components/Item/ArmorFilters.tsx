@@ -54,7 +54,7 @@ const ArmorFilters: React.FC<ArmorFiltersProps> = ({ onFilterChange }) => {
         {renderToggleGroupItem("Gauntlets", "/arms.svg", "arms")}
         {renderToggleGroupItem("Chest Armor", "/chest.svg", "chest")}
         {renderToggleGroupItem("Leg Armor", "/legs.svg", "legs")}
-        {renderToggleGroupItem("Class Items", "/class.svg", "class")}
+        {renderToggleGroupItem("Class Item", "/class.svg", "class")}
       </ToggleGroup>
     </TooltipProvider>
   );
