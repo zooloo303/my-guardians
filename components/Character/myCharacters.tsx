@@ -13,12 +13,12 @@ const MyCharacters: React.FC = () => {
         return <SkeletonGuy />;
     }
 
-    if (!profileData) {
-        return <div>No profile data found</div>;
-    }
+    const data = profileData as unknown as ProfileData | null;
+    const characterData = data?.Response.characters.data;
 
-    const data = profileData as unknown as ProfileData;
-    const characterData = data.Response.characters.data;
+    if (!characterData) {
+        return <div className="hidden">No profile data found</div>; // Subtle empty state
+    }
 
     return (
         <div className="flex flex-row justify-between items-center gap-4">

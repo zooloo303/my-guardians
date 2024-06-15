@@ -279,3 +279,17 @@ export interface ItemProps {
   isFavorite?: boolean;
   characterId?: string;
 }
+export interface Socket {
+  plugHash: number;
+  isEnabled: boolean;
+  isVisible: boolean;
+}
+export interface Stat {
+  statHash: number;
+  value: number;
+}
+export interface StatsProps {
+  stats: { [statHash: string]: Stat };
+  manifestData: any;
+}
+

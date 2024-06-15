@@ -18,18 +18,18 @@ const CharacterEquipment: React.FC = () => {
     return <SkeletonGuy />;
   }
 
-  if (!profileData) {
-    return <div>No profile data found</div>;
+  const data = profileData as unknown as ProfileData | null;
+  const equipmentData = data?.Response.characterEquipment.data;
+
+  if (!equipmentData) {
+    return <div className="hidden">No profile data found</div>; // Subtle empty state
   }
-  const data = profileData as unknown as ProfileData;
-  const equipmentData = data.Response.characterEquipment.data;
 
   return (
     <div className="flex flex-row justify-between items-center gap-4">
       {Object.entries(equipmentData).map(
         ([characterId, characterEquipment]) => (
           <div key={characterId} className="w-1/3 border p-4 rounded-md">
-            <h3 className="text-lg font-bold mt-4">Subclass</h3>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {characterEquipment.items
                 .filter((item) => subclassBucketHash.includes(item.bucketHash))
@@ -41,7 +41,6 @@ const CharacterEquipment: React.FC = () => {
                   />
                 ))}
             </div>
-            <h3 className="text-lg font-bold mt-4">Weapons and Ghost</h3>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {characterEquipment.items
                 .filter((item) => weaponBucketHash.includes(item.bucketHash))
@@ -53,7 +52,6 @@ const CharacterEquipment: React.FC = () => {
                   />
                 ))}
             </div>
-            <h3 className="text-lg font-bold mt-4">Armor</h3>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
               {characterEquipment.items
                 .filter((item) => armorBucketHash.includes(item.bucketHash))
