@@ -27,13 +27,13 @@ export const Genders: { [key: number]: string } = {
   [FEMALE]: 'Female'
 };
 
-export const Classes: { [key: number]: string } = {
+export const classes: { [key: number]: string } = {
   [WARLOCK]: 'Warlock',
   [TITAN]: 'Titan',
   [HUNTER]: 'Hunter'
 };
 
-export const Races: { [key: number]: string } = {
+export const races: { [key: number]: string } = {
   [HUMAN]: 'Human',
   [AWOKEN]: 'Awoken',
   [EXO]: 'Exo'
@@ -110,3 +110,40 @@ export const DestinyItemLocation: { [key: number]: string } = {
   3: 'Vendor',
   4: 'Postmaster'
 };
+
+export const defaultDamageType: { [key: number]: string } = {
+1: 'kinetic-damage.png',
+2: 'arc-damage.png',
+3: 'solar-damage.png',
+4: 'void-damage.png',
+5: 'raid.svg',
+6: 'stasis-damage.png',
+7: 'strand-damage.png',
+}
+
+export const subclassBucketHash = [ 
+  3284755031, //subclass
+];
+export const armorBucketHash = [ 
+  3448274439, // Helmet
+  3551918588, // Gauntlets
+  14239492, // Chest Armor
+  20886954, // Leg Armor
+  1585787867, // Class Armor
+];
+export const weaponBucketHash = [ 
+  1498876634, // Kinetic Weapon
+  2465295065, // Energy Weapon
+  953998645, // Power Weapon
+  4023194814 // Ghost
+];
+
+export  const statOrder = [
+  "1935470627", // Power
+  "2996146975", // Mobility
+  "392767087", // Resilience
+  "1943323491", // Recovery
+  "1735777505", // Discipline
+  "144602215", // Intellect
+  "4244567218", // Strength
+];

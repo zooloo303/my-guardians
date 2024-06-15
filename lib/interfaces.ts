@@ -107,6 +107,35 @@ export interface ProfileData {
   };
 }
 
+export interface CharacterType {
+  characterId: string;
+  classType: number;
+  raceType: number;
+  genderType?: number;
+  light: number;
+  emblemBackgroundPath: string;
+  emblemHash: number;
+  titleRecordHash?: number;
+  stats: {
+    [key: string]: number;
+  };
+  baseCharacterLevel?: number;
+}
+export type Gender = "Male" | "Female";
+
+export interface TitleInfo {
+  titlesByGender: {
+    [K in Gender]: string;
+  };
+  hasTitle: boolean;
+}
+
+export interface GuardianRankData {
+  currentGuardianRank?: GuardianRankDefinition;
+  lifetimeHighestGuardianRank?: GuardianRankDefinition;
+  renewedGuardianRank?: GuardianRankDefinition;
+}
+
 export interface GuardianRankDefinition {
   rankNumber: number;
   displayProperties: {
@@ -124,6 +153,7 @@ export interface ItemDefinition {
   };
   itemCategoryHashes: number[];
   damageTypeHashes: number[];
+  flavorText: string;
   screenshot: string;
   itemTypeDisplayName: string;
   itemType: number;
@@ -157,7 +187,6 @@ export interface DestinyInventoryBucketDefinition {
     description: string;
     name: string;
     hasIcon: boolean;
-    icon?: string; // Optional, if icons are provided in the future
   };
 }
 
@@ -212,7 +241,6 @@ export interface Armor {
   powerLevel: number;
   isFavorite?: boolean;
 }
-
 export type CategorizedWeapons = {
   kinetic: Weapon[];
   energy: Weapon[];
@@ -227,80 +255,6 @@ export type CategorizedArmor = {
   classItem: Armor[];
 };
 
-export interface EquippedItem {
-  itemInstanceId?: string;
-  itemHash: number;
-  itemName: string;
-  itemIcon: string;
-  locationDescription: string;
-  itemTypeDisplayName: string;
-  itemCategoryNames: string[];
-  damageTypeIcon: string;
-  tierTypeName: string;
-  powerLevel: number | null; // Updated to allow null
-  bucketHash: number;
-  location: number;
-}
-
-export interface DisplayProperties {
-  name: string;
-  icon: string;
-}
-
-export type Gender = "Male" | "Female";
-
-export interface TitleInfo {
-  titlesByGender: {
-    [K in Gender]: string;
-  };
-  hasTitle: boolean;
-}
-
-export interface HashData {
-  displayProperties: DisplayProperties;
-  titleInfo: TitleInfo;
-}
-
-export interface CharacterType {
-  characterId: string;
-  classType: number;
-  raceType: number;
-  genderType?: number;
-  light: number;
-  emblemBackgroundPath: string;
-  emblemHash: number;
-  titleRecordHash?: number;
-  stats: {
-    [key: string]: number;
-  };
-  baseCharacterLevel?: number;
-}
-
-export interface GuardianRankData {
-  currentGuardianRank?: GuardianRankDefinition;
-  lifetimeHighestGuardianRank?: GuardianRankDefinition;
-  renewedGuardianRank?: GuardianRankDefinition;
-}
-
-export interface ProfileContextProps {
-  profileData: ProfileData | null;
-  guardianRankDefinitions: { [key: number]: GuardianRankDefinition };
-  itemDefinitions: { [key: number]: ItemDefinition };
-  damageTypeDefinitions: { [key: number]: DamageTypeDefinition };
-  bucketDefinitions: { [key: number]: DestinyInventoryBucketDefinition }; // Add this line
-  allItems: Array<Weapon | Armor>;
-  categorizedWeapons: CategorizedWeapons;
-  categorizedArmor: CategorizedArmor;
-  characterEquipment: { [characterId: string]: EquippedItem[] };
-  characterInventory: { [characterId: string]: EquippedItem[] };
-  favoriteItems: Array<Weapon | Armor>;
-  titleData: { [characterId: string]: HashData | null };
-  statDefinitions: { [key: string]: StatDefinition };
-  loading: boolean;
-  manifestFetched: boolean;
-  guardianRankData: GuardianRankData;
-  fetchDestinyProfile: () => Promise<void>;
-}
 
 export interface TransferData {
   username: string;
@@ -320,42 +274,8 @@ export interface EquipData {
 }
 
 export interface ItemProps {
-  itemInstanceId?: string;
+  itemInstanceId: string;
   itemHash: number;
-  itemName: string;
-  itemIcon: string;
-  itemTypeDisplayName: string;
-  itemTypeDescription: string;
-  itemSubTypeDescription: string;
-  locationDescription: string;
-  itemCategoryNames: string[];
-  damageTypeIcon?: string;
-  tierTypeName: string;
-  powerLevel: number;
   isFavorite?: boolean;
-  profileData: any;
   characterId?: string;
-}
-
-export interface ItemContextProps {
-  itemInstanceId?: string;
-  itemHash: number;
-  locationDescription: string;
-}
-
-export interface ItemContextMenuProps {
-  item: ItemContextProps;
-  profileData: any;
-  onTransfer: (transferData: TransferData) => void;
-  className?: string;
-  characterId?: string;
-}
-export interface CharacterEquipmentProps {
-  characterId: string;
-}
-export interface CharacterInventoryProps {
-  characterId: string;
-}
-export interface CharacterProps {
-  character: CharacterType;
 }
