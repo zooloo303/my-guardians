@@ -58,7 +58,7 @@ const Character: React.FC<CharacterType> = ({ characterId }) => {
           statDefinitions[hash] ? (
             <Badge
               key={hash}
-              className="flex items-center justify-between p-2 rounded-md"
+              className="flex items-center justify-between rounded-md"
             >
               <span className="flex items-center gap-2">
                 <Image

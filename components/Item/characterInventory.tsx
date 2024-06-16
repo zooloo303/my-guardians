@@ -1,12 +1,7 @@
 "use client";
 import Item from "@/components/Item/item";
-import {
-  subclassBucketHash,
-  armorBucketHash,
-  weaponBucketHash,
-  unwantedBucketHash,
-  itemOrder,
-} from "@/lib/destinyEnums";
+import { armorBucketHash, weaponBucketHash } from "@/lib/destinyEnums";
+import { Label } from "@/components/ui/label";
 
 interface InventoryItem {
   bucketHash: number;
@@ -23,24 +18,31 @@ const CharacterInventory: React.FC<CharacterInventoryProps> = ({ filteredItems }
     return weaponBucketHash.includes(bucketHash) || armorBucketHash.includes(bucketHash);
   };
 
+  const hasItems = Object.values(filteredItems).some(characterInventory =>
+    characterInventory.items.some(item => isWeaponOrArmor(item.bucketHash))
+  );
+
   return (
-    <div className="flex flex-row justify-between gap-1">
-      {Object.entries(filteredItems).map(([characterId, characterInventory]) => (
-        <div key={characterId} className="w-1/3 p-1 rounded-md">
-          <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-1">
-            {characterInventory.items
-              .filter(item => isWeaponOrArmor(item.bucketHash))
-              .map((item) => (
-                <Item
-                  key={`${characterId}-${item.itemInstanceId}`} // Ensuring unique key
-                  itemHash={item.itemHash}
-                  itemInstanceId={item.itemInstanceId}
-                />
-              ))}
+    <>
+      {hasItems && <Label className="pl-2" htmlFor="character">Character Inventory</Label>}
+      <div className="flex flex-row justify-between gap-1">
+        {Object.entries(filteredItems).map(([characterId, characterInventory]) => (
+          <div key={characterId} className="w-1/3 p-1 rounded-md">
+            <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-1">
+              {characterInventory.items
+                .filter(item => isWeaponOrArmor(item.bucketHash))
+                .map((item) => (
+                  <Item
+                    key={`${characterId}-${item.itemInstanceId}`} // Ensuring unique key
+                    itemHash={item.itemHash}
+                    itemInstanceId={item.itemInstanceId}
+                  />
+                ))}
+            </div>
           </div>
-        </div>
-      ))}
-    </div>
+        ))}
+      </div>
+    </>
   );
 };
 

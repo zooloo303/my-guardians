@@ -45,12 +45,12 @@ const WeaponFilters: React.FC<WeaponFiltersProps> = ({ onFilterChange }) => {
     <TooltipProvider>
       <ToggleGroup type="single">
         {/* Damage Type Filters */}
-        {renderToggleGroupItem("Kinetic", "/kinetic-damage.png", "damageType" )}
-        {renderToggleGroupItem("Stasis", "/stasis-damage.png", "damageType")}
-        {renderToggleGroupItem("Strand", "/strand-damage.png", "damageType")}
-        {renderToggleGroupItem("Solar", "/solar-damage.png", "damageType")}
-        {renderToggleGroupItem("Arc", "/arc-damage.png", "damageType")}
-        {renderToggleGroupItem("Void", "/void-damage.png", "damageType")}
+        {renderToggleGroupItem("Kinetic", "/kinetic-damage.png", "kinetic-damage" )}
+        {renderToggleGroupItem("Stasis", "/stasis-damage.png", "stasis-damage")}
+        {renderToggleGroupItem("Strand", "/strand-damage.png", "strand-damage")}
+        {renderToggleGroupItem("Solar", "/solar-damage.png", "solar-damage")}
+        {renderToggleGroupItem("Arc", "/arc-damage.png", "arc-damage")}
+        {renderToggleGroupItem("Void", "/void-damage.png", "void-damage")}
         </ToggleGroup>
         <ToggleGroup type="multiple">
         {/* Item Category Filters */}

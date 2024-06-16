@@ -1,5 +1,6 @@
 "use client";
-import { useState, useEffect } from "react";
+import { Search } from "lucide-react";
+import { useState } from "react";
 import WeaponFilters from "@/components/Item/WeaponFilters";
 import ArmorFilters from "@/components/Item/ArmorFilters";
 import CharacterInventory from "@/components/Item/CharacterInventory";
@@ -105,14 +106,18 @@ const InventorySearch: React.FC = () => {
 
   return (
     <div>
-      <div className="flex flex-col mb-4">
+      <div className="flex flex-col mb-4 justify-center">
+        <div className="relative mx-auto flex-1 md:grow-0 pb-2">
+        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+        
         <Input
           type="text"
           placeholder="Search items..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full p-2 mb-2"
+          className="w-full rounded-lg bg-background pl-8 md:w-[300px] lg:w-[500px]"
         />
+        </div>
         <WeaponFilters onFilterChange={handleWeaponFilterChange} />
         <ArmorFilters onFilterChange={handleArmorFilterChange} />
       </div>

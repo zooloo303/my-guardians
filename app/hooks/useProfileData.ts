@@ -7,14 +7,9 @@ export const useProfileData = (membershipId: string | null) => {
     queryFn: async () => {
       if (!membershipId) throw new Error("No membershipId provided");
 
-      const profile = localStorage.getItem("profile");
-      if (profile && profile !== "null") {
-        return JSON.parse(profile);
-      } else {
-        const fetchedProfile = await getProfile(membershipId);
-        localStorage.setItem("profile", JSON.stringify(fetchedProfile));
-        return fetchedProfile;
-      }
+      const fetchedProfile = await getProfile(membershipId);
+      localStorage.setItem("profile", JSON.stringify(fetchedProfile));
+      return fetchedProfile;
     },
     enabled: !!membershipId,
     staleTime: 1000 * 60, // 1 minute

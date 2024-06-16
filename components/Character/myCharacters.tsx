@@ -21,7 +21,7 @@ const MyCharacters: React.FC = () => {
     }
 
     return (
-        <div className="flex flex-row justify-between items-center gap-4">
+        <div className="flex flex-row justify-between items-center gap-2">
             {Object.keys(characterData).map((characterId) => {
                 const character = characterData[characterId];
                 return (

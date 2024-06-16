@@ -4,7 +4,7 @@ import InventorySearch from "@/components/Item/InventorySearch";
 
 export default function Home() {
   return (
-    <main className="flex flex-col gap-4 p-4">
+    <main className="flex flex-col gap-2 p-2">
         <MyCharacters />
         <CharacterEquipment />
         <InventorySearch />
