@@ -34,7 +34,7 @@ const CharacterEquipment: React.FC = () => {
       {Object.entries(equipmentData).map(
         ([characterId, characterEquipment]) => (
           <div key={characterId} className="w-1/3 border p-2 rounded-md">
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
               {characterEquipment.items
                 .filter((item) => subclassBucketHash.includes(item.bucketHash))
                 .map((item) => (
@@ -45,7 +45,7 @@ const CharacterEquipment: React.FC = () => {
                   />
                 ))}
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
               {characterEquipment.items
                 .filter((item) => weaponBucketHash.includes(item.bucketHash))
                 .map((item) => (
@@ -56,7 +56,7 @@ const CharacterEquipment: React.FC = () => {
                   />
                 ))}
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
               {characterEquipment.items
                 .filter((item) => armorBucketHash.includes(item.bucketHash))
                 .map((item) => (

@@ -1,17 +1,16 @@
 "use client";
 import Image from "next/image";
+import { useState } from "react";
 import { Button } from "../ui/button";
+import { motion } from "framer-motion";
+import { CircleUser } from "lucide-react";
 import { RefreshCcw } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { resetAuthContext } from "@/lib/actions";
-import { CircleUser } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useProfileData } from "@/app/hooks/useProfileData";
 import { ModeToggle } from "@/components/Navbar/theme-toggle";
 import { useAuthContext } from "@/components/Auth/AuthContext";
-import { useQueryClient } from "@tanstack/react-query";
-import { useProfileData } from "@/app/hooks/useProfileData"; // Adjust the import based on your project structure
-import { motion } from "framer-motion";
-import { useState } from "react";
-
 import {
   DropdownMenu,
   DropdownMenuContent,

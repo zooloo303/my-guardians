@@ -5,11 +5,15 @@ import { useState, useRef, useEffect } from "react";
 import { SkeletonGuy } from "@/components/skeleton";
 import { defaultDamageType } from "@/lib/destinyEnums";
 import { useManifestData } from "@/app/hooks/useManifest";
-import { ItemProps, Socket } from "@/lib/interfaces"; 
+import { ItemProps, Socket } from "@/lib/interfaces";
 import { useProfileData } from "@/app/hooks/useProfileData";
 import { useAuthContext } from "@/components/Auth/AuthContext";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const Item: React.FC<ItemProps> = ({ itemHash, itemInstanceId }) => {
   const { membershipId } = useAuthContext();
@@ -44,7 +48,8 @@ const Item: React.FC<ItemProps> = ({ itemHash, itemInstanceId }) => {
     if (itemRef.current) {
       const rect = itemRef.current.getBoundingClientRect();
       const screenWidth = window.innerWidth;
-      if (rect.right + 256 > screenWidth) { // 256 is the width of the expanded item
+      if (rect.right + 256 > screenWidth) {
+        // 256 is the width of the expanded item
         setExpandLeft(true);
       } else {
         setExpandLeft(false);
@@ -61,15 +66,19 @@ const Item: React.FC<ItemProps> = ({ itemHash, itemInstanceId }) => {
     return <div>Item data not found</div>;
   }
 
-  const instanceData = profileData.Response.itemComponents.instances.data[itemInstanceId];
+  const instanceData =
+    profileData.Response.itemComponents.instances.data[itemInstanceId];
   const primaryStatValue = instanceData?.primaryStat?.value;
   const damageType = instanceData?.damageType;
-  const socketData = profileData.Response.itemComponents.sockets.data[itemInstanceId];
+  const socketData =
+    profileData.Response.itemComponents.sockets.data[itemInstanceId];
   const sockets: Socket[] = socketData?.sockets ?? [];
-  const statData = profileData.Response.itemComponents.stats.data[itemInstanceId]?.stats ?? {};
+  const statData =
+    profileData.Response.itemComponents.stats.data[itemInstanceId]?.stats ?? {};
 
   const damageTypeIcon = damageType ? defaultDamageType[damageType] : null;
-  const shouldShowPrimaryStat = itemData.itemType === 2 || itemData.itemType === 3; // 2: Armor, 3: Weapon
+  const shouldShowPrimaryStat =
+    itemData.itemType === 2 || itemData.itemType === 3; // 2: Armor, 3: Weapon
 
   return (
     <TooltipProvider>
@@ -79,18 +88,26 @@ const Item: React.FC<ItemProps> = ({ itemHash, itemInstanceId }) => {
             ref={itemRef}
             transition={{ layout: { duration: 0.5, type: "spring" } }}
             layout
-            className={`p-2 rounded-md relative ${isExpanded ? 'w-96 h-auto' : 'w-32 h-32'}`} // Adjusted height to auto
+            className={`p-2 rounded-md relative ${
+              isExpanded ? "w-96 h-auto" : "w-32 h-32"
+            }`} // Adjusted height to auto
             onClick={(e) => {
               e.stopPropagation();
               toggleExpand();
             }}
             style={{
-              zIndex: isExpanded ? 10 : 'auto',
-              backgroundImage: isExpanded ? `url(http://www.bungie.net${itemData.screenshot})` : 'none',
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              position: 'relative',
-              left: isExpanded ? (expandLeft ? `calc(-64px - 8rem)` : '0') : '0', // Reset left position when not expanded
+              zIndex: isExpanded ? 10 : "auto",
+              backgroundImage: isExpanded
+                ? `url(http://www.bungie.net${itemData.screenshot})`
+                : "none",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              position: "relative",
+              left: isExpanded
+                ? expandLeft
+                  ? `calc(-64px - 8rem)`
+                  : "0"
+                : "0", // Reset left position when not expanded
             }}
           >
             <motion.div
@@ -117,7 +134,7 @@ const Item: React.FC<ItemProps> = ({ itemHash, itemInstanceId }) => {
                       <span>{primaryStatValue}</span>
                       {damageTypeIcon && (
                         <Image
-                          src={`/${damageTypeIcon}`} 
+                          src={`/${damageTypeIcon}`}
                           alt="damage type icon"
                           width={12}
                           height={12}
@@ -129,41 +146,59 @@ const Item: React.FC<ItemProps> = ({ itemHash, itemInstanceId }) => {
               </div>
               {isExpanded && (
                 <div className="flex flex-col pt-2 p-2 ml-4 text-white">
-                  <motion.h2 className="text-left text-base">
+                  <motion.h2
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 1 }}
+                    className="text-left text-base"
+                  >
                     {itemData.displayProperties.name}
                   </motion.h2>
-                  <motion.p className="text-left text-sm">
+                  <motion.p
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 1 }}
+                    className="text-left text-sm"
+                  >
                     {itemData.itemTypeDisplayName}
                   </motion.p>
                 </div>
               )}
             </motion.div>
             {isExpanded && (
-              <motion.div className="text-left text-sm mt-2 text-white">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 1 }}
+                className="text-left text-sm mt-2 text-white"
+              >
                 <p>{itemData.flavorText}</p>
                 <div className="flex justify-center mt-2">
                   {sockets.map((socket: Socket, index: number) => {
-                    const socketItem = manifestData.DestinyInventoryItemDefinition[socket.plugHash];
-                    return (
-                      socketItem?.displayProperties.icon ? (
-                        <Tooltip key={index}>
-                          <TooltipTrigger asChild>
-                            <div className="mx-1">
-                              <Image
-                                className="rounded-md"
-                                src={`http://www.bungie.net${socketItem.displayProperties.icon}`}
-                                alt={socketItem.displayProperties.name}
-                                width={32}
-                                height={32}
-                              />
-                            </div>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <div className="text-xs">{socketItem.displayProperties.name}</div>
-                          </TooltipContent>
-                        </Tooltip>
-                      ) : null
-                    );
+                    const socketItem =
+                      manifestData.DestinyInventoryItemDefinition[
+                        socket.plugHash
+                      ];
+                    return socketItem?.displayProperties.icon ? (
+                      <Tooltip key={index}>
+                        <TooltipTrigger asChild>
+                          <div className="mx-1">
+                            <Image
+                              className="rounded-md"
+                              src={`http://www.bungie.net${socketItem.displayProperties.icon}`}
+                              alt={socketItem.displayProperties.name}
+                              width={32}
+                              height={32}
+                            />
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <div className="text-xs">
+                            {socketItem.displayProperties.name}
+                          </div>
+                        </TooltipContent>
+                      </Tooltip>
+                    ) : null;
                   })}
                 </div>
                 <Stats stats={statData} manifestData={manifestData} />
@@ -172,7 +207,9 @@ const Item: React.FC<ItemProps> = ({ itemHash, itemInstanceId }) => {
           </motion.div>
         </TooltipTrigger>
         <TooltipContent>
-          <div className="flex flex-col font-xs">{itemData.displayProperties.name} - {itemData.itemTypeDisplayName}</div>
+          <div className="flex flex-col font-xs">
+            {itemData.displayProperties.name} - {itemData.itemTypeDisplayName}
+          </div>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
