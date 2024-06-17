@@ -29,6 +29,14 @@ const Item: React.FC<ItemProps> = ({ itemHash, itemInstanceId }) => {
     }
   };
 
+  const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
+    const itemData = {
+      itemHash,
+      itemInstanceId,
+    };
+    e.dataTransfer.setData("application/json", JSON.stringify(itemData));
+  };
+
   const toggleExpand = () => {
     setIsExpanded(!isExpanded);
   };
@@ -85,123 +93,152 @@ const Item: React.FC<ItemProps> = ({ itemHash, itemInstanceId }) => {
       <Tooltip>
         <TooltipTrigger asChild>
           <motion.div
-            ref={itemRef}
-            transition={{ layout: { duration: 0.5, type: "spring" } }}
-            layout
-            className={`p-2 rounded-md relative ${
-              isExpanded ? "w-96 h-auto" : "w-32 h-32"
-            }`} // Adjusted height to auto
-            onClick={(e) => {
-              e.stopPropagation();
-              toggleExpand();
-            }}
-            style={{
-              zIndex: isExpanded ? 10 : "auto",
-              backgroundImage: isExpanded
-                ? `url(http://www.bungie.net${itemData.screenshot})`
-                : "none",
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              position: "relative",
-              left: isExpanded
-                ? expandLeft
-                  ? `calc(-64px - 8rem)`
-                  : "0"
-                : "0", // Reset left position when not expanded
-            }}
-          >
+          drag
+          dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0}}
+          dragElastic={1}>
             <motion.div
-              layout="position"
-              className="flex flex-row justify-between items-center"
+              ref={itemRef}
+              transition={{ layout: { duration: 0.5, type: "spring" } }}
+              layout
+              className={`p-2 rounded-md relative ${
+                isExpanded ? "w-96 h-auto" : "w-20 h-20"
+              }`} // Adjusted height to auto
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleExpand();
+              }}
+              style={{
+                zIndex: isExpanded ? 10 : "auto",
+                backgroundImage: isExpanded
+                  ? `url(http://www.bungie.net${itemData.screenshot})`
+                  : `url(http://www.bungie.net${itemData.displayProperties.icon})`,
+                backgroundSize: "cover",
+                backgroundPosition: "top",
+                position: "relative",
+                left: isExpanded
+                  ? expandLeft
+                    ? `calc(-64px - 8rem)`
+                    : "0"
+                  : "0", // Reset left position when not expanded
+              }}
             >
-              <div className="flex flex-col items-center">
-                <Image
-                  className="rounded-md"
-                  src={`http://www.bungie.net${itemData.displayProperties.icon}`}
-                  alt={itemData.displayProperties.name}
-                  width={64}
-                  height={64}
-                />
-                <div className="flex flex-row">
-                  {shouldShowPrimaryStat && primaryStatValue && (
-                    <div className="flex items-center text-center text-xs">
-                      <Image
-                        src="/power-lvl.svg"
-                        alt="power level icon"
-                        width={10}
-                        height={10}
-                      />
-                      <span>{primaryStatValue}</span>
-                      {damageTypeIcon && (
-                        <Image
-                          src={`/${damageTypeIcon}`}
-                          alt="damage type icon"
-                          width={12}
-                          height={12}
-                        />
+              <motion.div
+                layout="position"
+                className="flex flex-row justify-between items-center"
+              >
+                {isExpanded && (
+                  <div className="flex flex-row justify-between">
+                    <motion.div 
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 1 }}
+                      className="flex flex-row">
+                      {shouldShowPrimaryStat && primaryStatValue && (
+                        <div className="flex items-center text-center text-base">
+                          <Image
+                            src="/power-lvl.svg"
+                            alt="power level icon"
+                            width={10}
+                            height={10}
+                          />
+                          <span>{primaryStatValue}</span>
+                          {damageTypeIcon && (
+                            <Image
+                              src={`/${damageTypeIcon}`}
+                              alt="damage type icon"
+                              width={15}
+                              height={15}
+                            />
+                          )}
+                        </div>
                       )}
+                    </motion.div>
+                    <div className="flex flex-col pt-2 p-2 ml-4 text-white">
+                      <motion.h2
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 1 }}
+                        className="text-left text-base"
+                      >
+                        {itemData.displayProperties.name}
+                      </motion.h2>
+                      <motion.p
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 1 }}
+                        className="text-left text-sm"
+                      >
+                        {itemData.itemTypeDisplayName}
+                      </motion.p>
                     </div>
-                  )}
-                </div>
-              </div>
+                  </div>
+                )}
+              </motion.div>
               {isExpanded && (
-                <div className="flex flex-col pt-2 p-2 ml-4 text-white">
-                  <motion.h2
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 1 }}
-                    className="text-left text-base"
-                  >
-                    {itemData.displayProperties.name}
-                  </motion.h2>
-                  <motion.p
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 1 }}
-                    className="text-left text-sm"
-                  >
-                    {itemData.itemTypeDisplayName}
-                  </motion.p>
-                </div>
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 1 }}
+                  className="text-left text-sm mt-2 text-white"
+                >
+                  <p>{itemData.flavorText}</p>
+                  <div className="flex justify-center mt-2">
+                    {sockets.map((socket: Socket, index: number) => {
+                      const socketItem =
+                        manifestData.DestinyInventoryItemDefinition[
+                          socket.plugHash
+                        ];
+                      return socketItem?.displayProperties.icon ? (
+                        <Tooltip key={index}>
+                          <TooltipTrigger asChild>
+                            <div className="mx-1">
+                              <Image
+                                className="rounded-md"
+                                src={`http://www.bungie.net${socketItem.displayProperties.icon}`}
+                                alt={socketItem.displayProperties.name}
+                                width={32}
+                                height={32}
+                              />
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <div className="text-xs">
+                              {socketItem.displayProperties.name}
+                            </div>
+                          </TooltipContent>
+                        </Tooltip>
+                      ) : null;
+                    })}
+                  </div>
+                  <Stats stats={statData} manifestData={manifestData} />
+                </motion.div>
               )}
             </motion.div>
-            {isExpanded && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 1 }}
-                className="text-left text-sm mt-2 text-white"
-              >
-                <p>{itemData.flavorText}</p>
-                <div className="flex justify-center mt-2">
-                  {sockets.map((socket: Socket, index: number) => {
-                    const socketItem =
-                      manifestData.DestinyInventoryItemDefinition[
-                        socket.plugHash
-                      ];
-                    return socketItem?.displayProperties.icon ? (
-                      <Tooltip key={index}>
-                        <TooltipTrigger asChild>
-                          <div className="mx-1">
-                            <Image
-                              className="rounded-md"
-                              src={`http://www.bungie.net${socketItem.displayProperties.icon}`}
-                              alt={socketItem.displayProperties.name}
-                              width={32}
-                              height={32}
-                            />
-                          </div>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <div className="text-xs">
-                            {socketItem.displayProperties.name}
-                          </div>
-                        </TooltipContent>
-                      </Tooltip>
-                    ) : null;
-                  })}
-                </div>
-                <Stats stats={statData} manifestData={manifestData} />
+            {!isExpanded && (
+              <motion.div 
+              initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 1 }}
+                        className="flex flex-row">
+                {shouldShowPrimaryStat && primaryStatValue && (
+                  <div className="flex items-center text-center text-xs">
+                    <Image
+                      src="/power-lvl.svg"
+                      alt="power level icon"
+                      width={10}
+                      height={10}
+                    />
+                    <span>{primaryStatValue}</span>
+                    {damageTypeIcon && (
+                      <Image
+                        src={`/${damageTypeIcon}`}
+                        alt="damage type icon"
+                        width={12}
+                        height={12}
+                      />
+                    )}
+                  </div>
+                )}
               </motion.div>
             )}
           </motion.div>

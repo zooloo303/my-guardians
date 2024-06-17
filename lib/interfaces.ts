@@ -89,6 +89,7 @@ export interface CharacterType {
   raceType: number;
   genderType?: number;
   light: number;
+  emblemPath: string;
   emblemBackgroundPath: string;
   emblemHash: number;
   titleRecordHash?: number;
@@ -272,4 +273,7 @@ export interface InventoryItem {
   bucketHash: number;
   itemHash: number;
   itemInstanceId: string;
+}
+export interface VaultProps {
+  noOfItems: number;
 }

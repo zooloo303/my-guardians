@@ -32,7 +32,7 @@ const ArmorFilters: React.FC<ArmorFiltersProps> = ({ onFilterChange }) => {
           onClick={() => handleFilterChange(value)}
           className={selectedFilters.includes(value) ? "bg-slate-700" : ""}
         >
-          <Image src={src} alt={alt} width={40} height={40} />
+          <Image src={src} alt={alt} width={30} height={30} />
         </ToggleGroupItem>
       </TooltipTrigger>
       <TooltipContent>

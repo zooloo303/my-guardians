@@ -52,7 +52,7 @@ const WeaponFilters: React.FC<WeaponFiltersProps> = ({ onFilterChange }) => {
         {renderToggleGroupItem("Arc", "/arc-damage.png", "arc-damage")}
         {renderToggleGroupItem("Void", "/void-damage.png", "void-damage")}
         </ToggleGroup>
-        <ToggleGroup type="multiple">
+        <ToggleGroup className=" flex flex-wrap" type="multiple">
         {/* Item Category Filters */}
         {renderToggleGroupItem("Auto Rifle", "/auto-rifle.svg", "auto-rifle")}
         {renderToggleGroupItem(

@@ -45,7 +45,7 @@ const CharacterEquipment: React.FC = () => {
                   />
                 ))}
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            <div className="pt-2 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
               {characterEquipment.items
                 .filter((item) => weaponBucketHash.includes(item.bucketHash))
                 .map((item) => (
@@ -56,7 +56,7 @@ const CharacterEquipment: React.FC = () => {
                   />
                 ))}
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+            <div className="pt-2 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
               {characterEquipment.items
                 .filter((item) => armorBucketHash.includes(item.bucketHash))
                 .map((item) => (
