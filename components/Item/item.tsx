@@ -1,7 +1,7 @@
+import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import Stats from "@/components/Item/stats";
-import { useState, useRef, useEffect } from "react";
 import { SkeletonGuy } from "@/components/skeleton";
 import { defaultDamageType } from "@/lib/destinyEnums";
 import { useManifestData } from "@/app/hooks/useManifest";
@@ -22,6 +22,7 @@ const Item: React.FC<ItemProps> = ({ itemHash, itemInstanceId }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [expandLeft, setExpandLeft] = useState(false);
   const itemRef = useRef<HTMLDivElement>(null);
+  const isDragging = useRef(false);
 
   const handleClickOutside = (event: MouseEvent) => {
     if (itemRef.current && !itemRef.current.contains(event.target as Node)) {
@@ -29,16 +30,20 @@ const Item: React.FC<ItemProps> = ({ itemHash, itemInstanceId }) => {
     }
   };
 
-  const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
-    const itemData = {
-      itemHash,
-      itemInstanceId,
-    };
-    e.dataTransfer.setData("application/json", JSON.stringify(itemData));
+  const handleDragStart = () => {
+    isDragging.current = true;
+    console.log("drag start");
+  };
+
+  const handleDragEnd = () => {
+    isDragging.current = false;
+    console.log("drag end");
   };
 
   const toggleExpand = () => {
-    setIsExpanded(!isExpanded);
+    if (!isDragging.current) {
+      setIsExpanded(!isExpanded);
+    }
   };
 
   useEffect(() => {
@@ -80,7 +85,7 @@ const Item: React.FC<ItemProps> = ({ itemHash, itemInstanceId }) => {
   const damageType = instanceData?.damageType;
   const socketData =
     profileData.Response.itemComponents.sockets.data[itemInstanceId];
-  const sockets: Socket[] = socketData?.sockets ?? [];
+  const sockets: Socket[] = socketData?.sockets ?? {};
   const statData =
     profileData.Response.itemComponents.stats.data[itemInstanceId]?.stats ?? {};
 
@@ -93,16 +98,19 @@ const Item: React.FC<ItemProps> = ({ itemHash, itemInstanceId }) => {
       <Tooltip>
         <TooltipTrigger asChild>
           <motion.div
-          drag
-          dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0}}
-          dragElastic={1}>
+            drag
+            dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
+            dragElastic={1}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+          >
             <motion.div
               ref={itemRef}
               transition={{ layout: { duration: 0.5, type: "spring" } }}
               layout
               className={`p-2 rounded-md relative ${
                 isExpanded ? "w-96 h-auto" : "w-20 h-20"
-              }`} // Adjusted height to auto
+              }`}
               onClick={(e) => {
                 e.stopPropagation();
                 toggleExpand();
@@ -119,7 +127,7 @@ const Item: React.FC<ItemProps> = ({ itemHash, itemInstanceId }) => {
                   ? expandLeft
                     ? `calc(-64px - 8rem)`
                     : "0"
-                  : "0", // Reset left position when not expanded
+                  : "0",
               }}
             >
               <motion.div
@@ -128,11 +136,12 @@ const Item: React.FC<ItemProps> = ({ itemHash, itemInstanceId }) => {
               >
                 {isExpanded && (
                   <div className="flex flex-row justify-between">
-                    <motion.div 
+                    <motion.div
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       transition={{ duration: 1 }}
-                      className="flex flex-row">
+                      className="flex flex-row"
+                    >
                       {shouldShowPrimaryStat && primaryStatValue && (
                         <div className="flex items-center text-center text-base">
                           <Image
@@ -215,11 +224,12 @@ const Item: React.FC<ItemProps> = ({ itemHash, itemInstanceId }) => {
               )}
             </motion.div>
             {!isExpanded && (
-              <motion.div 
-              initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 1 }}
-                        className="flex flex-row">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 1 }}
+                className="flex flex-row"
+              >
                 {shouldShowPrimaryStat && primaryStatValue && (
                   <div className="flex items-center text-center text-xs">
                     <Image
