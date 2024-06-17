@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { motion, PanInfo } from "framer-motion";
 import Stats from "@/components/Item/stats";
 import { SkeletonGuy } from "@/components/skeleton";
 import { defaultDamageType } from "@/lib/destinyEnums";
@@ -15,7 +15,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-const Item: React.FC<ItemProps> = ({ itemHash, itemInstanceId }) => {
+const Item: React.FC<ItemProps> = ({ itemHash, itemInstanceId, characterId }) => {
   const { membershipId } = useAuthContext();
   const { data: manifestData } = useManifestData();
   const { data: profileData } = useProfileData(membershipId);
@@ -30,9 +30,17 @@ const Item: React.FC<ItemProps> = ({ itemHash, itemInstanceId }) => {
     }
   };
 
-  const handleDragStart = () => {
+  const handleDragStart = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     isDragging.current = true;
-    console.log("drag start");
+    const itemData = {
+      itemHash,
+      itemInstanceId,
+      characterId, // Include characterId in the drag data
+    };
+    if (event.currentTarget instanceof HTMLElement) {
+      event.currentTarget.setAttribute("data-item", JSON.stringify(itemData));
+    }
+    console.log("drag start", itemData);
   };
 
   const handleDragEnd = () => {
@@ -103,13 +111,14 @@ const Item: React.FC<ItemProps> = ({ itemHash, itemInstanceId }) => {
             dragElastic={1}
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
+            className="cursor-grab active:cursor-grabbing"
           >
             <motion.div
               ref={itemRef}
               transition={{ layout: { duration: 0.5, type: "spring" } }}
               layout
               className={`p-2 rounded-md relative ${
-                isExpanded ? "w-96 h-auto" : "w-20 h-20"
+                isExpanded ? "w-96 h-auto" : "w-16 h-16"
               }`}
               onClick={(e) => {
                 e.stopPropagation();

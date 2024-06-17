@@ -33,7 +33,7 @@ const CharacterSm: React.FC<CharacterType> = ({ characterId }) => {
   const raceName = races[raceType];
 
   return (
-    <Card>
+    <Card className="w-36 h-36">
       <CardHeader>
       <Avatar>
       <AvatarImage src={`http://www.bungie.net${emblemPath}`}

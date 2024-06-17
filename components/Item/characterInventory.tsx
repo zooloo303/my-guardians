@@ -28,8 +28,8 @@ const CharacterInventory: React.FC<CharacterInventoryProps> = ({ filteredItems }
       {hasItems && <Label className="pl-2 pb-1" htmlFor="character">Character Inventory</Label>}
       <div className="flex flex-row justify-between pr-2 pl-2 gap-1">
         {Object.entries(filteredItems).map(([characterId, characterInventory]) => (
-          <div key={characterId} className="w-1/3 p-1 border rounded-xl">
-            <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-1">
+          <div key={characterId} className="w-1/3 p-2 border rounded-xl">
+            <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-5">
               {characterInventory.items
                 .filter(item => isWeaponOrArmor(item.bucketHash))
                 .map((item) => (
@@ -37,6 +37,7 @@ const CharacterInventory: React.FC<CharacterInventoryProps> = ({ filteredItems }
                     key={`${characterId}-${item.itemInstanceId}`} // Ensuring unique key
                     itemHash={item.itemHash}
                     itemInstanceId={item.itemInstanceId}
+                    characterId={characterId} // Used for moving items between characters
                   />
                 ))}
             </div>

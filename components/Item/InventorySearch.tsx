@@ -2,7 +2,9 @@
 import { useState } from "react";
 import { Search } from "lucide-react";
 import { Button } from "../ui/button";
+import VaultCard from "../Vault/vaultCard";
 import { Input } from "@/components/ui/input";
+import CharacterSm from "../Character/characterSm";
 import { SkeletonGuy } from "@/components/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ArmorFilters from "@/components/Item/ArmorFilters";
@@ -13,7 +15,6 @@ import { ProfileData, InventoryItem } from "@/lib/interfaces";
 import { useAuthContext } from "@/components/Auth/AuthContext";
 import ProfileInventory from "@/components/Item/ProfileInventory";
 import CharacterInventory from "@/components/Item/CharacterInventory";
-import  CharacterDropzone from "@/components/Character/characterDropzones";
 import {
   classes,
   unwantedBucketHash,
@@ -47,6 +48,7 @@ const InventorySearch: React.FC = () => {
   }
 
   const data = profileData as unknown as ProfileData | null;
+  const characterData = data?.Response.characters.data;
   const characterInventoriesData =
     data?.Response.characterInventories.data || {};
   const profileInventoryData = data?.Response.profileInventory.data.items || [];
@@ -142,41 +144,60 @@ const InventorySearch: React.FC = () => {
       <DrawerTrigger asChild>
         <Button variant="outline">My Precious</Button>
       </DrawerTrigger>
-      <DrawerContent className='h-screen top-0 mt-0'>
-        <ScrollArea className='h-screen'>
-        <div className='mx-auto w-full p-5'>
-        <DrawerHeader>
-          <DrawerTitle>Search Inventory</DrawerTitle>
-          <DrawerDescription>Drag to move</DrawerDescription>
-        </DrawerHeader>
-        <div className="flex flex-row justify-between p-2">
-          <div className="flex flex-col mb-2 justify-center">
-            <div className="relative mx-auto flex-1 md:grow-0 pb-2">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="text"
-                placeholder="Search items..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-lg bg-background pl-8 md:w-[300px] lg:w-[500px]"
-              />
+      <DrawerContent className="h-screen top-0 mt-0">
+        <ScrollArea className="h-screen">
+          <div className="mx-auto w-full p-5">
+            <DrawerHeader>
+              <DrawerTitle>Search Inventory</DrawerTitle>
+              <DrawerDescription>Drag to move</DrawerDescription>
+            </DrawerHeader>
+            <div className="flex flex-row p-4 items-center">
+              <div className="flex flex-col mb-2 justify-center">
+                <div className="relative mx-auto flex-1 md:grow-0 pb-2">
+                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    type="text"
+                    placeholder="Search items..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full rounded-lg bg-background pl-8 md:w-[300px] lg:w-[500px]"
+                  />
+                </div>
+                <WeaponFilters onFilterChange={handleWeaponFilterChange} />
+                <ArmorFilters onFilterChange={handleArmorFilterChange} />
+              </div>
+              {/* dropzone for characters */}
+              <div className="flex flex-row gap-1">
+                {characterData &&
+                  Object.keys(characterData).map((characterId) => {
+                    const character = characterData[characterId];
+                    return (
+                      <CharacterSm
+                        key={characterId}
+                        characterId={characterId}
+                        classType={character.classType}
+                        raceType={character.raceType}
+                        light={character.light}
+                        emblemPath={character.emblemPath}
+                        emblemBackgroundPath={character.emblemBackgroundPath}
+                        emblemHash={character.emblemHash}
+                        stats={character.stats}
+                      />
+                    );
+                  })}
+              {/* dropzone for the vault */}
+                <VaultCard noOfItems={0} />
+              </div>
             </div>
-            <WeaponFilters onFilterChange={handleWeaponFilterChange} />
-            <ArmorFilters onFilterChange={handleArmorFilterChange} />
-            
+            <CharacterInventory filteredItems={filteredCharacterInventories} />
+            <ProfileInventory filteredItems={filteredProfileInventory} />
           </div>
-          <CharacterDropzone />
-          </div>
-          <CharacterInventory filteredItems={filteredCharacterInventories} />
-          <ProfileInventory filteredItems={filteredProfileInventory} />
-        </div>
-          </ScrollArea>
+        </ScrollArea>
         <DrawerFooter>
           <DrawerClose asChild>
             <Button variant="outline">Close</Button>
           </DrawerClose>
         </DrawerFooter>
-        
       </DrawerContent>
     </Drawer>
   );
