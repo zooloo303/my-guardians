@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/drawer";
 
 const InventorySearch: React.FC = () => {
+  const [isHighlighted, setIsHighlighted] = useState(null);
   const { membershipId } = useAuthContext();
   const { data: profileData, isLoading } = useProfileData(membershipId);
   const { data: manifestData } = useManifestData();
@@ -139,6 +140,15 @@ const InventorySearch: React.FC = () => {
 
   const filteredProfileInventory = filterItems(profileInventoryData);
 
+  const handleDrop = (event: any) => {
+    event.preventDefault();
+    const itemData = event.dataTransfer.getData('application/json');
+    if (itemData) {
+      const item = JSON.parse(itemData);
+      console.log('Dropped item:', item);
+    }
+  };
+
   return (
     <Drawer>
       <DrawerTrigger asChild>
@@ -167,10 +177,11 @@ const InventorySearch: React.FC = () => {
                 <ArmorFilters onFilterChange={handleArmorFilterChange} />
               </div>
               {/* dropzone for characters */}
-              <div className="flex flex-row gap-1">
+              <div className="flex flex-row gap-1"  onDrop={handleDrop}>
                 {characterData &&
                   Object.keys(characterData).map((characterId) => {
                     const character = characterData[characterId];
+                    
                     return (
                       <CharacterSm
                         key={characterId}

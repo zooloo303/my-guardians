@@ -30,15 +30,15 @@ const Item: React.FC<ItemProps> = ({ itemHash, itemInstanceId, characterId }) =>
     }
   };
 
-  const handleDragStart = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+  const handleDragStart = (event: any) => {
     isDragging.current = true;
     const itemData = {
       itemHash,
       itemInstanceId,
-      characterId, // Include characterId in the drag data
+      characterId,
     };
     if (event.currentTarget instanceof HTMLElement) {
-      event.currentTarget.setAttribute("data-item", JSON.stringify(itemData));
+      event.dataTransfer.setData('application/json', JSON.stringify(itemData));
     }
     console.log("drag start", itemData);
   };
@@ -111,7 +111,7 @@ const Item: React.FC<ItemProps> = ({ itemHash, itemInstanceId, characterId }) =>
             dragElastic={1}
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
-            className="cursor-grab active:cursor-grabbing"
+            className="item cursor-grab active:cursor-grabbing"
           >
             <motion.div
               ref={itemRef}
