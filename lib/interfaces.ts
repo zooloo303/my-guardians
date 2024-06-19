@@ -277,3 +277,7 @@ export interface InventoryItem {
 export interface VaultProps {
   noOfItems: number;
 }
+export interface CharacterInventoryProps {
+  filteredItems: { [characterId: string]: { items: InventoryItem[] } };
+}
+

@@ -1,10 +1,9 @@
+// InventorySearch.tsx
 "use client";
 import { useState } from "react";
 import { Search } from "lucide-react";
 import { Button } from "../ui/button";
-import VaultCard from "../Vault/vaultCard";
 import { Input } from "@/components/ui/input";
-import CharacterSm from "../Character/characterSm";
 import { SkeletonGuy } from "@/components/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ArmorFilters from "@/components/Item/ArmorFilters";
@@ -15,6 +14,7 @@ import { ProfileData, InventoryItem } from "@/lib/interfaces";
 import { useAuthContext } from "@/components/Auth/AuthContext";
 import ProfileInventory from "@/components/Item/ProfileInventory";
 import CharacterInventory from "@/components/Item/CharacterInventory";
+import ItemDropzone from "@/components/Item/itemDropzones";
 import {
   classes,
   unwantedBucketHash,
@@ -33,16 +33,13 @@ import {
 } from "@/components/ui/drawer";
 
 const InventorySearch: React.FC = () => {
-  const [isHighlighted, setIsHighlighted] = useState(null);
   const { membershipId } = useAuthContext();
   const { data: profileData, isLoading } = useProfileData(membershipId);
   const { data: manifestData } = useManifestData();
   const [searchQuery, setSearchQuery] = useState("");
   const [weaponFilters, setWeaponFilters] = useState<string[]>([]);
   const [armorFilters, setArmorFilters] = useState<string[]>([]);
-  const [searchType, setSearchType] = useState<"weapons" | "armor" | null>(
-    null
-  );
+  const [searchType, setSearchType] = useState<"weapons" | "armor" | null>(null);
 
   if (isLoading || !manifestData || !profileData) {
     return <SkeletonGuy />;
@@ -50,20 +47,13 @@ const InventorySearch: React.FC = () => {
 
   const data = profileData as unknown as ProfileData | null;
   const characterData = data?.Response.characters.data;
-  const characterInventoriesData =
-    data?.Response.characterInventories.data || {};
+  const characterInventoriesData = data?.Response.characterInventories.data || {};
   const profileInventoryData = data?.Response.profileInventory.data.items || [];
 
   const sortItems = (items: InventoryItem[]): InventoryItem[] => {
     return items
-      .filter(
-        (item) =>
-          !unwantedBucketHash.includes(item.bucketHash) && item.itemInstanceId
-      ) // Filter out items without itemInstanceId
-      .sort(
-        (a, b) =>
-          itemOrder.indexOf(a.bucketHash) - itemOrder.indexOf(b.bucketHash)
-      );
+      .filter((item) => !unwantedBucketHash.includes(item.bucketHash) && item.itemInstanceId) // Filter out items without itemInstanceId
+      .sort((a, b) => itemOrder.indexOf(a.bucketHash) - itemOrder.indexOf(b.bucketHash));
   };
 
   const filterItems = (items: InventoryItem[]): InventoryItem[] => {
@@ -73,8 +63,7 @@ const InventorySearch: React.FC = () => {
 
     if (searchQuery) {
       return sortedItems.filter((item) => {
-        const itemData =
-          manifestData.DestinyInventoryItemDefinition[item.itemHash];
+        const itemData = manifestData.DestinyInventoryItemDefinition[item.itemHash];
         return itemData.displayProperties.name
           .toLowerCase()
           .includes(searchQuery.toLowerCase());
@@ -86,8 +75,7 @@ const InventorySearch: React.FC = () => {
     }
 
     return sortedItems.filter((item) => {
-      const itemData =
-        manifestData.DestinyInventoryItemDefinition[item.itemHash];
+      const itemData = manifestData.DestinyInventoryItemDefinition[item.itemHash];
 
       const matchesWeaponFilters = weaponFilters.every(
         (filter) =>
@@ -125,9 +113,7 @@ const InventorySearch: React.FC = () => {
     setWeaponFilters([]); // Clear weapon filters
   };
 
-  const filteredCharacterInventories = Object.entries(
-    characterInventoriesData
-  ).reduce(
+  const filteredCharacterInventories = Object.entries(characterInventoriesData).reduce(
     (
       acc: { [key: string]: { items: InventoryItem[] } },
       [characterId, characterInventory]
@@ -139,15 +125,6 @@ const InventorySearch: React.FC = () => {
   );
 
   const filteredProfileInventory = filterItems(profileInventoryData);
-
-  const handleDrop = (event: any) => {
-    event.preventDefault();
-    const itemData = event.dataTransfer.getData('application/json');
-    if (itemData) {
-      const item = JSON.parse(itemData);
-      console.log('Dropped item:', item);
-    }
-  };
 
   return (
     <Drawer>
@@ -176,29 +153,7 @@ const InventorySearch: React.FC = () => {
                 <WeaponFilters onFilterChange={handleWeaponFilterChange} />
                 <ArmorFilters onFilterChange={handleArmorFilterChange} />
               </div>
-              {/* dropzone for characters */}
-              <div className="flex flex-row gap-1"  onDrop={handleDrop}>
-                {characterData &&
-                  Object.keys(characterData).map((characterId) => {
-                    const character = characterData[characterId];
-                    
-                    return (
-                      <CharacterSm
-                        key={characterId}
-                        characterId={characterId}
-                        classType={character.classType}
-                        raceType={character.raceType}
-                        light={character.light}
-                        emblemPath={character.emblemPath}
-                        emblemBackgroundPath={character.emblemBackgroundPath}
-                        emblemHash={character.emblemHash}
-                        stats={character.stats}
-                      />
-                    );
-                  })}
-              {/* dropzone for the vault */}
-                <VaultCard noOfItems={0} />
-              </div>
+              <ItemDropzone />
             </div>
             <CharacterInventory filteredItems={filteredCharacterInventories} />
             <ProfileInventory filteredItems={filteredProfileInventory} />

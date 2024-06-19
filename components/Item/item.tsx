@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
-import { motion, PanInfo } from "framer-motion";
+import { motion } from "framer-motion";
 import Stats from "@/components/Item/stats";
 import { SkeletonGuy } from "@/components/skeleton";
 import { defaultDamageType } from "@/lib/destinyEnums";
@@ -106,12 +106,12 @@ const Item: React.FC<ItemProps> = ({ itemHash, itemInstanceId, characterId }) =>
       <Tooltip>
         <TooltipTrigger asChild>
           <motion.div
-            drag
-            dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
-            dragElastic={1}
-            onDragStart={handleDragStart}
-            onDragEnd={handleDragEnd}
-            className="item cursor-grab active:cursor-grabbing"
+            // drag
+            // dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
+            // dragElastic={1}
+            // onDragStart={handleDragStart}
+            // onDragEnd={handleDragEnd}
+            // className="item cursor-grab active:cursor-grabbing"
           >
             <motion.div
               ref={itemRef}
