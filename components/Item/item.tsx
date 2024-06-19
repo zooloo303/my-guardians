@@ -15,14 +15,20 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-const Item: React.FC<ItemProps> = ({ itemHash, itemInstanceId, characterId }) => {
+interface ItemComponentProps extends ItemProps {
+  alwaysExpanded?: boolean;
+}
+
+const Item: React.FC<ItemComponentProps> = ({
+  itemHash,
+  itemInstanceId,
+  alwaysExpanded = false,
+}) => {
   const { membershipId } = useAuthContext();
   const { data: manifestData } = useManifestData();
   const { data: profileData } = useProfileData(membershipId);
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [expandLeft, setExpandLeft] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(alwaysExpanded);
   const itemRef = useRef<HTMLDivElement>(null);
-  const isDragging = useRef(false);
 
   const handleClickOutside = (event: MouseEvent) => {
     if (itemRef.current && !itemRef.current.contains(event.target as Node)) {
@@ -30,32 +36,14 @@ const Item: React.FC<ItemProps> = ({ itemHash, itemInstanceId, characterId }) =>
     }
   };
 
-  const handleDragStart = (event: any) => {
-    isDragging.current = true;
-    const itemData = {
-      itemHash,
-      itemInstanceId,
-      characterId,
-    };
-    if (event.currentTarget instanceof HTMLElement) {
-      event.dataTransfer.setData('application/json', JSON.stringify(itemData));
-    }
-    console.log("drag start", itemData);
-  };
-
-  const handleDragEnd = () => {
-    isDragging.current = false;
-    console.log("drag end");
-  };
-
   const toggleExpand = () => {
-    if (!isDragging.current) {
+    if (!alwaysExpanded) {
       setIsExpanded(!isExpanded);
     }
   };
 
   useEffect(() => {
-    if (isExpanded) {
+    if (isExpanded && !alwaysExpanded) {
       document.addEventListener("click", handleClickOutside);
     } else {
       document.removeEventListener("click", handleClickOutside);
@@ -63,20 +51,7 @@ const Item: React.FC<ItemProps> = ({ itemHash, itemInstanceId, characterId }) =>
     return () => {
       document.removeEventListener("click", handleClickOutside);
     };
-  }, [isExpanded]);
-
-  useEffect(() => {
-    if (itemRef.current) {
-      const rect = itemRef.current.getBoundingClientRect();
-      const screenWidth = window.innerWidth;
-      if (rect.right + 256 > screenWidth) {
-        // 256 is the width of the expanded item
-        setExpandLeft(true);
-      } else {
-        setExpandLeft(false);
-      }
-    }
-  }, [isExpanded]);
+  }, [isExpanded, alwaysExpanded]);
 
   if (!manifestData || !profileData) {
     return <SkeletonGuy />;
@@ -105,14 +80,7 @@ const Item: React.FC<ItemProps> = ({ itemHash, itemInstanceId, characterId }) =>
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <motion.div
-            // drag
-            // dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
-            // dragElastic={1}
-            // onDragStart={handleDragStart}
-            // onDragEnd={handleDragEnd}
-            // className="item cursor-grab active:cursor-grabbing"
-          >
+          <motion.div>
             <motion.div
               ref={itemRef}
               transition={{ layout: { duration: 0.5, type: "spring" } }}
@@ -132,11 +100,6 @@ const Item: React.FC<ItemProps> = ({ itemHash, itemInstanceId, characterId }) =>
                 backgroundSize: "cover",
                 backgroundPosition: "top",
                 position: "relative",
-                left: isExpanded
-                  ? expandLeft
-                    ? `calc(-64px - 8rem)`
-                    : "0"
-                  : "0",
               }}
             >
               <motion.div

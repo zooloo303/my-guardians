@@ -1,10 +1,10 @@
-// InventorySearch.tsx
 "use client";
 import { useState } from "react";
 import { Search } from "lucide-react";
 import { Button } from "../ui/button";
 import { Input } from "@/components/ui/input";
 import { SkeletonGuy } from "@/components/skeleton";
+import CharacterList from "../Character/characterList";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ArmorFilters from "@/components/Item/ArmorFilters";
 import { useManifestData } from "@/app/hooks/useManifest";
@@ -12,9 +12,9 @@ import { useProfileData } from "@/app/hooks/useProfileData";
 import WeaponFilters from "@/components/Item/WeaponFilters";
 import { ProfileData, InventoryItem } from "@/lib/interfaces";
 import { useAuthContext } from "@/components/Auth/AuthContext";
-import ProfileInventory from "@/components/Item/ProfileInventory";
-import CharacterInventory from "@/components/Item/CharacterInventory";
-import ItemDropzone from "@/components/Item/itemDropzones";
+import ProfileInventory from "@/components/Item/profileInventory";
+import CharacterInventory from "@/components/Item/characterInventory";
+import CharacterEquipment from "@/components/Item/characterEquipment";
 import {
   classes,
   unwantedBucketHash,
@@ -22,15 +22,15 @@ import {
   damageType,
 } from "@/lib/destinyEnums";
 import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 const InventorySearch: React.FC = () => {
   const { membershipId } = useAuthContext();
@@ -39,21 +39,29 @@ const InventorySearch: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [weaponFilters, setWeaponFilters] = useState<string[]>([]);
   const [armorFilters, setArmorFilters] = useState<string[]>([]);
-  const [searchType, setSearchType] = useState<"weapons" | "armor" | null>(null);
+  const [searchType, setSearchType] = useState<"weapons" | "armor" | null>(
+    null
+  );
 
   if (isLoading || !manifestData || !profileData) {
     return <SkeletonGuy />;
   }
 
   const data = profileData as unknown as ProfileData | null;
-  const characterData = data?.Response.characters.data;
-  const characterInventoriesData = data?.Response.characterInventories.data || {};
+  const characterInventoriesData =
+    data?.Response.characterInventories.data || {};
   const profileInventoryData = data?.Response.profileInventory.data.items || [];
 
   const sortItems = (items: InventoryItem[]): InventoryItem[] => {
     return items
-      .filter((item) => !unwantedBucketHash.includes(item.bucketHash) && item.itemInstanceId) // Filter out items without itemInstanceId
-      .sort((a, b) => itemOrder.indexOf(a.bucketHash) - itemOrder.indexOf(b.bucketHash));
+      .filter(
+        (item) =>
+          !unwantedBucketHash.includes(item.bucketHash) && item.itemInstanceId
+      ) // Filter out items without itemInstanceId
+      .sort(
+        (a, b) =>
+          itemOrder.indexOf(a.bucketHash) - itemOrder.indexOf(b.bucketHash)
+      );
   };
 
   const filterItems = (items: InventoryItem[]): InventoryItem[] => {
@@ -63,7 +71,8 @@ const InventorySearch: React.FC = () => {
 
     if (searchQuery) {
       return sortedItems.filter((item) => {
-        const itemData = manifestData.DestinyInventoryItemDefinition[item.itemHash];
+        const itemData =
+          manifestData.DestinyInventoryItemDefinition[item.itemHash];
         return itemData.displayProperties.name
           .toLowerCase()
           .includes(searchQuery.toLowerCase());
@@ -75,7 +84,8 @@ const InventorySearch: React.FC = () => {
     }
 
     return sortedItems.filter((item) => {
-      const itemData = manifestData.DestinyInventoryItemDefinition[item.itemHash];
+      const itemData =
+        manifestData.DestinyInventoryItemDefinition[item.itemHash];
 
       const matchesWeaponFilters = weaponFilters.every(
         (filter) =>
@@ -113,7 +123,9 @@ const InventorySearch: React.FC = () => {
     setWeaponFilters([]); // Clear weapon filters
   };
 
-  const filteredCharacterInventories = Object.entries(characterInventoriesData).reduce(
+  const filteredCharacterInventories = Object.entries(
+    characterInventoriesData
+  ).reduce(
     (
       acc: { [key: string]: { items: InventoryItem[] } },
       [characterId, characterInventory]
@@ -127,45 +139,44 @@ const InventorySearch: React.FC = () => {
   const filteredProfileInventory = filterItems(profileInventoryData);
 
   return (
-    <Drawer>
-      <DrawerTrigger asChild>
+    <Dialog>
+      <DialogTrigger asChild>
         <Button variant="outline">My Precious</Button>
-      </DrawerTrigger>
-      <DrawerContent className="h-screen top-0 mt-0">
-        <ScrollArea className="h-screen">
-          <div className="mx-auto w-full p-5">
-            <DrawerHeader>
-              <DrawerTitle>Search Inventory</DrawerTitle>
-              <DrawerDescription>Drag to move</DrawerDescription>
-            </DrawerHeader>
-            <div className="flex flex-row p-4 items-center">
-              <div className="flex flex-col mb-2 justify-center">
-                <div className="relative mx-auto flex-1 md:grow-0 pb-2">
-                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    type="text"
-                    placeholder="Search items..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full rounded-lg bg-background pl-8 md:w-[300px] lg:w-[500px]"
-                  />
-                </div>
-                <WeaponFilters onFilterChange={handleWeaponFilterChange} />
-                <ArmorFilters onFilterChange={handleArmorFilterChange} />
+      </DialogTrigger>
+      <DialogContent className="max-w-[90vw] max-h-[80vh] overflow-y-auto">
+        <ScrollArea className="h-full">
+          <DialogHeader>
+            <DialogTitle>Search Inventory</DialogTitle>
+            <DialogDescription>Drag to move</DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-row p-4 items-center justify-center">
+            <div className="flex flex-col mb-2 justify-center">
+              <div className="relative mx-auto flex-1 md:grow-0 pb-2">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="text"
+                  placeholder="Search items..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full rounded-lg bg-background pl-8 md:w-[300px] lg:w-[500px]"
+                />
               </div>
-              <ItemDropzone />
+              <WeaponFilters onFilterChange={handleWeaponFilterChange} />
+              <ArmorFilters onFilterChange={handleArmorFilterChange} />
             </div>
-            <CharacterInventory filteredItems={filteredCharacterInventories} />
-            <ProfileInventory filteredItems={filteredProfileInventory} />
           </div>
+          <CharacterList />
+          <CharacterEquipment showSubclass={false} />
+          <CharacterInventory filteredItems={filteredCharacterInventories} />
+          <ProfileInventory filteredItems={filteredProfileInventory} />
         </ScrollArea>
-        <DrawerFooter>
-          <DrawerClose asChild>
+        <DialogFooter>
+          <DialogClose asChild>
             <Button variant="outline">Close</Button>
-          </DrawerClose>
-        </DrawerFooter>
-      </DrawerContent>
-    </Drawer>
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };
 

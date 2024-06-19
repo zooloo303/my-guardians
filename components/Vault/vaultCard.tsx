@@ -2,9 +2,13 @@ import { VaultProps } from "@/lib/interfaces";
 import { SkeletonGuy } from "@/components/skeleton";
 import { useProfileData } from "@/app/hooks/useProfileData";
 import { useAuthContext } from "@/components/Auth/AuthContext";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const VaultCard: React.FC<VaultProps> = ({}) => {
   const { membershipId } = useAuthContext();
@@ -15,18 +19,19 @@ const VaultCard: React.FC<VaultProps> = ({}) => {
   }
 
   return (
-    <Card                 
-        className="w-36 h-36">
-      <CardHeader>
-      <Avatar>
-      <AvatarImage src={'/vault.svg'}
-                   alt={"vault"} />
-      <AvatarFallback>CN</AvatarFallback>
-    </Avatar>
-    <CardTitle>Vault</CardTitle>
-    <CardDescription>.../700</CardDescription>
-      </CardHeader>
-    </Card>
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className="w-20 h-20 border rounded-xl flex items-center justify-center">
+            <Avatar>
+              <AvatarImage src={"/vault.svg"} alt={"vault"} />
+              <AvatarFallback>CN</AvatarFallback>
+            </Avatar>
+          </div>
+        </TooltipTrigger>
+        <TooltipContent>Vault</TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 };
 

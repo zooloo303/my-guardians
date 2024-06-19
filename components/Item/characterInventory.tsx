@@ -14,17 +14,20 @@ const CharacterInventory: React.FC<CharacterInventoryProps> = ({
       armorBucketHash.includes(bucketHash)
     );
   };
-  
+
   const hasItems = Object.values(filteredItems).some((characterInventory) =>
     characterInventory.items.some((item) => isWeaponOrArmor(item.bucketHash))
   );
 
   const handleDragStart = (e: any, item: any) => {
-    console.log('Dragging item:', item);
-    e.dataTransfer.setData('application/json', JSON.stringify(item));
-    e.dataTransfer.effectAllowed = 'move';
+    console.log("Dragging item:", item);
+    e.dataTransfer.setData("application/json", JSON.stringify(item));
+    e.dataTransfer.effectAllowed = "move";
   };
-
+  const handleDragOver = (event: React.DragEvent) => {
+    event.preventDefault(); // Allow drop
+    console.log("Drag over characterInventory");
+  };
   const handleDragEnd = () => {
     console.log("drag end");
   };
@@ -36,11 +39,11 @@ const CharacterInventory: React.FC<CharacterInventoryProps> = ({
           Character Inventory
         </Label>
       )}
-      <div className="flex flex-row justify-between pr-2 pl-2 gap-1">
+      <div onDragOver={handleDragOver} className="flex flex-row gap-1">
         {Object.entries(filteredItems).map(
           ([characterId, characterInventory]) => (
             <div key={characterId} className="w-1/3 p-2 border rounded-xl">
-              <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-5">
+              <div className="flex flex-grid flex-wrap items-center justify-center grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1">
                 {characterInventory.items
                   .filter((item) => isWeaponOrArmor(item.bucketHash))
                   .map((item) => (
