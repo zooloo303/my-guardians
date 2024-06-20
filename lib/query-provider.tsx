@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from "react";
 import { ThemeProvider } from "@/lib/theme-provider";
 import { AuthProvider } from "@/components/Auth/AuthContext";
@@ -12,7 +11,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
         defaultOptions: {
           queries: {
             staleTime: 4 * 1000,
-            refetchInterval: 4 * 1000,
+            refetchInterval: 60 * 1000,
           },
         },
       })

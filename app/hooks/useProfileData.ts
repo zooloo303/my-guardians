@@ -12,7 +12,8 @@ export const useProfileData = (membershipId: string | null) => {
       return fetchedProfile;
     },
     enabled: !!membershipId,
-    staleTime: 1000 * 60, // 1 minute
-    refetchInterval: 1000 * 60, // 1 minute
+    staleTime: 0,
+    gcTime: 3 * 1000,
+    refetchInterval: 60 * 1000,
   });
 };

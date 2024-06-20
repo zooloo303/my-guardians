@@ -4,11 +4,14 @@ import Item from "@/components/Item/item";
 import { Label } from "@/components/ui/label";
 import { ProfileData } from "@/lib/interfaces";
 import { SkeletonGuy } from "@/components/skeleton";
+import { useQueryClient } from "@tanstack/react-query";
+import { EquipData, TransferData } from "@/lib/interfaces";
 import { useProfileData } from "@/app/hooks/useProfileData";
+import { equipItem, transferItem } from "@/lib/transferUtils";
 import { useAuthContext } from "@/components/Auth/AuthContext";
-import { armorBucketHash, weaponBucketHash } from "@/lib/destinyEnums";
 import CharacterSubclass from "../Character/characterSubclass";
-import { EquipData } from "@/lib/interfaces";
+import { armorBucketHash, weaponBucketHash } from "@/lib/destinyEnums";
+import { useToast } from "@/app/hooks/use-toast"; // Import the useToast hook
 
 interface CharacterEquipmentProps {
   showSubclass: boolean;
@@ -17,8 +20,10 @@ interface CharacterEquipmentProps {
 const CharacterEquipment: React.FC<CharacterEquipmentProps> = ({
   showSubclass,
 }) => {
+  const queryClient = useQueryClient();
   const { membershipId } = useAuthContext();
   const { data: profileData, isLoading } = useProfileData(membershipId);
+  const { toast } = useToast(); // Get the toast function from useToast
 
   if (isLoading) {
     return <SkeletonGuy />;
@@ -42,25 +47,77 @@ const CharacterEquipment: React.FC<CharacterEquipmentProps> = ({
     console.log("Drag over characterEquipment");
   };
 
-  const handleDragEnd = () => {
-    console.log("Drag end");
-  };
-
   const handleDrop = async (characterId: string, event: React.DragEvent) => {
     event.preventDefault();
     const itemData = event.dataTransfer.getData("application/json");
     if (itemData) {
       const item = JSON.parse(itemData);
-      console.log(`Equipping item ${item.itemInstanceId} to character ${characterId}`);
-      
-      const equipData: EquipData = {
-        username: membershipId,
-        itemId: item.itemInstanceId,
-        characterId,
-        membershipType: data?.Response.profile.data.userInfo.membershipType || 0,
-      };
+      const itemName = item.itemName; // Assuming item has a name property
+      const characterClassRace = `${characterId}`; // Adjust this based on your data structure
+      console.log(
+        `Equipping item ${item.itemInstanceId} to character ${characterId}`
+      );
+      const membershipType: number =
+        profileData?.Response.profile.data.userInfo.membershipType;
 
-      // Call your equip API with equipData
+      // Show toast message when action starts
+      toast({
+        title: "Transfer started ",
+        description: "uh-huh, transferring items...",
+      });
+
+      try {
+        // Step 1: Transfer to vault if the item is not already in the vault
+        if (item.characterId && item.characterId !== characterId) {
+          const transferToVault: TransferData = {
+            username: membershipId,
+            itemReferenceHash: item.itemHash,
+            stackSize: 1,
+            transferToVault: true,
+            itemId: item.itemInstanceId,
+            characterId: item.characterId,
+            membershipType: membershipType,
+          };
+          await transferItem(transferToVault);
+          console.log(`Item ${item.itemInstanceId} transferred to vault`);
+        }
+
+        // Step 2: Transfer to target character
+        const transferToCharacter: TransferData = {
+          username: membershipId,
+          itemReferenceHash: item.itemHash,
+          stackSize: 1,
+          transferToVault: false,
+          itemId: item.itemInstanceId,
+          characterId: characterId,
+          membershipType: membershipType,
+        };
+        await transferItem(transferToCharacter);
+        console.log(
+          `Item ${item.itemInstanceId} transferred to character ${characterId}`
+        );
+
+        // Step 3: Equip the item
+        const equipData: EquipData = {
+          username: membershipId,
+          itemId: item.itemInstanceId,
+          characterId,
+          membershipType: membershipType,
+        };
+        console.log("Equip data:", equipData);
+        await equipItem(equipData);
+        console.log(`Item ${item.itemInstanceId} equipped`);
+
+        // Update toast message when action completes
+
+        // Invalidate and refetch the query to update the UI
+        await queryClient.invalidateQueries({
+          queryKey: ["profileData", membershipId],
+        });
+      } catch (error) {
+        console.error("Equip on Character failed:", error);
+        // Update toast message if action fails
+      }
     }
   };
 
@@ -89,7 +146,6 @@ const CharacterEquipment: React.FC<CharacterEquipmentProps> = ({
                       key={`${characterId}-${item.itemInstanceId}`}
                       draggable
                       onDragStart={(e) => handleDragStart(e, item)}
-                      onDragEnd={handleDragEnd}
                       className="item cursor-grab active:cursor-grabbing"
                     >
                       <Item
@@ -108,7 +164,6 @@ const CharacterEquipment: React.FC<CharacterEquipmentProps> = ({
                       key={`${characterId}-${item.itemInstanceId}`}
                       draggable
                       onDragStart={(e) => handleDragStart(e, item)}
-                      onDragEnd={handleDragEnd}
                       className="item cursor-grab active:cursor-grabbing"
                     >
                       <Item

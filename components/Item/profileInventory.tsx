@@ -2,8 +2,11 @@
 import { motion } from "framer-motion";
 import Item from "@/components/Item/item";
 import { Label } from "@/components/ui/label";
-import { InventoryItem, TransferData } from "@/lib/interfaces";
+import { transferItem } from "@/lib/transferUtils";
+import { useQueryClient } from "@tanstack/react-query";
+import { useProfileData } from "@/app/hooks/useProfileData";
 import { useAuthContext } from "@/components/Auth/AuthContext";
+import { InventoryItem, TransferData } from "@/lib/interfaces";
 
 interface ProfileInventoryProps {
   filteredItems: InventoryItem[];
@@ -12,10 +15,11 @@ interface ProfileInventoryProps {
 const ProfileInventory: React.FC<ProfileInventoryProps> = ({
   filteredItems,
 }) => {
+  const queryClient = useQueryClient();
   const { membershipId } = useAuthContext();
+  const { data: profileData, isLoading } = useProfileData(membershipId);
 
   const handleDragStart = (e: any, item: any) => {
-    console.log("Dragging item:", item);
     e.dataTransfer.setData("application/json", JSON.stringify(item));
     e.dataTransfer.effectAllowed = "move";
   };
@@ -25,28 +29,31 @@ const ProfileInventory: React.FC<ProfileInventoryProps> = ({
     console.log("Drag over profileInventory");
   };
 
-  const handleDragEnd = () => {
-    console.log("Drag end");
-  };
-
   const handleDrop = async (event: React.DragEvent) => {
     event.preventDefault();
     const itemData = event.dataTransfer.getData("application/json");
     if (itemData && membershipId) {
-      const item = JSON.parse(itemData) as InventoryItem;
-      console.log(`Dropped item ${item.itemInstanceId} to the vault`);
-
+      const item = JSON.parse(itemData);
+      const membershipType: number =
+        profileData?.Response.profile.data.userInfo.membershipType;
       const transferData: TransferData = {
         username: membershipId,
         itemReferenceHash: item.itemHash,
         stackSize: 1,
         transferToVault: true,
         itemId: item.itemInstanceId,
-        characterId: "", // Not needed for vault transfer
-        membershipType: 1, // Replace with actual membershipType
+        characterId: item.characterId,
+        membershipType: membershipType,
       };
-
-      // Call your transfer API with transferData
+      try {
+        await transferItem(transferData);
+        console.log(`Item ${item.itemInstanceId} transferred to the vault`);
+        await queryClient.invalidateQueries({
+          queryKey: ["profileData", membershipId],
+        });
+      } catch (error) {
+        console.error("Transfer to vault failed:", error);
+      }
     }
   };
 
@@ -63,7 +70,6 @@ const ProfileInventory: React.FC<ProfileInventoryProps> = ({
             key={item.itemInstanceId}
             draggable
             onDragStart={(e) => handleDragStart(e, item)}
-            onDragEnd={handleDragEnd}
             className="item cursor-grab active:cursor-grabbing"
           >
             <Item

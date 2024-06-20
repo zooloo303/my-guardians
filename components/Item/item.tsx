@@ -1,11 +1,11 @@
-import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import Stats from "@/components/Item/stats";
 import { SkeletonGuy } from "@/components/skeleton";
+import { ItemProps, Socket } from "@/lib/interfaces";
 import { defaultDamageType } from "@/lib/destinyEnums";
 import { useManifestData } from "@/app/hooks/useManifest";
-import { ItemProps, Socket } from "@/lib/interfaces";
+import React, { useState, useRef, useEffect } from "react";
 import { useProfileData } from "@/app/hooks/useProfileData";
 import { useAuthContext } from "@/components/Auth/AuthContext";
 import {
