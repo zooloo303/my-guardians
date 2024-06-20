@@ -146,13 +146,8 @@ const InventorySearch: React.FC = () => {
       <DialogContent className="max-w-[90vw] max-h-[80vh] overflow-y-auto">
         <ScrollArea className="h-full">
           <DialogHeader>
-            <DialogTitle>Search Inventory</DialogTitle>
-            <DialogDescription>Drag to move</DialogDescription>
-          </DialogHeader>
-          <div className="flex flex-row p-4 items-center justify-center">
-            <div className="flex flex-col mb-2 justify-center">
-              <div className="relative mx-auto flex-1 md:grow-0 pb-2">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <div className="p-4">
+                <Search className="absolute left-6 top-7 h-4 w-4 text-muted-foreground" />
                 <Input
                   type="text"
                   placeholder="Search items..."
@@ -161,10 +156,14 @@ const InventorySearch: React.FC = () => {
                   className="w-full rounded-lg bg-background pl-8 md:w-[300px] lg:w-[500px]"
                 />
               </div>
+          </DialogHeader>
+          <div className="flex flex-row p-4 items-center justify-between">
+            {/* <div className="flex flex-col mb-2 justify-center"> */}
+              
               <WeaponFilters onFilterChange={handleWeaponFilterChange} />
               <ArmorFilters onFilterChange={handleArmorFilterChange} />
             </div>
-          </div>
+          {/* </div> */}
           <CharacterList />
           <CharacterEquipment showSubclass={false} />
           <CharacterInventory filteredItems={filteredCharacterInventories} />

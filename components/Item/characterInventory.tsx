@@ -1,13 +1,15 @@
-// CharacterInventory.tsx
 import { motion } from "framer-motion";
 import Item from "@/components/Item/item";
 import { Label } from "@/components/ui/label";
-import { CharacterInventoryProps } from "@/lib/interfaces";
+import { CharacterInventoryProps, InventoryItem, TransferData } from "@/lib/interfaces";
 import { armorBucketHash, weaponBucketHash } from "@/lib/destinyEnums";
+import { useAuthContext } from "@/components/Auth/AuthContext";
 
 const CharacterInventory: React.FC<CharacterInventoryProps> = ({
   filteredItems,
 }) => {
+  const { membershipId } = useAuthContext();
+
   const isWeaponOrArmor = (bucketHash: number) => {
     return (
       weaponBucketHash.includes(bucketHash) ||
@@ -24,12 +26,35 @@ const CharacterInventory: React.FC<CharacterInventoryProps> = ({
     e.dataTransfer.setData("application/json", JSON.stringify(item));
     e.dataTransfer.effectAllowed = "move";
   };
-  const handleDragOver = (event: React.DragEvent) => {
-    event.preventDefault(); // Allow drop
-    console.log("Drag over characterInventory");
-  };
+
   const handleDragEnd = () => {
     console.log("drag end");
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault(); // Allow drop
+    console.log("Drag over characterInventory");
+  };
+
+  const handleDrop = async (characterId: string, event: React.DragEvent) => {
+    event.preventDefault();
+    const itemData = event.dataTransfer.getData("application/json");
+    if (itemData && membershipId) {
+      const item = JSON.parse(itemData) as InventoryItem;
+      console.log(`Dropped item ${item.itemInstanceId} on character ${characterId}`);
+      
+      const transferData: TransferData = {
+        username: membershipId,
+        itemReferenceHash: item.itemHash,
+        stackSize: 1,
+        transferToVault: false,
+        itemId: item.itemInstanceId,
+        characterId,
+        membershipType: 1, // Replace with actual membershipType
+      };
+
+      // Call your transfer API with transferData
+    }
   };
 
   return (
@@ -39,10 +64,13 @@ const CharacterInventory: React.FC<CharacterInventoryProps> = ({
           Character Inventory
         </Label>
       )}
-      <div onDragOver={handleDragOver} className="flex flex-row gap-1">
+      <div onDragOver={handleDragOver} 
+           className="flex flex-row gap-1">
         {Object.entries(filteredItems).map(
           ([characterId, characterInventory]) => (
-            <div key={characterId} className="w-1/3 p-2 border rounded-xl">
+            <div key={characterId}
+                 className="w-1/3 p-2 border rounded-xl"
+                 onDrop={(e) => handleDrop(characterId, e)}>
               <div className="flex flex-grid flex-wrap items-center justify-center grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1">
                 {characterInventory.items
                   .filter((item) => isWeaponOrArmor(item.bucketHash))
