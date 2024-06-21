@@ -3,22 +3,24 @@ import Item from "@/components/Item/item";
 import { Label } from "@/components/ui/label";
 import { transferItem } from "@/lib/transferUtils";
 import { useQueryClient } from "@tanstack/react-query";
+import { useManifestData } from "@/app/hooks/useManifest";
 import { useProfileData } from "@/app/hooks/useProfileData";
 import { useAuthContext } from "@/components/Auth/AuthContext";
-import { armorBucketHash, weaponBucketHash } from "@/lib/destinyEnums";
 import { CharacterInventoryProps, TransferData } from "@/lib/interfaces";
+import { armorBucketHash, weaponBucketHash, classes, races } from "@/lib/destinyEnums";
 
 const CharacterInventory: React.FC<CharacterInventoryProps> = ({
   filteredItems,
 }) => {
+  const SOURCE = "CharacterInventory"
   const queryClient = useQueryClient();
   const { membershipId } = useAuthContext();
+  const { data: manifestData } = useManifestData();
   const { data: profileData } = useProfileData(membershipId);
 
   const isWeaponOrArmor = (bucketHash: number) => {
     return (
-      weaponBucketHash.includes(bucketHash) ||
-      armorBucketHash.includes(bucketHash)
+      weaponBucketHash.includes(bucketHash) || armorBucketHash.includes(bucketHash)
     );
   };
 
@@ -26,24 +28,36 @@ const CharacterInventory: React.FC<CharacterInventoryProps> = ({
     characterInventory.items.some((item) => isWeaponOrArmor(item.bucketHash))
   );
 
-  const handleDragStart = (e: any, item: any, characterId: string) => {
-    const itemWithCharacterId = { ...item, characterId };
-    e.dataTransfer.setData(
-      "application/json",
-      JSON.stringify(itemWithCharacterId)
-    );
+  const getCharacterInfo = (characterId: string) => {
+    const character = profileData?.Response.characters.data?.[characterId];
+    if (character) {
+      return `${classes[character.classType]}, ${races[character.raceType]}`;
+    }
+    return "vault?";
+  };
+
+  const handleDragStart = (e: any, item: any, characterId: string, SOURCE: string) => {
+    const itemWithCharacterId = { ...item, characterId, SOURCE };
+    e.dataTransfer.setData("application/json", JSON.stringify(itemWithCharacterId));
     e.dataTransfer.effectAllowed = "move";
+    
+    if (manifestData && manifestData.DestinyInventoryItemDefinition) {
+      const itemData = manifestData.DestinyInventoryItemDefinition[item.itemHash];
+      if (itemData) {
+        console.log(`Dragging item: ${itemData.displayProperties.name} from ${getCharacterInfo(characterId)}`);
+      } else {
+        console.log(`Dragging item: Unknown item from ${getCharacterInfo(characterId)}`);
+      }
+    } else {
+      console.log(`Dragging item: Unknown item from ${getCharacterInfo(characterId)}`);
+    }
   };
 
   const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault(); // Allow drop
-    console.log("Drag over characterInventory");
+    e.preventDefault();
   };
 
-  const handleDrop = async (
-    targetCharacterId: string,
-    event: React.DragEvent
-  ) => {
+  const handleDrop = async (targetCharacterId: string, event: React.DragEvent) => {
     event.preventDefault();
     const itemData = event.dataTransfer.getData("application/json");
     if (itemData && membershipId) {
@@ -51,32 +65,40 @@ const CharacterInventory: React.FC<CharacterInventoryProps> = ({
       const membershipType: number =
         profileData?.Response.profile.data.userInfo.membershipType;
 
-      const transferToVault: TransferData = {
-        username: membershipId,
-        itemReferenceHash: item.itemHash,
-        stackSize: 1,
-        transferToVault: true,
-        itemId: item.itemInstanceId,
-        characterId: item.characterId,
-        membershipType: membershipType,
-      };
       try {
-        await transferItem(transferToVault);
-        console.log(`Item ${item.itemInstanceId} transferred to vault`);
+        const itemName = manifestData?.DestinyInventoryItemDefinition?.[item.itemHash]?.displayProperties.name || "Unknown item";
 
-        const transferToCharacter: TransferData = {
-          username: membershipId,
-          itemReferenceHash: item.itemHash,
-          stackSize: 1,
-          transferToVault: false,
-          itemId: item.itemInstanceId,
-          characterId: targetCharacterId,
-          membershipType: membershipType,
-        };
-        await transferItem(transferToCharacter);
         console.log(
-          `Item ${item.itemInstanceId} transferred to character ${targetCharacterId}`
+          `Dropping item: ${itemName} from ${getCharacterInfo(item.characterId)} to ${getCharacterInfo(targetCharacterId)}`
         );
+
+        // Transfer between characters
+        if (item.characterId && item.characterId !== targetCharacterId) {
+          const transferToVault: TransferData = {
+            username: membershipId,
+            itemReferenceHash: item.itemHash,
+            stackSize: 1,
+            transferToVault: true,
+            itemId: item.itemInstanceId,
+            characterId: item.characterId,
+            membershipType: membershipType,
+          };
+          await transferItem(transferToVault);
+          console.log(`Transferred ${itemName} to vault`);
+
+          const transferToCharacter: TransferData = {
+            username: membershipId,
+            itemReferenceHash: item.itemHash,
+            stackSize: 1,
+            transferToVault: false,
+            itemId: item.itemInstanceId,
+            characterId: targetCharacterId,
+            membershipType: membershipType,
+          };
+          await transferItem(transferToCharacter);
+          console.log(`Transferred ${itemName} to ${getCharacterInfo(targetCharacterId)}`);
+        }
+
         await queryClient.invalidateQueries({
           queryKey: ["profileData", membershipId],
         });
@@ -108,7 +130,7 @@ const CharacterInventory: React.FC<CharacterInventoryProps> = ({
                     <motion.div
                       key={`${characterId}-${item.itemInstanceId}`}
                       draggable
-                      onDragStart={(e) => handleDragStart(e, item, characterId)}
+                      onDragStart={(e) => handleDragStart(e, item, characterId, SOURCE)}
                       className="item cursor-grab active:cursor-grabbing"
                     >
                       <Item

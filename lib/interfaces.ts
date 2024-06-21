@@ -6,11 +6,9 @@ export interface AuthContextProps {
     displayName: string | null
   ) => void;
 }
-
 export interface ManifestData {
   [key: string]: any;
 }
-
 export interface ProfileData {
   Response: {
     profileInventory: {
@@ -82,7 +80,6 @@ export interface ProfileData {
     };
   };
 }
-
 export interface CharacterType {
   characterId: string;
   classType: number;
@@ -106,13 +103,11 @@ export interface TitleInfo {
   };
   hasTitle: boolean;
 }
-
 export interface GuardianRankData {
   currentGuardianRank?: GuardianRankDefinition;
   lifetimeHighestGuardianRank?: GuardianRankDefinition;
   renewedGuardianRank?: GuardianRankDefinition;
 }
-
 export interface GuardianRankDefinition {
   rankNumber: number;
   displayProperties: {
@@ -120,7 +115,6 @@ export interface GuardianRankDefinition {
     icon: string;
   };
 }
-
 export interface ItemDefinition {
   hash: number;
   itemInstanceId?: string;
@@ -141,7 +135,6 @@ export interface ItemDefinition {
   };
   [key: string]: any;
 }
-
 export interface DamageTypeDefinition {
   hash: number;
   displayProperties: {
@@ -157,7 +150,6 @@ export interface StatDefinition {
     icon: string;
   };
 }
-
 export interface DestinyInventoryBucketDefinition {
   hash: number;
   displayProperties: {
@@ -166,7 +158,6 @@ export interface DestinyInventoryBucketDefinition {
     hasIcon: boolean;
   };
 }
-
 export interface Weapon {
   itemHash: number;
   itemInstanceId?: string;
@@ -193,7 +184,6 @@ export interface Weapon {
   powerLevel: number;
   isFavorite?: boolean;
 }
-
 export interface Armor {
   itemHash: number;
   itemInstanceId?: string;
@@ -223,7 +213,6 @@ export type CategorizedWeapons = {
   energy: Weapon[];
   power: Weapon[];
 };
-
 export type CategorizedArmor = {
   helmet: Armor[];
   chest: Armor[];
@@ -231,8 +220,6 @@ export type CategorizedArmor = {
   arms: Armor[];
   classItem: Armor[];
 };
-
-
 export interface TransferData {
   username: string;
   itemReferenceHash: number;
@@ -242,14 +229,12 @@ export interface TransferData {
   characterId: string;
   membershipType: number;
 }
-
 export interface EquipData {
   username: string;
   itemId: string;
   characterId: string;
   membershipType: number;
 }
-
 export interface ItemProps {
   itemInstanceId: string;
   itemHash: number;
@@ -273,6 +258,7 @@ export interface InventoryItem {
   bucketHash: number;
   itemHash: number;
   itemInstanceId: string;
+  characterId: string;
 }
 export interface VaultProps {
   noOfItems: number;
@@ -280,4 +266,11 @@ export interface VaultProps {
 export interface CharacterInventoryProps {
   filteredItems: { [characterId: string]: { items: InventoryItem[] } };
 }
+export interface ProfileInventoryProps {
+    filteredItems: InventoryItem[];
+  }
+export interface CharacterEquipmentProps {
+    showSubclass: boolean;
+  }
+  
 

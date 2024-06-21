@@ -3,27 +3,30 @@ import { motion } from "framer-motion";
 import Item from "@/components/Item/item";
 import { Label } from "@/components/ui/label";
 import { ProfileData } from "@/lib/interfaces";
+import { useToast } from "@/app/hooks/use-toast";
 import { SkeletonGuy } from "@/components/skeleton";
 import { useQueryClient } from "@tanstack/react-query";
-import { EquipData, TransferData } from "@/lib/interfaces";
+import { useManifestData } from "@/app/hooks/useManifest";
 import { useProfileData } from "@/app/hooks/useProfileData";
 import { equipItem, transferItem } from "@/lib/transferUtils";
 import { useAuthContext } from "@/components/Auth/AuthContext";
 import CharacterSubclass from "../Character/characterSubclass";
-import { armorBucketHash, weaponBucketHash } from "@/lib/destinyEnums";
-import { useToast } from "@/app/hooks/use-toast"; // Import the useToast hook
-
-interface CharacterEquipmentProps {
-  showSubclass: boolean;
-}
+import { armorBucketHash, weaponBucketHash, classes, races } from "@/lib/destinyEnums";
+import {
+  EquipData,
+  TransferData,
+  CharacterEquipmentProps,
+} from "@/lib/interfaces";
 
 const CharacterEquipment: React.FC<CharacterEquipmentProps> = ({
   showSubclass,
 }) => {
+  const SOURCE = "CharacterEquipment"
   const queryClient = useQueryClient();
   const { membershipId } = useAuthContext();
   const { data: profileData, isLoading } = useProfileData(membershipId);
-  const { toast } = useToast(); // Get the toast function from useToast
+  const { data: manifestData } = useManifestData();
+  const { toast } = useToast();
 
   if (isLoading) {
     return <SkeletonGuy />;
@@ -31,20 +34,40 @@ const CharacterEquipment: React.FC<CharacterEquipmentProps> = ({
 
   const data = profileData as unknown as ProfileData | null;
   const equipmentData = data?.Response.characterEquipment.data;
+  const characterData = data?.Response.characters.data;
 
   if (!equipmentData || !membershipId) {
-    return <div className="hidden">No profile data found</div>; // Subtle empty state
+    return <div className="hidden">No profile data found</div>;
   }
 
-  const handleDragStart = (e: any, item: any) => {
-    console.log("Dragging item:", item);
-    e.dataTransfer.setData("application/json", JSON.stringify(item));
+  const getCharacterInfo = (characterId: string) => {
+    const character = characterData?.[characterId];
+    if (character) {
+      return `${character.classType}, ${character.raceType}`;
+    }
+    return "Unknown character";
+  };
+
+  const handleDragStart = (e: any, item: any, characterId: string, SOURCE: string) => {
+    const itemWithCharacterId = { ...item, characterId, SOURCE };
+    e.dataTransfer.setData("application/json", JSON.stringify(itemWithCharacterId));
     e.dataTransfer.effectAllowed = "move";
+
+    if (manifestData && manifestData.DestinyInventoryItemDefinition) {
+      const itemData =
+        manifestData.DestinyInventoryItemDefinition[item.itemHash];
+      if (itemData) {
+        console.log(`Dragging item: ${itemData.displayProperties.name}`);
+      } else {
+        console.log(`Dragging item: Unknown item`);
+      }
+    } else {
+      console.log(`Dragging item: Unknown item`);
+    }
   };
 
   const handleDragOver = (event: React.DragEvent) => {
-    event.preventDefault(); // Allow drop
-    console.log("Drag over characterEquipment");
+    event.preventDefault();
   };
 
   const handleDrop = async (characterId: string, event: React.DragEvent) => {
@@ -52,22 +75,21 @@ const CharacterEquipment: React.FC<CharacterEquipmentProps> = ({
     const itemData = event.dataTransfer.getData("application/json");
     if (itemData) {
       const item = JSON.parse(itemData);
-      const itemName = item.itemName; // Assuming item has a name property
-      const characterClassRace = `${characterId}`; // Adjust this based on your data structure
-      console.log(
-        `Equipping item ${item.itemInstanceId} to character ${characterId}`
-      );
       const membershipType: number =
         profileData?.Response.profile.data.userInfo.membershipType;
 
-      // Show toast message when action starts
-      toast({
-        title: "Transfer started ",
-        description: "uh-huh, transferring items...",
-      });
-
       try {
-        // Step 1: Transfer to vault if the item is not already in the vault
+        const itemName =
+          manifestData?.DestinyInventoryItemDefinition?.[item.itemHash]
+            ?.displayProperties.name || "Unknown item";
+
+        console.log(
+          `Dropping item: ${itemName} from ${getCharacterInfo(
+            item.characterId
+          )} to ${getCharacterInfo(characterId)}`
+        );
+
+        // Transfer item to vault if it's from another character
         if (item.characterId && item.characterId !== characterId) {
           const transferToVault: TransferData = {
             username: membershipId,
@@ -79,10 +101,10 @@ const CharacterEquipment: React.FC<CharacterEquipmentProps> = ({
             membershipType: membershipType,
           };
           await transferItem(transferToVault);
-          console.log(`Item ${item.itemInstanceId} transferred to vault`);
+          console.log(`Transferred ${itemName} to vault`);
         }
 
-        // Step 2: Transfer to target character
+        // Transfer item from vault to target character
         const transferToCharacter: TransferData = {
           username: membershipId,
           itemReferenceHash: item.itemHash,
@@ -94,29 +116,24 @@ const CharacterEquipment: React.FC<CharacterEquipmentProps> = ({
         };
         await transferItem(transferToCharacter);
         console.log(
-          `Item ${item.itemInstanceId} transferred to character ${characterId}`
+          `Transferred ${itemName} to ${getCharacterInfo(characterId)}`
         );
 
-        // Step 3: Equip the item
+        // Equip item on target character
         const equipData: EquipData = {
           username: membershipId,
           itemId: item.itemInstanceId,
           characterId,
           membershipType: membershipType,
         };
-        console.log("Equip data:", equipData);
         await equipItem(equipData);
-        console.log(`Item ${item.itemInstanceId} equipped`);
+        console.log(`Equipped ${itemName} on ${getCharacterInfo(characterId)}`);
 
-        // Update toast message when action completes
-
-        // Invalidate and refetch the query to update the UI
         await queryClient.invalidateQueries({
           queryKey: ["profileData", membershipId],
         });
       } catch (error) {
         console.error("Equip on Character failed:", error);
-        // Update toast message if action fails
       }
     }
   };
@@ -145,7 +162,7 @@ const CharacterEquipment: React.FC<CharacterEquipmentProps> = ({
                     <motion.div
                       key={`${characterId}-${item.itemInstanceId}`}
                       draggable
-                      onDragStart={(e) => handleDragStart(e, item)}
+                      onDragStart={(e) => handleDragStart(e, item, characterId, SOURCE)}
                       className="item cursor-grab active:cursor-grabbing"
                     >
                       <Item
@@ -163,7 +180,7 @@ const CharacterEquipment: React.FC<CharacterEquipmentProps> = ({
                     <motion.div
                       key={`${characterId}-${item.itemInstanceId}`}
                       draggable
-                      onDragStart={(e) => handleDragStart(e, item)}
+                      onDragStart={(e) => handleDragStart(e, item, characterId, SOURCE)}
                       className="item cursor-grab active:cursor-grabbing"
                     >
                       <Item

@@ -164,6 +164,17 @@ export const statOrder = [
   "144602215", // Intellect
   "4244567218", // Strength
 ];
+export const bucketHash: { [key: number]: string } = { 
+  3448274439: "Helmet",
+  3551918588:  "Gauntlets",
+  14239492:  "Chest Armor",
+  20886954:  "Leg Armor",
+  1585787867:  "Class Armor",
+  1498876634:  "Kinetic Weapon",
+  2465295065:  "Energy Weapon",
+  953998645:  "Power Weapon",
+  4023194814:  "Ghost",
+};
 export const itemOrder = [
   1498876634, //Kinetic Weapons
   2465295065, //Energy Weapons

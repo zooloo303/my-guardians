@@ -24,7 +24,9 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
+  DialogTitle,
   DialogTrigger,
   DialogClose,
   DialogFooter,
@@ -77,8 +79,8 @@ const InventorySearch: React.FC = () => {
       });
     }
 
-    if (searchType === null) {
-      return [];
+    if (searchType === null && weaponFilters.length === 0 && armorFilters.length === 0) {
+      return sortedItems;
     }
 
     return sortedItems.filter((item) => {
@@ -144,21 +146,21 @@ const InventorySearch: React.FC = () => {
       <DialogContent className="max-w-[90vw] max-h-[80vh] overflow-y-auto">
         <ScrollArea className="h-full">
           <DialogHeader>
-            <div className="p-4 flex flex-row justify-between">
-              <Search className="absolute left-6 top-7 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="text"
-                placeholder="Search items..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-lg bg-background pl-8 md:w-[300px] lg:w-[500px]"
-              />
-            </div>
+            <div className="p-4">
+                <Search className="absolute left-6 top-7 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="text"
+                  placeholder="Search items..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full rounded-lg bg-background pl-8 md:w-[300px] lg:w-[500px]"
+                />
+              </div>
           </DialogHeader>
           <div className="flex flex-row p-4 items-center justify-between">
-            <WeaponFilters onFilterChange={handleWeaponFilterChange} />
-            <ArmorFilters onFilterChange={handleArmorFilterChange} />
-          </div>
+              <WeaponFilters onFilterChange={handleWeaponFilterChange} />
+              <ArmorFilters onFilterChange={handleArmorFilterChange} />
+            </div>
           <CharacterList />
           <CharacterEquipment showSubclass={false} />
           <CharacterInventory filteredItems={filteredCharacterInventories} />
