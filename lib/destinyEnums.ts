@@ -38,6 +38,10 @@ export const races: { [key: number]: string } = {
   [AWOKEN]: 'Awoken',
   [EXO]: 'Exo'
 };
+export const ITEM_TYPES = {
+  ARMOR: 2,
+  WEAPON: 3,
+};
 
 export const DestinyItemType: { [key: number]: string } = {
   0: 'None',
