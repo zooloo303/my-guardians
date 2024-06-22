@@ -174,6 +174,7 @@ export const bucketHash: { [key: number]: string } = {
   2465295065:  "Energy Weapon",
   953998645:  "Power Weapon",
   4023194814:  "Ghost",
+  138197802:  "General",
 };
 export const itemOrder = [
   1498876634, //Kinetic Weapons

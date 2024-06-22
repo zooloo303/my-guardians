@@ -52,11 +52,6 @@ const CharacterEquipment: React.FC<CharacterEquipmentProps> = ({
   const getBucketName = (hash: number): string => {
     return bucketHash[hash] || "Unknown Bucket";
   };
-  const getRandomItem = (characterId: string, bucketType: number) => {
-    return profileData.Response.characterInventories.data[
-      characterId
-    ].items.find((item: any) => item.bucketHash === bucketType);
-  };
   const handleDragStart = (
     e: any,
     item: any,
@@ -209,7 +204,6 @@ const CharacterEquipment: React.FC<CharacterEquipmentProps> = ({
             characterId: characterId,
             membershipType: membershipType,
           };
-          console.log("transferData: ", transferData);
           try {
             await transferItem(transferData);
             if (manifestData && manifestData.DestinyInventoryItemDefinition) {
@@ -276,7 +270,79 @@ const CharacterEquipment: React.FC<CharacterEquipmentProps> = ({
       //if item SOURCE = Profilenventory, then transfer to target character,
       //then equip item on target character
     if (item && membershipId && item.SOURCE === "ProfileInventory") {
-      console.log("hello")
+      //transfer to target character
+      let transferData = {
+        username: membershipId,
+        itemReferenceHash: item.itemHash,
+        stackSize: 1,
+        transferToVault: false,
+        itemId: item.itemInstanceId,
+        characterId: characterId,
+        membershipType: membershipType,
+      };
+      console.log("transferData: ", transferData);
+      try {
+        await transferItem(transferData);
+        if (manifestData && manifestData.DestinyInventoryItemDefinition) {
+          let itemDefinition =
+            manifestData.DestinyInventoryItemDefinition[item.itemHash];
+          if (itemDefinition) {
+            toast(
+              `Transferred ${itemDefinition.displayProperties.name} to the character`
+            );
+            console.log(
+              `Transferred ${
+                itemDefinition.displayProperties.name
+              } ${getBucketName(item.bucketHash)} from ${sourceCharacterId} ${
+                item.SOURCE
+              } to character`
+            );
+          } else {
+            console.log(`Transfer failed`);
+          }
+        } else {
+          console.log(`Transfer failed`);
+        }
+        await queryClient.invalidateQueries({
+          queryKey: ["profileData", membershipId],
+        });
+      } catch (error) {
+        console.error("Transfer to vault failed:", error);
+      }
+      let equipData: EquipData = {
+        username: membershipId,
+        itemId: item.itemInstanceId,
+        characterId: characterId,
+        membershipType: membershipType,
+      };
+      try {
+        await equipItem(equipData);
+        if (manifestData && manifestData.DestinyInventoryItemDefinition) {
+          let itemDefinition =
+            manifestData.DestinyInventoryItemDefinition[item.itemHash];
+          if (itemDefinition) {
+            toast(
+              `Equipped item ${itemDefinition.displayProperties.name} on ${getCharacterInfo(characterId)}`
+            );
+            console.log(
+              `Equipped item ${
+                itemDefinition.displayProperties.name
+              } ${getBucketName(item.bucketHash)} from ${getCharacterInfo(characterId)} ${
+                item.SOURCE
+              }`
+            );
+          } else {
+            console.log(`Equip failed`);
+          }
+        } else {
+          console.log(`Equip failed`);
+        }
+        await queryClient.invalidateQueries({
+          queryKey: ["profileData", membershipId],
+        });
+      } catch (error) {
+        console.error("Equip failed:", error);
+      }
     }
   };
 
