@@ -1,9 +1,9 @@
 "use client";
+import { toast } from "sonner";
 import { motion } from "framer-motion";
 import Item from "@/components/Item/item";
 import { Label } from "@/components/ui/label";
 import { ProfileData } from "@/lib/interfaces";
-import { useToast } from "@/app/hooks/use-toast";
 import { SkeletonGuy } from "@/components/skeleton";
 import { useQueryClient } from "@tanstack/react-query";
 import { useManifestData } from "@/app/hooks/useManifest";
@@ -11,7 +11,13 @@ import { useProfileData } from "@/app/hooks/useProfileData";
 import { equipItem, transferItem } from "@/lib/transferUtils";
 import { useAuthContext } from "@/components/Auth/AuthContext";
 import CharacterSubclass from "../Character/characterSubclass";
-import { armorBucketHash, weaponBucketHash, classes, races } from "@/lib/destinyEnums";
+import {
+  armorBucketHash,
+  weaponBucketHash,
+  bucketHash,
+  classes,
+  races,
+} from "@/lib/destinyEnums";
 import {
   EquipData,
   TransferData,
@@ -21,36 +27,47 @@ import {
 const CharacterEquipment: React.FC<CharacterEquipmentProps> = ({
   showSubclass,
 }) => {
-  const SOURCE = "CharacterEquipment"
+  const SOURCE = "CharacterEquipment";
   const queryClient = useQueryClient();
   const { membershipId } = useAuthContext();
   const { data: profileData, isLoading } = useProfileData(membershipId);
   const { data: manifestData } = useManifestData();
-  const { toast } = useToast();
 
   if (isLoading) {
     return <SkeletonGuy />;
   }
-
   const data = profileData as unknown as ProfileData | null;
   const equipmentData = data?.Response.characterEquipment.data;
-  const characterData = data?.Response.characters.data;
 
   if (!equipmentData || !membershipId) {
     return <div className="hidden">No profile data found</div>;
   }
-
   const getCharacterInfo = (characterId: string) => {
-    const character = characterData?.[characterId];
+    const character = profileData?.Response.characters.data?.[characterId];
     if (character) {
-      return `${character.classType}, ${character.raceType}`;
+      return `${classes[character.classType]}, ${races[character.raceType]}`;
     }
-    return "Unknown character";
+    return "the Vault";
   };
-
-  const handleDragStart = (e: any, item: any, characterId: string, SOURCE: string) => {
+  const getBucketName = (hash: number): string => {
+    return bucketHash[hash] || "Unknown Bucket";
+  };
+  const getRandomItem = (characterId: string, bucketType: number) => {
+    return profileData.Response.characterInventories.data[
+      characterId
+    ].items.find((item: any) => item.bucketHash === bucketType);
+  };
+  const handleDragStart = (
+    e: any,
+    item: any,
+    characterId: string,
+    SOURCE: string
+  ) => {
     const itemWithCharacterId = { ...item, characterId, SOURCE };
-    e.dataTransfer.setData("application/json", JSON.stringify(itemWithCharacterId));
+    e.dataTransfer.setData(
+      "application/json",
+      JSON.stringify(itemWithCharacterId)
+    );
     e.dataTransfer.effectAllowed = "move";
 
     if (manifestData && manifestData.DestinyInventoryItemDefinition) {
@@ -66,32 +83,86 @@ const CharacterEquipment: React.FC<CharacterEquipmentProps> = ({
     }
   };
 
-  const handleDragOver = (event: React.DragEvent) => {
-    event.preventDefault();
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
   };
 
-  const handleDrop = async (characterId: string, event: React.DragEvent) => {
-    event.preventDefault();
-    const itemData = event.dataTransfer.getData("application/json");
-    if (itemData) {
-      const item = JSON.parse(itemData);
-      const membershipType: number =
-        profileData?.Response.profile.data.userInfo.membershipType;
+  const handleDrop = async (characterId: string, e: React.DragEvent) => {
+    e.preventDefault();
+    const membershipType: number =
+      profileData?.Response.profile.data.userInfo.membershipType;
+    const droppedItem = e.dataTransfer.getData("application/json");
+    const sourceCharacterId = getCharacterInfo(
+      JSON.parse(droppedItem).characterId
+    );  
+      const item = JSON.parse(droppedItem); 
 
-      try {
-        const itemName =
-          manifestData?.DestinyInventoryItemDefinition?.[item.itemHash]
-            ?.displayProperties.name || "Unknown item";
+      if (manifestData && manifestData.DestinyInventoryItemDefinition) {
+        let itemDefinition =
+          manifestData.DestinyInventoryItemDefinition[item.itemHash];
+        if (itemDefinition) {
+          toast(
+            `Dropped ${itemDefinition.displayProperties.name} ${getBucketName(
+              item.bucketHash
+            )} from ${sourceCharacterId} ${item.SOURCE}`
+          );
+          console.log(
+            `Dropped item: ${
+              itemDefinition.displayProperties.name
+            } ${getBucketName(item.bucketHash)} from ${sourceCharacterId} ${
+              item.SOURCE
+            }`
+          );
+        } else {
+          console.log(`Dragging Unknown item from somewhere`);
+        }
+      } else {
+        console.log(`Dragging Unknown item from somewhere`);
+      }
+      //if item SOURCE = same CharacterInventory, equip item on target character
+      if (item && membershipId && item.SOURCE === "CharacterInventory" && item.characterId === characterId) {
+        let equipData: EquipData = {
+          username: membershipId,
+          itemId: item.itemInstanceId,
+          characterId: item.characterId,
+          membershipType: membershipType,
+        };
+        try {
+          await equipItem(equipData);
+          if (manifestData && manifestData.DestinyInventoryItemDefinition) {
+            let itemDefinition =
+              manifestData.DestinyInventoryItemDefinition[item.itemHash];
+            if (itemDefinition) {
+              toast(
+                `Equipped item ${itemDefinition.displayProperties.name} on ${getCharacterInfo(characterId)}`
+              );
+              console.log(
+                `Equipped item${
+                  itemDefinition.displayProperties.name
+                } ${getBucketName(item.bucketHash)} from ${sourceCharacterId}${
+                  item.SOURCE
+                }`
+              );
+            } else {
+              console.log(`Equip failed`);
+            }
+          } else {
+            console.log(`Equip failed`);
+          }
+          await queryClient.invalidateQueries({
+            queryKey: ["profileData", membershipId],
+          });
+        } catch (error) {
+          console.error("Equip failed:", error);
+        }
+      }
+      //if item SOURCE = different CharacterInventory, vault first,
+      //then transfer to target character, then equip item on target character
 
-        console.log(
-          `Dropping item: ${itemName} from ${getCharacterInfo(
-            item.characterId
-          )} to ${getCharacterInfo(characterId)}`
-        );
-
-        // Transfer item to vault if it's from another character
-        if (item.characterId && item.characterId !== characterId) {
-          const transferToVault: TransferData = {
+      if (item && membershipId && item.SOURCE === "CharacterInventory"
+         && item.characterId !== characterId) {
+          //vault first
+          let transferData: TransferData = {
             username: membershipId,
             itemReferenceHash: item.itemHash,
             stackSize: 1,
@@ -100,41 +171,112 @@ const CharacterEquipment: React.FC<CharacterEquipmentProps> = ({
             characterId: item.characterId,
             membershipType: membershipType,
           };
-          await transferItem(transferToVault);
-          console.log(`Transferred ${itemName} to vault`);
-        }
-
-        // Transfer item from vault to target character
-        const transferToCharacter: TransferData = {
-          username: membershipId,
-          itemReferenceHash: item.itemHash,
-          stackSize: 1,
-          transferToVault: false,
-          itemId: item.itemInstanceId,
-          characterId: characterId,
-          membershipType: membershipType,
-        };
-        await transferItem(transferToCharacter);
-        console.log(
-          `Transferred ${itemName} to ${getCharacterInfo(characterId)}`
-        );
-
-        // Equip item on target character
-        const equipData: EquipData = {
-          username: membershipId,
-          itemId: item.itemInstanceId,
-          characterId,
-          membershipType: membershipType,
-        };
-        await equipItem(equipData);
-        console.log(`Equipped ${itemName} on ${getCharacterInfo(characterId)}`);
-
-        await queryClient.invalidateQueries({
-          queryKey: ["profileData", membershipId],
-        });
-      } catch (error) {
-        console.error("Equip on Character failed:", error);
+          try {
+            await transferItem(transferData);
+            if (manifestData && manifestData.DestinyInventoryItemDefinition) {
+              let itemDefinition =
+                manifestData.DestinyInventoryItemDefinition[item.itemHash];
+              if (itemDefinition) {
+                toast(
+                  `Transferred ${itemDefinition.displayProperties.name} to the vault`
+                );
+                console.log(
+                  `Transferred ${
+                    itemDefinition.displayProperties.name
+                  } ${getBucketName(item.bucketHash)} from ${sourceCharacterId} ${
+                    item.SOURCE
+                  } to the Vault`
+                );
+              } else {
+                console.log(`Transfer failed`);
+              }
+            } else {
+              console.log(`Transfer failed`);
+            }
+            await queryClient.invalidateQueries({
+              queryKey: ["profileData", membershipId],
+            });
+          } catch (error) {
+            console.error("Transfer to vault failed:", error);
+          }
+          //transfer to target character
+          transferData ={
+            username: membershipId,
+            itemReferenceHash: item.itemHash,
+            stackSize: 1,
+            transferToVault: false,
+            itemId: item.itemInstanceId,
+            characterId: characterId,
+            membershipType: membershipType,
+          };
+          console.log("transferData: ", transferData);
+          try {
+            await transferItem(transferData);
+            if (manifestData && manifestData.DestinyInventoryItemDefinition) {
+              let itemDefinition =
+                manifestData.DestinyInventoryItemDefinition[item.itemHash];
+              if (itemDefinition) {
+                toast(
+                  `Transferred ${itemDefinition.displayProperties.name} to the character`
+                );
+                console.log(
+                  `Transferred ${
+                    itemDefinition.displayProperties.name
+                  } ${getBucketName(item.bucketHash)} from ${sourceCharacterId} ${
+                    item.SOURCE
+                  } to character`
+                );
+              } else {
+                console.log(`Transfer failed`);
+              }
+            } else {
+              console.log(`Transfer failed`);
+            }
+            await queryClient.invalidateQueries({
+              queryKey: ["profileData", membershipId],
+            });
+          } catch (error) {
+            console.error("Transfer to vault failed:", error);
+          }
+          let equipData: EquipData = {
+            username: membershipId,
+            itemId: item.itemInstanceId,
+            characterId: characterId,
+            membershipType: membershipType,
+          };
+          try {
+            await equipItem(equipData);
+            if (manifestData && manifestData.DestinyInventoryItemDefinition) {
+              let itemDefinition =
+                manifestData.DestinyInventoryItemDefinition[item.itemHash];
+              if (itemDefinition) {
+                toast(
+                  `Equipped item ${itemDefinition.displayProperties.name} on ${getCharacterInfo(characterId)}`
+                );
+                console.log(
+                  `Equipped item${
+                    itemDefinition.displayProperties.name
+                  } ${getBucketName(item.bucketHash)} from ${getCharacterInfo(characterId)}${
+                    item.SOURCE
+                  }`
+                );
+              } else {
+                console.log(`Equip failed`);
+              }
+            } else {
+              console.log(`Equip failed`);
+            }
+            await queryClient.invalidateQueries({
+              queryKey: ["profileData", membershipId],
+            });
+          } catch (error) {
+            console.error("Equip failed:", error);
+          }
       }
+      //if item SOURCE = Profilenventory, then transfer to target character,
+      //then equip item on target character
+    if (item && membershipId && item.SOURCE === "ProfileInventory") {
+      console.log("hello")
     }
   };
 
@@ -162,7 +304,9 @@ const CharacterEquipment: React.FC<CharacterEquipmentProps> = ({
                     <motion.div
                       key={`${characterId}-${item.itemInstanceId}`}
                       draggable
-                      onDragStart={(e) => handleDragStart(e, item, characterId, SOURCE)}
+                      onDragStart={(e) =>
+                        handleDragStart(e, item, characterId, SOURCE)
+                      }
                       className="item cursor-grab active:cursor-grabbing"
                     >
                       <Item
@@ -180,7 +324,9 @@ const CharacterEquipment: React.FC<CharacterEquipmentProps> = ({
                     <motion.div
                       key={`${characterId}-${item.itemInstanceId}`}
                       draggable
-                      onDragStart={(e) => handleDragStart(e, item, characterId, SOURCE)}
+                      onDragStart={(e) =>
+                        handleDragStart(e, item, characterId, SOURCE)
+                      }
                       className="item cursor-grab active:cursor-grabbing"
                     >
                       <Item

@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import { motion } from "framer-motion";
 import Item from "@/components/Item/item";
 import { Label } from "@/components/ui/label";
@@ -7,12 +8,17 @@ import { useManifestData } from "@/app/hooks/useManifest";
 import { useProfileData } from "@/app/hooks/useProfileData";
 import { useAuthContext } from "@/components/Auth/AuthContext";
 import { CharacterInventoryProps, TransferData } from "@/lib/interfaces";
-import { armorBucketHash, weaponBucketHash, classes, races } from "@/lib/destinyEnums";
+import {
+  armorBucketHash,
+  weaponBucketHash,
+  classes,
+  races,
+} from "@/lib/destinyEnums";
 
 const CharacterInventory: React.FC<CharacterInventoryProps> = ({
   filteredItems,
 }) => {
-  const SOURCE = "CharacterInventory"
+  const SOURCE = "CharacterInventory";
   const queryClient = useQueryClient();
   const { membershipId } = useAuthContext();
   const { data: manifestData } = useManifestData();
@@ -20,7 +26,8 @@ const CharacterInventory: React.FC<CharacterInventoryProps> = ({
 
   const isWeaponOrArmor = (bucketHash: number) => {
     return (
-      weaponBucketHash.includes(bucketHash) || armorBucketHash.includes(bucketHash)
+      weaponBucketHash.includes(bucketHash) ||
+      armorBucketHash.includes(bucketHash)
     );
   };
 
@@ -36,20 +43,37 @@ const CharacterInventory: React.FC<CharacterInventoryProps> = ({
     return "vault?";
   };
 
-  const handleDragStart = (e: any, item: any, characterId: string, SOURCE: string) => {
+  const handleDragStart = (
+    e: any,
+    item: any,
+    characterId: string,
+    SOURCE: string
+  ) => {
     const itemWithCharacterId = { ...item, characterId, SOURCE };
-    e.dataTransfer.setData("application/json", JSON.stringify(itemWithCharacterId));
+    e.dataTransfer.setData(
+      "application/json",
+      JSON.stringify(itemWithCharacterId)
+    );
     e.dataTransfer.effectAllowed = "move";
-    
+
     if (manifestData && manifestData.DestinyInventoryItemDefinition) {
-      const itemData = manifestData.DestinyInventoryItemDefinition[item.itemHash];
+      const itemData =
+        manifestData.DestinyInventoryItemDefinition[item.itemHash];
       if (itemData) {
-        console.log(`Dragging item: ${itemData.displayProperties.name} from ${getCharacterInfo(characterId)}`);
+        console.log(
+          `Dragging item: ${
+            itemData.displayProperties.name
+          } from ${getCharacterInfo(characterId)}`
+        );
       } else {
-        console.log(`Dragging item: Unknown item from ${getCharacterInfo(characterId)}`);
+        console.log(
+          `Dragging item: Unknown item from ${getCharacterInfo(characterId)}`
+        );
       }
     } else {
-      console.log(`Dragging item: Unknown item from ${getCharacterInfo(characterId)}`);
+      console.log(
+        `Dragging item: Unknown item from ${getCharacterInfo(characterId)}`
+      );
     }
   };
 
@@ -57,19 +81,24 @@ const CharacterInventory: React.FC<CharacterInventoryProps> = ({
     e.preventDefault();
   };
 
-  const handleDrop = async (targetCharacterId: string, event: React.DragEvent) => {
-    event.preventDefault();
-    const itemData = event.dataTransfer.getData("application/json");
-    if (itemData && membershipId) {
-      const item = JSON.parse(itemData);
-      const membershipType: number =
+  const handleDrop = async (targetCharacterId: string, e: React.DragEvent
+  ) => {
+    e.preventDefault();
+    const membershipType: number =
         profileData?.Response.profile.data.userInfo.membershipType;
-
+    const droppedItem = e.dataTransfer.getData("application/json");
+    if (droppedItem && membershipId) {
+      const item = JSON.parse(droppedItem);
+      
       try {
-        const itemName = manifestData?.DestinyInventoryItemDefinition?.[item.itemHash]?.displayProperties.name || "Unknown item";
+        const itemName =
+          manifestData?.DestinyInventoryItemDefinition?.[item.itemHash]
+            ?.displayProperties.name || "Unknown item";
 
         console.log(
-          `Dropping item: ${itemName} from ${getCharacterInfo(item.characterId)} to ${getCharacterInfo(targetCharacterId)}`
+          `Dropping item: ${itemName} from ${getCharacterInfo(
+            item.characterId
+          )} to ${getCharacterInfo(targetCharacterId)}`
         );
 
         // Transfer between characters
@@ -96,7 +125,9 @@ const CharacterInventory: React.FC<CharacterInventoryProps> = ({
             membershipType: membershipType,
           };
           await transferItem(transferToCharacter);
-          console.log(`Transferred ${itemName} to ${getCharacterInfo(targetCharacterId)}`);
+          console.log(
+            `Transferred ${itemName} to ${getCharacterInfo(targetCharacterId)}`
+          );
         }
 
         await queryClient.invalidateQueries({
@@ -130,7 +161,9 @@ const CharacterInventory: React.FC<CharacterInventoryProps> = ({
                     <motion.div
                       key={`${characterId}-${item.itemInstanceId}`}
                       draggable
-                      onDragStart={(e) => handleDragStart(e, item, characterId, SOURCE)}
+                      onDragStart={(e) =>
+                        handleDragStart(e, item, characterId, SOURCE)
+                      }
                       className="item cursor-grab active:cursor-grabbing"
                     >
                       <Item

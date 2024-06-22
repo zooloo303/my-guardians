@@ -1,8 +1,8 @@
 "use client";
+import { toast } from "sonner";
 import { motion } from "framer-motion";
 import Item from "@/components/Item/item";
 import { Label } from "@/components/ui/label";
-import { useToast } from "@/app/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { useManifestData } from "@/app/hooks/useManifest";
 import { useProfileData } from "@/app/hooks/useProfileData";
@@ -18,7 +18,7 @@ import {
 const ProfileInventory: React.FC<ProfileInventoryProps> = ({
   filteredItems,
 }) => {
-  const { toast } = useToast();
+  const SOURCE = "ProfileInventory";
   const queryClient = useQueryClient();
   const { membershipId } = useAuthContext();
   const { data: manifestData } = useManifestData();
@@ -40,8 +40,9 @@ const ProfileInventory: React.FC<ProfileInventoryProps> = ({
     ].items.find((item: any) => item.bucketHash === bucketType);
   };
 
-  const handleDragStart = (e: any, item: any) => {
-    e.dataTransfer.setData("application/json", JSON.stringify(item));
+  const handleDragStart = (e: any, item: any, SOURCE: string) => {
+    const itemWithSource = { ...item, SOURCE };
+    e.dataTransfer.setData("application/json", JSON.stringify(itemWithSource));
     e.dataTransfer.effectAllowed = "move";
 
     if (manifestData && manifestData.DestinyInventoryItemDefinition) {
@@ -51,7 +52,7 @@ const ProfileInventory: React.FC<ProfileInventoryProps> = ({
         console.log(
           `Dragging item: ${
             itemDefinition.displayProperties.name
-          } ${getBucketName(item.bucketHash)}from Vault}`
+          } ${getBucketName(item.bucketHash)}from Vault`
         );
       } else {
         console.log(`Dragging Unknown item from Vault`);
@@ -80,14 +81,11 @@ const ProfileInventory: React.FC<ProfileInventoryProps> = ({
       let itemDefinition =
         manifestData.DestinyInventoryItemDefinition[item.itemHash];
       if (itemDefinition) {
-        toast({
-          title: `Dropped item: ${
-            itemDefinition.displayProperties.name
-          } ${getBucketName(item.bucketHash)} from ${sourceCharacterId} ${
-            item.SOURCE
-          }`,
-          description: "please wait ...",
-        });
+        toast(
+          `Dropped ${itemDefinition.displayProperties.name} ${getBucketName(
+            item.bucketHash
+          )} from ${sourceCharacterId} ${item.SOURCE}`
+        );
         console.log(
           `Dropped item: ${
             itemDefinition.displayProperties.name
@@ -115,14 +113,18 @@ const ProfileInventory: React.FC<ProfileInventoryProps> = ({
       try {
         await transferItem(transferData);
         if (manifestData && manifestData.DestinyInventoryItemDefinition) {
-          let itemDefinition = manifestData.DestinyInventoryItemDefinition[item.itemHash];
+          let itemDefinition =
+            manifestData.DestinyInventoryItemDefinition[item.itemHash];
           if (itemDefinition) {
-           const huh = toast({
-              title: `Transferred ${itemDefinition.displayProperties.name} to the vault`,
-              description: "nice and tidy ...",
-            });
+            toast(
+              `Transferred ${itemDefinition.displayProperties.name} to the vault`
+            );
             console.log(
-              `Transferred ${itemDefinition.displayProperties.name} ${getBucketName(item.bucketHash)} from ${sourceCharacterId} ${item.SOURCE} to the Vault`
+              `Transferred ${
+                itemDefinition.displayProperties.name
+              } ${getBucketName(item.bucketHash)} from ${sourceCharacterId} ${
+                item.SOURCE
+              } to the Vault`
             );
           } else {
             console.log(`Transfer failed`);
@@ -153,14 +155,13 @@ const ProfileInventory: React.FC<ProfileInventoryProps> = ({
           let itemDefinition =
             manifestData.DestinyInventoryItemDefinition[randomItem.itemHash];
           if (itemDefinition) {
-            toast({
-              title: `Equipping item: ${
+            toast(
+              `Equipping item: ${
                 itemDefinition.displayProperties.name
               } ${getBucketName(
                 randomItem.bucketHash
-              )} from ${sourceCharacterId} ${item.SOURCE}`,
-              description: "because we must equip something ...",
-            });
+              )} from ${sourceCharacterId} ${item.SOURCE}`
+            );
             console.log(
               `Equipping item: ${
                 itemDefinition.displayProperties.name
@@ -191,13 +192,14 @@ const ProfileInventory: React.FC<ProfileInventoryProps> = ({
         await transferItem(transferData);
         if (manifestData && manifestData.DestinyInventoryItemDefinition) {
           let itemDefinition =
-            manifestData.DestinyInventoryItemDefinition[randomItem.itemHash];
+            manifestData.DestinyInventoryItemDefinition[item.itemHash];
           if (itemDefinition) {
-            toast({
-              title: `Transferred ${itemDefinition.displayProperties.name}} to Vault`,
-              description: "nice and tidy ...",
-            });
-            console.log(`Transferred ${itemDefinition.displayProperties.name} to Vault`);
+            toast(
+              `Transferred ${itemDefinition.displayProperties.name} to Vault`
+            );
+            console.log(
+              `Transferred ${itemDefinition.displayProperties.name} to Vault`
+            );
           } else {
             console.log(`failed`);
           }
@@ -223,7 +225,7 @@ const ProfileInventory: React.FC<ProfileInventoryProps> = ({
           <motion.div
             key={item.itemInstanceId}
             draggable
-            onDragStart={(e) => handleDragStart(e, item)}
+            onDragStart={(e) => handleDragStart(e, item, SOURCE)}
             className="item cursor-grab active:cursor-grabbing"
           >
             <Item

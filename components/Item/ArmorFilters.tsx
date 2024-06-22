@@ -43,13 +43,14 @@ const ArmorFilters: React.FC<ArmorFiltersProps> = ({ onFilterChange }) => {
 
   return (
     <TooltipProvider>
-      <ToggleGroup type="single">
+      <div className="flex flex-col">
+      <ToggleGroup className="grid flex-wrap grid-cols-3" type="single">
         {/* Class Type Filters */}
         {renderToggleGroupItem("Warlock", "/class-warlock.svg", "class-warlock" )}
         {renderToggleGroupItem("Hunter", "/class-hunter.svg", "class-hunter")}
         {renderToggleGroupItem("Titan", "/class-titan.svg", "class-titan")}
       </ToggleGroup>
-      <ToggleGroup type="single">
+      <ToggleGroup className="grid flex-wrap grid-cols-5" type="single">
         {/* Item Category Filters */}
         {renderToggleGroupItem("Helmet", "/helmet.svg", "helmet")}
         {renderToggleGroupItem("Gauntlets", "/arms.svg", "arms")}
@@ -57,6 +58,7 @@ const ArmorFilters: React.FC<ArmorFiltersProps> = ({ onFilterChange }) => {
         {renderToggleGroupItem("Leg Armor", "/legs.svg", "legs")}
         {renderToggleGroupItem("Class Item", "/class.svg", "class")}
       </ToggleGroup>
+      </div>
     </TooltipProvider>
   );
 };
