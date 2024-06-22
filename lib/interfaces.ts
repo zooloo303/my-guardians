@@ -272,5 +272,9 @@ export interface ProfileInventoryProps {
 export interface CharacterEquipmentProps {
     showSubclass: boolean;
   }
-  
-
+  export interface CharacterEquipmentItem {
+    itemInstanceId: string;
+    bucketHash: number;
+    itemHash: number;
+    location: number;
+  }
