@@ -270,14 +270,16 @@ const CharacterInventory: React.FC<CharacterInventoryProps> = ({
             manifestData.DestinyInventoryItemDefinition[item.itemHash];
           if (itemDefinition) {
             toast(
-              `Transferred ${itemDefinition.displayProperties.name} to the character`
+              `Transferred ${
+                itemDefinition.displayProperties.name
+              } to ${getCharacterInfo(characterId)}`
             );
             console.log(
               `Transferred ${
                 itemDefinition.displayProperties.name
               } ${getBucketName(item.bucketHash)} from ${sourceCharacterId} ${
                 item.SOURCE
-              } to character`
+              } to ${getCharacterInfo(characterId)}`
             );
           } else {
             console.log(`Transfer failed`);
@@ -355,14 +357,16 @@ const CharacterInventory: React.FC<CharacterInventoryProps> = ({
             manifestData.DestinyInventoryItemDefinition[item.itemHash];
           if (itemDefinition) {
             toast(
-              `Transferred ${itemDefinition.displayProperties.name} to the character`
+              `Transferred ${
+                itemDefinition.displayProperties.name
+              } to ${getCharacterInfo(characterId)}`
             );
             console.log(
               `Transferred ${
                 itemDefinition.displayProperties.name
               } ${getBucketName(item.bucketHash)} from ${sourceCharacterId} ${
                 item.SOURCE
-              } to character`
+              } to ${getCharacterInfo(characterId)}`
             );
           } else {
             console.log(`Transfer failed`);
@@ -378,52 +382,48 @@ const CharacterInventory: React.FC<CharacterInventoryProps> = ({
       }
     }
     //if item SOURCE = ProfileInventory, transfer to target character
-    if (
-      item &&
-      membershipId &&
-      item.SOURCE === "ProfileInventory" 
-    ) {
-//transfer to target character
-let transferData = {
-  username: membershipId,
-  itemReferenceHash: item.itemHash,
-  stackSize: 1,
-  transferToVault: false,
-  itemId: item.itemInstanceId,
-  characterId: characterId,
-  membershipType: membershipType,
-};
-try {
-  await transferItem(transferData);
-  if (manifestData && manifestData.DestinyInventoryItemDefinition) {
-    let itemDefinition =
-      manifestData.DestinyInventoryItemDefinition[item.itemHash];
-    if (itemDefinition) {
-      toast(
-        `Transferred ${itemDefinition.displayProperties.name} to the character`
-      );
-      console.log(
-        `Transferred ${
-          itemDefinition.displayProperties.name
-        } ${getBucketName(item.bucketHash)} from ${sourceCharacterId} ${
-          item.SOURCE
-        } to character`
-      );
-    } else {
-      console.log(`Transfer failed`);
+    if (item && membershipId && item.SOURCE === "ProfileInventory") {
+      //transfer to target character
+      let transferData = {
+        username: membershipId,
+        itemReferenceHash: item.itemHash,
+        stackSize: 1,
+        transferToVault: false,
+        itemId: item.itemInstanceId,
+        characterId: characterId,
+        membershipType: membershipType,
+      };
+      try {
+        await transferItem(transferData);
+        if (manifestData && manifestData.DestinyInventoryItemDefinition) {
+          let itemDefinition =
+            manifestData.DestinyInventoryItemDefinition[item.itemHash];
+          if (itemDefinition) {
+            toast(
+              `Transferred ${
+                itemDefinition.displayProperties.name
+              } to ${getCharacterInfo(characterId)}`
+            );
+            console.log(
+              `Transferred ${
+                itemDefinition.displayProperties.name
+              } ${getBucketName(item.bucketHash)} from ${sourceCharacterId} ${
+                item.SOURCE
+              } to ${getCharacterInfo(characterId)}`
+            );
+          } else {
+            console.log(`Transfer failed`);
+          }
+        } else {
+          console.log(`Transfer failed`);
+        }
+        await queryClient.invalidateQueries({
+          queryKey: ["profileData", membershipId],
+        });
+      } catch (error) {
+        console.error("Transfer to vault failed:", error);
+      }
     }
-  } else {
-    console.log(`Transfer failed`);
-  }
-  await queryClient.invalidateQueries({
-    queryKey: ["profileData", membershipId],
-  });
-} catch (error) {
-  console.error("Transfer to vault failed:", error);
-}
-
-    }
-
   };
 
   return (

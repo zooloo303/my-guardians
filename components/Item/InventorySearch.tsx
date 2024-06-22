@@ -130,13 +130,25 @@ const InventorySearch: React.FC = () => {
       acc: { [key: string]: { items: InventoryItem[] } },
       [characterId, characterInventory]
     ) => {
-      acc[characterId] = { items: filterItems(characterInventory.items) };
+      acc[characterId] = {
+        items: filterItems(
+          characterInventory.items.map((item) => ({
+            ...item,
+            characterId,
+          }))
+        ),
+      };
       return acc;
     },
     {}
   );
 
-  const filteredProfileInventory = filterItems(profileInventoryData);
+  const filteredProfileInventory = filterItems(
+    profileInventoryData.map((item) => ({
+      ...item,
+      characterId: "", // Assign an empty string or some default value for profile inventory items
+    }))
+  );
 
   return (
     <Dialog>
