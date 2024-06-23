@@ -281,3 +281,9 @@ export interface CharacterEquipmentItem {
   export interface ItemComponentProps extends ItemProps {
     alwaysExpanded?: boolean;
   }
+  export interface FaveProps {
+    username: string;
+    itemInstanceId: string;
+    itemHash: number;
+    initialFavorite?: boolean;
+  }

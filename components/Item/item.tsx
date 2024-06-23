@@ -1,9 +1,12 @@
 import Image from "next/image";
 import { motion } from "framer-motion";
+import Fave from "@/components/Item/Fave";
 import { SkeletonGuy } from "@/components/skeleton";
+import { getFavorites } from "@/lib/api/favoriteApi";
 import { ErrorBoundary } from 'react-error-boundary';
 import { useItemData } from "@/app/hooks/useItemData";
 import { ItemComponentProps } from "@/lib/interfaces";
+import { useAuthContext } from "@/components/Auth/AuthContext";
 import ExpandedItemView from "@/components/Item/ExpandedItemView";
 import React, { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import {
@@ -18,7 +21,9 @@ const Item: React.FC<ItemComponentProps> = ({
   itemInstanceId,
   alwaysExpanded = false,
 }) => {
+  const { membershipId } = useAuthContext();
   const [isExpanded, setIsExpanded] = useState(alwaysExpanded);
+  const [isFavorite, setIsFavorite] = useState(false);
   const itemRef = useRef<HTMLDivElement>(null);
   const itemData = useItemData(itemHash, itemInstanceId);
 
@@ -33,7 +38,16 @@ const Item: React.FC<ItemComponentProps> = ({
       setIsExpanded((prev) => !prev);
     }
   }, [alwaysExpanded]);
-
+  useEffect(() => {
+    if (membershipId) {
+      getFavorites(membershipId)
+        .then(favorites => {
+          const isFav = favorites.some((fav: any) => fav.itemInstanceId === itemInstanceId);
+          setIsFavorite(isFav);
+        })
+        .catch(error => console.error("Failed to fetch favorites:", error));
+    }
+  }, [membershipId, itemInstanceId]);
   useEffect(() => {
     if (isExpanded && !alwaysExpanded) {
       document.addEventListener("click", handleClickOutside);
@@ -94,7 +108,7 @@ const Item: React.FC<ItemComponentProps> = ({
                   />
                 )}
               </motion.div>
-              {!isExpanded && shouldShowPrimaryStat && primaryStatValue && (
+              {!isExpanded && shouldShowPrimaryStat && primaryStatValue && membershipId &&(
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -118,6 +132,13 @@ const Item: React.FC<ItemComponentProps> = ({
                       />
                     )}
                   </div>
+                  <Fave
+                    username={membershipId}
+                    itemInstanceId={itemInstanceId}
+                    itemHash={itemHash}
+                    initialFavorite={isFavorite}
+                    onFavoriteChange={(newState) => setIsFavorite(newState)}
+                  />
                 </motion.div>
               )}
             </motion.div>
