@@ -287,3 +287,9 @@ export interface CharacterEquipmentItem {
     itemHash: number;
     initialFavorite?: boolean;
   }
+  export interface WeaponFiltersProps {
+    onFilterChange: (damageType: string | null, weaponType: string | null) => void;
+  }
+  export interface ArmorFiltersProps {
+    onFilterChange: (classType: string | null, armorType: string | null) => void;
+  }

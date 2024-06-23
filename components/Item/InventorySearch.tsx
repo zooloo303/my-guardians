@@ -24,9 +24,7 @@ import {
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
-  DialogTitle,
   DialogTrigger,
   DialogClose,
   DialogFooter,
@@ -37,19 +35,18 @@ const InventorySearch: React.FC = () => {
   const { data: profileData, isLoading } = useProfileData(membershipId);
   const { data: manifestData } = useManifestData();
   const [searchQuery, setSearchQuery] = useState("");
-  const [weaponFilters, setWeaponFilters] = useState<string[]>([]);
-  const [armorFilters, setArmorFilters] = useState<string[]>([]);
-  const [searchType, setSearchType] = useState<"weapons" | "armor" | null>(
-    null
-  );
+  const [searchType, setSearchType] = useState<"weapons" | "armor" | null>(null);
+  const [weaponDamageFilter, setWeaponDamageFilter] = useState<string | null>(null);
+  const [weaponTypeFilter, setWeaponTypeFilter] = useState<string | null>(null);
+  const [armorClassFilter, setArmorClassFilter] = useState<string | null>(null);
+  const [armorTypeFilter, setArmorTypeFilter] = useState<string | null>(null);
 
   if (isLoading || !manifestData || !profileData) {
     return <SkeletonGuy />;
   }
 
   const data = profileData as unknown as ProfileData | null;
-  const characterInventoriesData =
-    data?.Response.characterInventories.data || {};
+  const characterInventoriesData = data?.Response.characterInventories.data || {};
   const profileInventoryData = data?.Response.profileInventory.data.items || [];
 
   const sortItems = (items: InventoryItem[]): InventoryItem[] => {
@@ -57,7 +54,7 @@ const InventorySearch: React.FC = () => {
       .filter(
         (item) =>
           !unwantedBucketHash.includes(item.bucketHash) && item.itemInstanceId
-      ) // Filter out items without itemInstanceId
+      )
       .sort(
         (a, b) =>
           itemOrder.indexOf(a.bucketHash) - itemOrder.indexOf(b.bucketHash)
@@ -67,60 +64,50 @@ const InventorySearch: React.FC = () => {
   const filterItems = (items: InventoryItem[]): InventoryItem[] => {
     const sortedItems = sortItems(items);
 
-    const classItemNames = ["Warlock Bond", "Hunter Cloak", "Titan Mark"];
-
     if (searchQuery) {
       return sortedItems.filter((item) => {
-        const itemData =
-          manifestData.DestinyInventoryItemDefinition[item.itemHash];
-        return itemData.displayProperties.name
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase());
+        const itemData = manifestData.DestinyInventoryItemDefinition[item.itemHash];
+        return itemData.displayProperties.name.toLowerCase().includes(searchQuery.toLowerCase());
       });
     }
 
-    if (searchType === null && weaponFilters.length === 0 && armorFilters.length === 0) {
+    if (searchType === null) {
       return sortedItems;
     }
 
     return sortedItems.filter((item) => {
-      const itemData =
-        manifestData.DestinyInventoryItemDefinition[item.itemHash];
+      const itemData = manifestData.DestinyInventoryItemDefinition[item.itemHash];
 
-      const matchesWeaponFilters = weaponFilters.every(
-        (filter) =>
-          itemData.itemTypeDisplayName === filter ||
-          damageType[itemData.defaultDamageType] === filter
-      );
+      if (searchType === "weapons") {
+        const matchesDamageType = !weaponDamageFilter || damageType[itemData.defaultDamageType] === weaponDamageFilter;
+        const matchesWeaponType = !weaponTypeFilter || itemData.itemTypeDisplayName === weaponTypeFilter;
+        return matchesDamageType && matchesWeaponType;
+      } else if (searchType === "armor") {
+        const matchesClassType = !armorClassFilter || classes[itemData.classType] === armorClassFilter;
+        const matchesArmorType = !armorTypeFilter || itemData.itemTypeDisplayName === armorTypeFilter;
+        return matchesClassType && matchesArmorType;
+      }
 
-      const matchesArmorFilters = armorFilters.every(
-        (filter) =>
-          classes[itemData.classType] === filter ||
-          itemData.itemTypeDisplayName === filter ||
-          classItemNames.includes(itemData.itemTypeDisplayName)
-      );
-
-      const matchesFilters =
-        searchType === "weapons"
-          ? matchesWeaponFilters
-          : searchType === "armor"
-          ? matchesArmorFilters
-          : false;
-
-      return matchesFilters;
+      return false;
     });
   };
 
-  const handleWeaponFilterChange = (filters: string[]) => {
-    setWeaponFilters(filters);
-    setSearchType(filters.length > 0 ? "weapons" : null);
-    setArmorFilters([]); // Clear armor filters
+  const handleWeaponFilterChange = (damageType: string | null, weaponType: string | null) => {
+    setWeaponDamageFilter(damageType);
+    setWeaponTypeFilter(weaponType);
+    setSearchType("weapons");
+    // Reset armor filters
+    setArmorClassFilter(null);
+    setArmorTypeFilter(null);
   };
 
-  const handleArmorFilterChange = (filters: string[]) => {
-    setArmorFilters(filters);
-    setSearchType(filters.length > 0 ? "armor" : null);
-    setWeaponFilters([]); // Clear weapon filters
+  const handleArmorFilterChange = (classType: string | null, armorType: string | null) => {
+    setArmorClassFilter(classType);
+    setArmorTypeFilter(armorType);
+    setSearchType("armor");
+    // Reset weapon filters
+    setWeaponDamageFilter(null);
+    setWeaponTypeFilter(null);
   };
 
   const filteredCharacterInventories = Object.entries(
@@ -146,7 +133,7 @@ const InventorySearch: React.FC = () => {
   const filteredProfileInventory = filterItems(
     profileInventoryData.map((item) => ({
       ...item,
-      characterId: "", // Assign an empty string or some default value for profile inventory items
+      characterId: "",
     }))
   );
 
@@ -159,20 +146,20 @@ const InventorySearch: React.FC = () => {
         <ScrollArea className="h-full">
           <DialogHeader>
             <div className="p-4">
-                <Search className="absolute left-6 top-7 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="text"
-                  placeholder="Search items..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full rounded-lg bg-background pl-8 md:w-[300px] lg:w-[500px]"
-                />
-              </div>
+              <Search className="absolute left-6 top-7 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Search items..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full rounded-lg bg-background pl-8 md:w-[300px] lg:w-[500px]"
+              />
+            </div>
           </DialogHeader>
           <div className="flex flex-row p-4 items-center justify-between">
-              <WeaponFilters onFilterChange={handleWeaponFilterChange} />
-              <ArmorFilters onFilterChange={handleArmorFilterChange} />
-            </div>
+            <WeaponFilters onFilterChange={handleWeaponFilterChange} />
+            <ArmorFilters onFilterChange={handleArmorFilterChange} />
+          </div>
           <CharacterList />
           <CharacterEquipment showSubclass={false} />
           <CharacterInventory filteredItems={filteredCharacterInventories} />
