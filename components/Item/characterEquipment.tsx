@@ -53,9 +53,11 @@ const CharacterEquipment: React.FC<CharacterEquipmentProps> = ({
   };
 
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>, item: CharacterEquipmentItem, characterId: string) => {
+    e.stopPropagation()
     const draggableItem: DraggableItem = { ...item, characterId, SOURCE };
     e.dataTransfer.setData("application/json", JSON.stringify(draggableItem));
     e.dataTransfer.effectAllowed = "move";
+    e.currentTarget.classList.add('border', 'border-dashed', 'border-green-500');
   };
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>, characterId: string) => {
@@ -66,7 +68,10 @@ const CharacterEquipment: React.FC<CharacterEquipmentProps> = ({
   const handleDragLeave = () => {
     setDragOverCharacterId(null);
   };
-
+  const handleDragEnd = (e: React.DragEvent<HTMLDivElement>) => {
+    // Remove the Tailwind CSS classes when the drag ends
+    e.currentTarget.classList.remove('border', 'border-dashed', 'border-green-500');
+  };
   const handleDrop = async (characterId: string, e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     const data = e.dataTransfer.getData("application/json");
@@ -103,7 +108,7 @@ const CharacterEquipment: React.FC<CharacterEquipmentProps> = ({
           <div
             key={characterId}
             className={`w-1/3 border p-2 rounded-xl transition-shadow duration-200 ${
-              dragOverCharacterId === characterId ? 'shadow-lg shadow-blue-500/50' : ''
+              dragOverCharacterId === characterId ? 'shadow-lg shadow-green-500/50' : ''
             }`}
             onDrop={(e) => handleDrop(characterId, e)}
             onDragOver={(e) => handleDragOver(e, characterId)}
@@ -118,6 +123,7 @@ const CharacterEquipment: React.FC<CharacterEquipmentProps> = ({
                     key={`${characterId}-${item.itemInstanceId}`}
                     draggable
                     onDragStart={(e) => handleDragStart(e, item, characterId)}
+                    onDragEnd={handleDragEnd}
                     className="item cursor-grab active:cursor-grabbing"
                   >
                     <Item

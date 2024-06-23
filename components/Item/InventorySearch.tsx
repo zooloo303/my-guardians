@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { Search } from "lucide-react";
+import { Search, Sparkles } from "lucide-react";
 import { Button } from "../ui/button";
 import { Input } from "@/components/ui/input";
 import { SkeletonGuy } from "@/components/skeleton";
@@ -140,7 +140,8 @@ const InventorySearch: React.FC = () => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline">My Precious</Button>
+        <Button>
+          <Sparkles className="mr-2 -4 w-4" /> My Precious </Button>
       </DialogTrigger>
       <DialogContent className="max-w-[90vw] max-h-[80vh] overflow-y-auto">
         <ScrollArea className="h-full">

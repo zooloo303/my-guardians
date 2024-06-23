@@ -15,7 +15,7 @@ const AuthorizeMe = () => {
             width={500}
             height={120}
           />
-          <h2 className="text-2xl font-bold mt-4">We need you to...</h2>
+          <h2 className="text-2xl font-bold mt-4">We need you 🫵</h2>
         </CardHeader>
         <CardContent className="flex justify-center">
           <Button

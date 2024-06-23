@@ -22,9 +22,11 @@ const CharacterInventory: React.FC<CharacterInventoryProps> = ({ filteredItems }
   };
 
   const handleDragStart = (item: InventoryItem, characterId: string) => (e: React.DragEvent<HTMLDivElement>) => {
+    e.stopPropagation()
     const itemWithSource = { ...item, characterId, SOURCE };
     e.dataTransfer.setData("application/json", JSON.stringify(itemWithSource));
     e.dataTransfer.effectAllowed = "move";
+    e.currentTarget.classList.add('border', 'border-dashed', 'border-green-500');
   };
 
   const handleDrop = async (characterId: string, e: React.DragEvent<HTMLDivElement>) => {
@@ -69,7 +71,11 @@ const CharacterInventory: React.FC<CharacterInventoryProps> = ({ filteredItems }
   const handleDragLeave = () => {
     setDragOverCharacterId(null);
   };
-
+  const handleDragEnd = (e: React.DragEvent<HTMLDivElement>) => {
+    // Remove the Tailwind CSS classes when the drag ends
+    e.currentTarget.classList.remove('border', 'border-dashed', 'border-green-500');
+  };
+  
   return (
     <>
       <Label className="pl-2 pb-1" htmlFor="character">
@@ -80,13 +86,13 @@ const CharacterInventory: React.FC<CharacterInventoryProps> = ({ filteredItems }
           <div
             key={characterId}
             className={`w-1/3 p-2 border rounded-xl transition-shadow duration-200 ${
-              dragOverCharacterId === characterId ? 'shadow-lg shadow-blue-500/50' : ''
+              dragOverCharacterId === characterId ? 'shadow-lg shadow-green-500/50' : ''
             }`}
             onDrop={(e) => handleDrop(characterId, e)}
             onDragOver={(e) => handleDragOver(e, characterId)}
             onDragLeave={handleDragLeave}
           >
-            <div className="flex flex-wrap items-center justify-center gap-1">
+            <div className="flex flex-wrap items-top justify-center gap-1">
               {characterInventory.items
                 .filter((item) => isWeaponOrArmor(item.bucketHash))
                 .map((item) => (
@@ -94,6 +100,7 @@ const CharacterInventory: React.FC<CharacterInventoryProps> = ({ filteredItems }
                     key={`${characterId}-${item.itemInstanceId}`}
                     draggable
                     onDragStart={handleDragStart(item, characterId)}
+                    onDragEnd={handleDragEnd}
                     className="item cursor-grab active:cursor-grabbing"
                   >
                     <Item

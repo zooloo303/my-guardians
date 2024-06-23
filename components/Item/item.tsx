@@ -76,7 +76,9 @@ const Item: React.FC<ItemComponentProps> = ({
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <motion.div>
+            <motion.div
+              className="flex flex-col items-center justify-center"
+            >
               <motion.div
                 ref={itemRef}
                 transition={{ layout: { duration: 0.5, type: "spring" } }}

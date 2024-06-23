@@ -30,9 +30,11 @@ const ProfileInventory: React.FC<ProfileInventoryProps> = ({
   };
 
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>, item: InventoryItem) => {
+    e.stopPropagation()
     const draggableItem: DraggableItem = { ...item, SOURCE };
     e.dataTransfer.setData("application/json", JSON.stringify(draggableItem));
     e.dataTransfer.effectAllowed = "move";
+    e.currentTarget.classList.add('border', 'border-dashed', 'border-green-500');
 
     if (manifestData && manifestData.DestinyInventoryItemDefinition) {
       let itemDefinition = manifestData.DestinyInventoryItemDefinition[item.itemHash];
@@ -50,7 +52,9 @@ const ProfileInventory: React.FC<ProfileInventoryProps> = ({
     e.preventDefault();
     setIsDragOver(true);
   };
-
+  const handleDragEnd = (e: React.DragEvent<HTMLDivElement>) => {
+    e.currentTarget.classList.remove('border', 'border-dashed', 'border-green-500');
+  };
   const handleDragLeave = () => {
     setIsDragOver(false);
   };
@@ -81,23 +85,24 @@ const ProfileInventory: React.FC<ProfileInventoryProps> = ({
   };
 
   return (
-    <div 
-      onDrop={handleDrop} 
-      onDragOver={handleDragOver} 
-      onDragLeave={handleDragLeave}
-      className={`transition-shadow duration-200 ${isDragOver ? 'shadow-lg shadow-blue-500/50' : ''}`}
-    >
+    <div>
       {filteredItems.length > 0 && (
         <Label className="p-2" htmlFor="profile">
           ...the rest of your gear
         </Label>
       )}
-      <div className="border rounded-xl flex flex-wrap items-center justify-center gap-1 p-2">
+      <div 
+        onDrop={handleDrop} 
+        onDragOver={handleDragOver} 
+        onDragLeave={handleDragLeave}
+        className={`border rounded-xl flex flex-wrap items-top justify-center gap-1 p-2 mb-2 transition-shadow duration-200 ${isDragOver ? 'shadow-lg shadow-green-500/50' : ''}`}
+      >
         {filteredItems.map((item) => (
           <div
             key={item.itemInstanceId}
             draggable
             onDragStart={(e) => handleDragStart(e, item)}
+            onDragEnd={handleDragEnd}
             className="item cursor-grab active:cursor-grabbing"
           >
             <Item
