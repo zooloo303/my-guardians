@@ -1,5 +1,5 @@
 // components/Item/characterInventory.tsx
-import React from "react";
+import React, { useState } from "react";
 import Item from "@/components/Item/item";
 import { Label } from "@/components/ui/label";
 import { useManifestData } from "@/app/hooks/useManifest";
@@ -15,6 +15,7 @@ const CharacterInventory: React.FC<CharacterInventoryProps> = ({ filteredItems }
   const { data: manifestData } = useManifestData();
   const { data: profileData } = useProfileData(membershipId);
   const { transfer, equip, getRandomItem } = useItemOperations();
+  const [dragOverCharacterId, setDragOverCharacterId] = useState<string | null>(null);
 
   const isWeaponOrArmor = (bucketHash: number) => {
     return weaponBucketHash.includes(bucketHash) || armorBucketHash.includes(bucketHash);
@@ -60,8 +61,13 @@ const CharacterInventory: React.FC<CharacterInventoryProps> = ({ filteredItems }
     }
   };
 
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>, characterId: string) => {
     e.preventDefault();
+    setDragOverCharacterId(characterId);
+  };
+
+  const handleDragLeave = () => {
+    setDragOverCharacterId(null);
   };
 
   return (
@@ -73,9 +79,12 @@ const CharacterInventory: React.FC<CharacterInventoryProps> = ({ filteredItems }
         {Object.entries(filteredItems).map(([characterId, characterInventory]) => (
           <div
             key={characterId}
-            className="w-1/3 p-2 border rounded-xl"
+            className={`w-1/3 p-2 border rounded-xl transition-shadow duration-200 ${
+              dragOverCharacterId === characterId ? 'shadow-lg shadow-blue-500/50' : ''
+            }`}
             onDrop={(e) => handleDrop(characterId, e)}
-            onDragOver={handleDragOver}
+            onDragOver={(e) => handleDragOver(e, characterId)}
+            onDragLeave={handleDragLeave}
           >
             <div className="flex flex-wrap items-center justify-center gap-1">
               {characterInventory.items

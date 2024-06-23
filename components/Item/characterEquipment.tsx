@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import Item from "@/components/Item/item";
 import { Label } from "@/components/ui/label";
 import { SkeletonGuy } from "@/components/skeleton";
@@ -31,6 +31,8 @@ const CharacterEquipment: React.FC<CharacterEquipmentProps> = ({
   const { data: profileData, isLoading } = useProfileData(membershipId);
   const { data: manifestData } = useManifestData();
   const { transfer, equip, getRandomItem } = useItemOperations();
+  const [dragOverCharacterId, setDragOverCharacterId] = useState<string | null>(null);
+
 
   if (isLoading) {
     return <SkeletonGuy />;
@@ -56,8 +58,13 @@ const CharacterEquipment: React.FC<CharacterEquipmentProps> = ({
     e.dataTransfer.effectAllowed = "move";
   };
 
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>, characterId: string) => {
     e.preventDefault();
+    setDragOverCharacterId(characterId);
+  };
+
+  const handleDragLeave = () => {
+    setDragOverCharacterId(null);
   };
 
   const handleDrop = async (characterId: string, e: React.DragEvent<HTMLDivElement>) => {
@@ -95,9 +102,12 @@ const CharacterEquipment: React.FC<CharacterEquipmentProps> = ({
         {Object.entries(equipmentData).map(([characterId, characterEquipment]) => (
           <div
             key={characterId}
-            className="w-1/3 border p-2 rounded-md"
+            className={`w-1/3 border p-2 rounded-xl transition-shadow duration-200 ${
+              dragOverCharacterId === characterId ? 'shadow-lg shadow-blue-500/50' : ''
+            }`}
             onDrop={(e) => handleDrop(characterId, e)}
-            onDragOver={handleDragOver}
+            onDragOver={(e) => handleDragOver(e, characterId)}
+            onDragLeave={handleDragLeave}
           >
             {showSubclass && <CharacterSubclass characterId={characterId} />}
             <div className="pt-2 gap-1 flex flex-grid flex-wrap justify-center grid-cols-2 md:grid-cols-3 lg:grid-cols-4">

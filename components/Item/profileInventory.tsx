@@ -1,9 +1,8 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { toast } from "sonner";
 import Item from "@/components/Item/item";
 import { Label } from "@/components/ui/label";
-import { useQueryClient } from "@tanstack/react-query";
 import { useManifestData } from "@/app/hooks/useManifest";
 import { useProfileData } from "@/app/hooks/useProfileData";
 import { useItemOperations } from "@/app/hooks/useItemOperations";
@@ -23,6 +22,7 @@ const ProfileInventory: React.FC<ProfileInventoryProps> = ({
   const { membershipId } = useAuthContext();
   const { data: manifestData } = useManifestData();
   const { data: profileData } = useProfileData(membershipId);
+  const [isDragOver, setIsDragOver] = useState(false);
   const { transfer } = useItemOperations();
 
   const getBucketName = (hash: number): string => {
@@ -48,8 +48,12 @@ const ProfileInventory: React.FC<ProfileInventoryProps> = ({
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
+    setIsDragOver(true);
   };
 
+  const handleDragLeave = () => {
+    setIsDragOver(false);
+  };
   const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     const data = e.dataTransfer.getData("application/json");
@@ -77,7 +81,12 @@ const ProfileInventory: React.FC<ProfileInventoryProps> = ({
   };
 
   return (
-    <div onDrop={handleDrop} onDragOver={handleDragOver}>
+    <div 
+      onDrop={handleDrop} 
+      onDragOver={handleDragOver} 
+      onDragLeave={handleDragLeave}
+      className={`transition-shadow duration-200 ${isDragOver ? 'shadow-lg shadow-blue-500/50' : ''}`}
+    >
       {filteredItems.length > 0 && (
         <Label className="p-2" htmlFor="profile">
           ...the rest of your gear
