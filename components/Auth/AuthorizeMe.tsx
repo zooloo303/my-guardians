@@ -7,13 +7,14 @@ import { authenticateWithBungie } from "@/lib/startAuth";
 const AuthorizeMe = () => {
   return (
     <div className="flex items-start justify-center h-screen">
-      <Card className="w-3/4 max-w-3xl mx-auto mt-24">
+      <Card className="w-3/4 max-w-3xl mx-auto mt-20">
         <CardHeader className="flex flex-col items-center">
           <Image
             src="/my-guardians.webp"
             alt="my-guardians"
-            width={500}
-            height={120}
+            width={1000}
+            height={250}
+            className="rounded-xl"
           />
           <h2 className="text-2xl font-bold mt-4">We need you 🫵</h2>
         </CardHeader>
