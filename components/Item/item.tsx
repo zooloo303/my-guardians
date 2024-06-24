@@ -1,14 +1,21 @@
 import Image from "next/image";
 import { motion } from "framer-motion";
 import Fave from "@/components/Item/Fave";
+import { useFavorites } from "@/app/hooks/useFavorites";
 import { SkeletonGuy } from "@/components/skeleton";
 import { getFavorites } from "@/lib/api/favoriteApi";
-import { ErrorBoundary } from 'react-error-boundary';
+import { ErrorBoundary } from "react-error-boundary";
 import { useItemData } from "@/app/hooks/useItemData";
 import { ItemComponentProps } from "@/lib/interfaces";
 import { useAuthContext } from "@/components/Auth/AuthContext";
 import ExpandedItemView from "@/components/Item/ExpandedItemView";
-import React, { useState, useRef, useEffect, useMemo, useCallback } from "react";
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  useMemo,
+  useCallback,
+} from "react";
 import {
   Tooltip,
   TooltipContent,
@@ -23,7 +30,12 @@ const Item: React.FC<ItemComponentProps> = ({
 }) => {
   const { membershipId } = useAuthContext();
   const [isExpanded, setIsExpanded] = useState(alwaysExpanded);
-  const [isFavorite, setIsFavorite] = useState(false);
+
+  const { favorites, addFavorite, removeFavorite } = useFavorites();
+  const isFavorite = favorites.some(
+    (fav: any) => fav.itemInstanceId === itemInstanceId
+  );
+
   const itemRef = useRef<HTMLDivElement>(null);
   const itemData = useItemData(itemHash, itemInstanceId);
 
@@ -38,16 +50,7 @@ const Item: React.FC<ItemComponentProps> = ({
       setIsExpanded((prev) => !prev);
     }
   }, [alwaysExpanded]);
-  useEffect(() => {
-    if (membershipId) {
-      getFavorites(membershipId)
-        .then(favorites => {
-          const isFav = favorites.some((fav: any) => fav.itemInstanceId === itemInstanceId);
-          setIsFavorite(isFav);
-        })
-        .catch(error => console.error("Failed to fetch favorites:", error));
-    }
-  }, [membershipId, itemInstanceId]);
+
   useEffect(() => {
     if (isExpanded && !alwaysExpanded) {
       document.addEventListener("click", handleClickOutside);
@@ -59,26 +62,34 @@ const Item: React.FC<ItemComponentProps> = ({
     };
   }, [isExpanded, alwaysExpanded, handleClickOutside]);
 
-  const expandedStyle = useMemo(() => ({
-    backgroundImage: `url(http://www.bungie.net${itemData?.itemData.screenshot})`,
-    backgroundSize: "cover",
-    backgroundPosition: "top",
-  }), [itemData?.itemData.screenshot]);
+  const expandedStyle = useMemo(
+    () => ({
+      backgroundImage: `url(http://www.bungie.net${itemData?.itemData.screenshot})`,
+      backgroundSize: "cover",
+      backgroundPosition: "top",
+    }),
+    [itemData?.itemData.screenshot]
+  );
 
   if (!itemData) {
     return <SkeletonGuy />;
   }
 
-  const { itemData: item, primaryStatValue, damageTypeIcon, shouldShowPrimaryStat, sockets, statData } = itemData;
+  const {
+    itemData: item,
+    primaryStatValue,
+    damageTypeIcon,
+    shouldShowPrimaryStat,
+    sockets,
+    statData,
+  } = itemData;
 
   return (
     <ErrorBoundary fallback={<div>Error loading item</div>}>
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <motion.div
-              className="flex flex-col items-center justify-center"
-            >
+            <motion.div className="flex flex-col items-center justify-center">
               <motion.div
                 ref={itemRef}
                 transition={{ layout: { duration: 0.5, type: "spring" } }}
@@ -92,10 +103,12 @@ const Item: React.FC<ItemComponentProps> = ({
                 }}
                 style={{
                   zIndex: isExpanded ? 10 : "auto",
-                  ...(isExpanded ? expandedStyle : {
-                    backgroundImage: `url(http://www.bungie.net${item.displayProperties.icon})`,
-                    backgroundSize: "cover",
-                  }),
+                  ...(isExpanded
+                    ? expandedStyle
+                    : {
+                        backgroundImage: `url(http://www.bungie.net${item.displayProperties.icon})`,
+                        backgroundSize: "cover",
+                      }),
                   position: "relative",
                 }}
               >
@@ -110,39 +123,48 @@ const Item: React.FC<ItemComponentProps> = ({
                   />
                 )}
               </motion.div>
-              {!isExpanded && shouldShowPrimaryStat && primaryStatValue && membershipId &&(
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 1 }}
-                  className="flex flex-row"
-                >
-                  <div className="flex items-center text-center text-xs">
-                    <Image
-                      src="/power-lvl.svg"
-                      alt="power level icon"
-                      width={10}
-                      height={10}
-                    />
-                    <span>{primaryStatValue}</span>
-                    {damageTypeIcon && (
+              {!isExpanded &&
+                shouldShowPrimaryStat &&
+                primaryStatValue &&
+                membershipId && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 1 }}
+                    className="flex flex-row"
+                  >
+                    <div className="flex items-center text-center text-xs">
                       <Image
-                        src={`/${damageTypeIcon}`}
-                        alt="damage type icon"
-                        width={12}
-                        height={12}
+                        src="/power-lvl.svg"
+                        alt="power level icon"
+                        width={10}
+                        height={10}
                       />
-                    )}
-                  </div>
-                  <Fave
-                    username={membershipId}
-                    itemInstanceId={itemInstanceId}
-                    itemHash={itemHash}
-                    initialFavorite={isFavorite}
-                    onFavoriteChange={(newState) => setIsFavorite(newState)}
-                  />
-                </motion.div>
-              )}
+                      <span>{primaryStatValue}</span>
+                      {damageTypeIcon && (
+                        <Image
+                          src={`/${damageTypeIcon}`}
+                          alt="damage type icon"
+                          width={12}
+                          height={12}
+                        />
+                      )}
+                    </div>
+                    <Fave
+                      username={membershipId}
+                      itemInstanceId={itemInstanceId}
+                      itemHash={itemHash}
+                      initialFavorite={isFavorite}
+                      onFavoriteChange={(newState) => {
+                        if (newState) {
+                          addFavorite({ itemInstanceId, itemHash });
+                        } else {
+                          removeFavorite(itemInstanceId);
+                        }
+                      }}
+                    />
+                  </motion.div>
+                )}
             </motion.div>
           </TooltipTrigger>
           <TooltipContent>

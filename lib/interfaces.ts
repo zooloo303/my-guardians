@@ -295,3 +295,9 @@ export interface CharacterEquipmentItem {
   export interface ArmorFiltersProps {
     onFilterChange: (classType: string | null, armorType: string | null) => void;
   }
+  export interface FavoritesContextType {
+    favorites: Set<string>;
+    addFavorite: (itemInstanceId: string) => void;
+    removeFavorite: (itemInstanceId: string) => void;
+  }
+  
