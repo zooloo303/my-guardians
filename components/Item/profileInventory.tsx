@@ -95,7 +95,7 @@ const ProfileInventory: React.FC<ProfileInventoryProps> = ({
         onDrop={handleDrop} 
         onDragOver={handleDragOver} 
         onDragLeave={handleDragLeave}
-        className={`border rounded-xl flex flex-wrap items-top justify-center gap-1 p-2 mb-2 transition-shadow duration-200 ${isDragOver ? 'shadow-lg shadow-green-500/50' : ''}`}
+        className={`border rounded-xl flex flex-wrap items-top justify-center gap-1 p-2 mb-2 transition-shadow duration-200 ${isDragOver ? 'shadow-inner shadow-green-500/50' : ''}`}
       >
         {filteredItems.map((item) => (
           <div

@@ -86,7 +86,7 @@ const CharacterInventory: React.FC<CharacterInventoryProps> = ({ filteredItems }
           <div
             key={characterId}
             className={`w-1/3 p-2 border rounded-xl transition-shadow duration-200 ${
-              dragOverCharacterId === characterId ? 'shadow-lg shadow-green-500/50' : ''
+              dragOverCharacterId === characterId ? 'shadow-inner shadow-green-500/50' : ''
             }`}
             onDrop={(e) => handleDrop(characterId, e)}
             onDragOver={(e) => handleDragOver(e, characterId)}

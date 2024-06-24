@@ -108,7 +108,7 @@ const CharacterEquipment: React.FC<CharacterEquipmentProps> = ({
           <div
             key={characterId}
             className={`w-1/3 border p-2 rounded-xl transition-shadow duration-200 ${
-              dragOverCharacterId === characterId ? 'shadow-lg shadow-green-500/50' : ''
+              dragOverCharacterId === characterId ? 'shadow-inner shadow-green-500/50' : ''
             }`}
             onDrop={(e) => handleDrop(characterId, e)}
             onDragOver={(e) => handleDragOver(e, characterId)}
