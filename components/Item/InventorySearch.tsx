@@ -35,8 +35,12 @@ const InventorySearch: React.FC = () => {
   const { data: profileData, isLoading } = useProfileData(membershipId);
   const { data: manifestData } = useManifestData();
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchType, setSearchType] = useState<"weapons" | "armor" | null>(null);
-  const [weaponDamageFilter, setWeaponDamageFilter] = useState<string | null>(null);
+  const [searchType, setSearchType] = useState<"weapons" | "armor" | null>(
+    null
+  );
+  const [weaponDamageFilter, setWeaponDamageFilter] = useState<string | null>(
+    null
+  );
   const [weaponTypeFilter, setWeaponTypeFilter] = useState<string | null>(null);
   const [armorClassFilter, setArmorClassFilter] = useState<string | null>(null);
   const [armorTypeFilter, setArmorTypeFilter] = useState<string | null>(null);
@@ -46,7 +50,8 @@ const InventorySearch: React.FC = () => {
   }
 
   const data = profileData as unknown as ProfileData | null;
-  const characterInventoriesData = data?.Response.characterInventories.data || {};
+  const characterInventoriesData =
+    data?.Response.characterInventories.data || {};
   const profileInventoryData = data?.Response.profileInventory.data.items || [];
 
   const sortItems = (items: InventoryItem[]): InventoryItem[] => {
@@ -66,8 +71,11 @@ const InventorySearch: React.FC = () => {
 
     if (searchQuery) {
       return sortedItems.filter((item) => {
-        const itemData = manifestData.DestinyInventoryItemDefinition[item.itemHash];
-        return itemData.displayProperties.name.toLowerCase().includes(searchQuery.toLowerCase());
+        const itemData =
+          manifestData.DestinyInventoryItemDefinition[item.itemHash];
+        return itemData.displayProperties.name
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase());
       });
     }
 
@@ -76,15 +84,22 @@ const InventorySearch: React.FC = () => {
     }
 
     return sortedItems.filter((item) => {
-      const itemData = manifestData.DestinyInventoryItemDefinition[item.itemHash];
+      const itemData =
+        manifestData.DestinyInventoryItemDefinition[item.itemHash];
 
       if (searchType === "weapons") {
-        const matchesDamageType = !weaponDamageFilter || damageType[itemData.defaultDamageType] === weaponDamageFilter;
-        const matchesWeaponType = !weaponTypeFilter || itemData.itemTypeDisplayName === weaponTypeFilter;
+        const matchesDamageType =
+          !weaponDamageFilter ||
+          damageType[itemData.defaultDamageType] === weaponDamageFilter;
+        const matchesWeaponType =
+          !weaponTypeFilter ||
+          itemData.itemTypeDisplayName === weaponTypeFilter;
         return matchesDamageType && matchesWeaponType;
       } else if (searchType === "armor") {
-        const matchesClassType = !armorClassFilter || classes[itemData.classType] === armorClassFilter;
-        const matchesArmorType = !armorTypeFilter || itemData.itemTypeDisplayName === armorTypeFilter;
+        const matchesClassType =
+          !armorClassFilter || classes[itemData.classType] === armorClassFilter;
+        const matchesArmorType =
+          !armorTypeFilter || itemData.itemTypeDisplayName === armorTypeFilter;
         return matchesClassType && matchesArmorType;
       }
 
@@ -92,7 +107,10 @@ const InventorySearch: React.FC = () => {
     });
   };
 
-  const handleWeaponFilterChange = (damageType: string | null, weaponType: string | null) => {
+  const handleWeaponFilterChange = (
+    damageType: string | null,
+    weaponType: string | null
+  ) => {
     setWeaponDamageFilter(damageType);
     setWeaponTypeFilter(weaponType);
     setSearchType("weapons");
@@ -101,7 +119,10 @@ const InventorySearch: React.FC = () => {
     setArmorTypeFilter(null);
   };
 
-  const handleArmorFilterChange = (classType: string | null, armorType: string | null) => {
+  const handleArmorFilterChange = (
+    classType: string | null,
+    armorType: string | null
+  ) => {
     setArmorClassFilter(classType);
     setArmorTypeFilter(armorType);
     setSearchType("armor");
@@ -141,7 +162,8 @@ const InventorySearch: React.FC = () => {
     <Dialog>
       <DialogTrigger asChild>
         <Button>
-          <Sparkles className="mr-2 -4 w-4" /> My Precious </Button>
+          <Sparkles className="mr-2 h-4 w-4" /> My Precious{" "}
+        </Button>
       </DialogTrigger>
       <DialogContent className="max-w-[90vw] max-h-[80vh] overflow-y-auto">
         <ScrollArea className="h-full">
@@ -157,9 +179,22 @@ const InventorySearch: React.FC = () => {
               />
             </div>
           </DialogHeader>
-          <div className="flex flex-row p-4 items-center justify-between">
-            <WeaponFilters onFilterChange={handleWeaponFilterChange} />
-            <ArmorFilters onFilterChange={handleArmorFilterChange} />
+          <div className="flex w-full px-4 items-center">
+            <div className="w-1/3 flex justify-center">
+              <WeaponFilters
+                onFilterChange={handleWeaponFilterChange}
+                damageOnly={true}
+              />
+            </div>
+            <div className="w-1/3 flex justify-center">
+              <WeaponFilters
+                onFilterChange={handleWeaponFilterChange}
+                weaponOnly={true}
+              />
+            </div>
+            <div className="w-1/3 flex justify-center">
+              <ArmorFilters onFilterChange={handleArmorFilterChange} />
+            </div>
           </div>
           <CharacterList />
           <CharacterEquipment showSubclass={false} />

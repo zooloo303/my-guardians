@@ -289,6 +289,8 @@ export interface CharacterEquipmentItem {
   }
   export interface WeaponFiltersProps {
     onFilterChange: (damageType: string | null, weaponType: string | null) => void;
+    damageOnly?: boolean;
+    weaponOnly?: boolean;
   }
   export interface ArmorFiltersProps {
     onFilterChange: (classType: string | null, armorType: string | null) => void;

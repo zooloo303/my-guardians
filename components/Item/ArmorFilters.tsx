@@ -33,7 +33,7 @@ const ArmorFilters: React.FC<ArmorFiltersProps> = ({ onFilterChange }) => {
           aria-label={`Toggle ${value}`}
           className={isSelected ? "bg-slate-700" : ""}
         >
-          <Image src={src} alt={alt} width={30} height={30} />
+          <Image src={src} alt={alt} width={40} height={40} />
         </ToggleGroupItem>
       </TooltipTrigger>
       <TooltipContent>
@@ -49,7 +49,7 @@ const ArmorFilters: React.FC<ArmorFiltersProps> = ({ onFilterChange }) => {
           type="single"
           value={selectedClassType || ""}
           onValueChange={handleClassFilterChange}
-          className="grid flex-wrap grid-cols-3"
+          className="grid grid-cols-3 gap-1 mb-2"
         >
           {renderToggleGroupItem("Warlock", "/class-warlock.svg", "class-warlock", selectedClassType === "Warlock")}
           {renderToggleGroupItem("Hunter", "/class-hunter.svg", "class-hunter", selectedClassType === "Hunter")}
@@ -59,7 +59,7 @@ const ArmorFilters: React.FC<ArmorFiltersProps> = ({ onFilterChange }) => {
           type="single"
           value={selectedArmorType || ""}
           onValueChange={handleArmorTypeFilterChange}
-          className="grid flex-wrap grid-cols-5"
+          className="grid grid-cols-5 gap-1"
         >
           {renderToggleGroupItem("Helmet", "/helmet.svg", "helmet", selectedArmorType === "Helmet")}
           {renderToggleGroupItem("Gauntlets", "/arms.svg", "arms", selectedArmorType === "Gauntlets")}
