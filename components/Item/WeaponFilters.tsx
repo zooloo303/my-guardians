@@ -21,13 +21,13 @@ const WeaponFilters: React.FC<ExtendedWeaponFiltersProps> = ({ onFilterChange, d
   const handleDamageFilterChange = (value: string) => {
     const newValue = value === selectedDamageType ? null : value;
     setSelectedDamageType(newValue);
-    onFilterChange(newValue, selectedWeaponType);
+    onFilterChange(newValue, null);
   };
 
   const handleWeaponTypeFilterChange = (value: string) => {
     const newValue = value === selectedWeaponType ? null : value;
     setSelectedWeaponType(newValue);
-    onFilterChange(selectedDamageType, newValue);
+    onFilterChange(null, newValue);
   };
 
   const renderToggleGroupItem = (value: string, src: string, alt: string, isSelected: boolean) => (

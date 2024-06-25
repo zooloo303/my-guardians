@@ -65,44 +65,33 @@ const InventorySearch: React.FC = () => {
           itemOrder.indexOf(a.bucketHash) - itemOrder.indexOf(b.bucketHash)
       );
   };
-
   const filterItems = (items: InventoryItem[]): InventoryItem[] => {
     const sortedItems = sortItems(items);
-
+  
     if (searchQuery) {
       return sortedItems.filter((item) => {
-        const itemData =
-          manifestData.DestinyInventoryItemDefinition[item.itemHash];
-        return itemData.displayProperties.name
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase());
+        const itemData = manifestData.DestinyInventoryItemDefinition[item.itemHash];
+        return itemData.displayProperties.name.toLowerCase().includes(searchQuery.toLowerCase());
       });
     }
-
-    if (searchType === null) {
+  
+    if (searchType === null && !weaponDamageFilter && !weaponTypeFilter && !armorClassFilter && !armorTypeFilter) {
       return sortedItems;
     }
-
+  
     return sortedItems.filter((item) => {
-      const itemData =
-        manifestData.DestinyInventoryItemDefinition[item.itemHash];
-
-      if (searchType === "weapons") {
-        const matchesDamageType =
-          !weaponDamageFilter ||
-          damageType[itemData.defaultDamageType] === weaponDamageFilter;
-        const matchesWeaponType =
-          !weaponTypeFilter ||
-          itemData.itemTypeDisplayName === weaponTypeFilter;
+      const itemData = manifestData.DestinyInventoryItemDefinition[item.itemHash];
+  
+      if (searchType === "weapons" || weaponDamageFilter || weaponTypeFilter) {
+        const matchesDamageType = !weaponDamageFilter || damageType[itemData.defaultDamageType] === weaponDamageFilter;
+        const matchesWeaponType = !weaponTypeFilter || itemData.itemTypeDisplayName === weaponTypeFilter;
         return matchesDamageType && matchesWeaponType;
-      } else if (searchType === "armor") {
-        const matchesClassType =
-          !armorClassFilter || classes[itemData.classType] === armorClassFilter;
-        const matchesArmorType =
-          !armorTypeFilter || itemData.itemTypeDisplayName === armorTypeFilter;
+      } else if (searchType === "armor" || armorClassFilter || armorTypeFilter) {
+        const matchesClassType = !armorClassFilter || classes[itemData.classType] === armorClassFilter;
+        const matchesArmorType = !armorTypeFilter || itemData.itemTypeDisplayName === armorTypeFilter;
         return matchesClassType && matchesArmorType;
       }
-
+  
       return false;
     });
   };
@@ -111,8 +100,12 @@ const InventorySearch: React.FC = () => {
     damageType: string | null,
     weaponType: string | null
   ) => {
-    setWeaponDamageFilter(damageType);
-    setWeaponTypeFilter(weaponType);
+    if (damageType !== null) {
+      setWeaponDamageFilter(damageType);
+    }
+    if (weaponType !== null) {
+      setWeaponTypeFilter(weaponType);
+    }
     setSearchType("weapons");
     // Reset armor filters
     setArmorClassFilter(null);
