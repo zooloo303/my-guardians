@@ -28,7 +28,6 @@ const CharacterInventory: React.FC<CharacterInventoryProps> = ({
   const [dragOverCharacterId, setDragOverCharacterId] = useState<string | null>(
     null
   );
-
   const isWeaponOrArmor = (bucketHash: number) => {
     return (
       weaponBucketHash.includes(bucketHash) ||
@@ -96,11 +95,7 @@ const CharacterInventory: React.FC<CharacterInventoryProps> = ({
       } else if (item.SOURCE === "ProfileInventory") {
         await transfer(item, false, characterId, membershipType);
       }
-      console.log("About to invalidate queries");
-      queryClient.invalidateQueries({
-        queryKey: ["profileData", membershipId],
-      });
-      console.log("Queries invalidated");
+      queryClient.invalidateQueries({ queryKey: ["profileData"] });
     } catch (error) {
       console.error("Transfer or equip operation failed:", error);
     }

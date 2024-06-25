@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import Providers from "@/lib/query-provider";
 import Navbar from "@/components/Navbar/navbar";
 import { Toaster } from "@/components/ui/sonner";
+import ManifestProgress from "@/components/ManifestProgress";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,6 +22,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <Providers>
+          <ManifestProgress />
           <Navbar />
           {children}
         </Providers>

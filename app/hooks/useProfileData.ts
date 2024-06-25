@@ -12,7 +12,7 @@ export const useProfileData = (membershipId: string | null) => {
       return fetchedProfile;
     },
     enabled: !!membershipId,
-    staleTime: 30000,
+    staleTime: 0,
     gcTime: 60000,
     refetchInterval: 120000,
   });
