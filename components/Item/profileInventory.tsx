@@ -8,10 +8,7 @@ import { useProfileData } from "@/app/hooks/useProfileData";
 import { useItemOperations } from "@/app/hooks/useItemOperations";
 import { useAuthContext } from "@/components/Auth/AuthContext";
 import { bucketHash } from "@/lib/destinyEnums";
-import {
-  ProfileInventoryProps,
-  InventoryItem
-} from "@/lib/interfaces";
+import { ProfileInventoryProps, InventoryItem } from "@/lib/interfaces";
 
 type DraggableItem = InventoryItem & { SOURCE: string };
 
@@ -29,17 +26,29 @@ const ProfileInventory: React.FC<ProfileInventoryProps> = ({
     return bucketHash[hash] || "Unknown Bucket";
   };
 
-  const handleDragStart = (e: React.DragEvent<HTMLDivElement>, item: InventoryItem) => {
-    e.stopPropagation()
+  const handleDragStart = (
+    e: React.DragEvent<HTMLDivElement>,
+    item: InventoryItem
+  ) => {
+    e.stopPropagation();
     const draggableItem: DraggableItem = { ...item, SOURCE };
     e.dataTransfer.setData("application/json", JSON.stringify(draggableItem));
     e.dataTransfer.effectAllowed = "move";
-    e.currentTarget.classList.add('border', 'border-dashed', 'border-green-500');
+    e.currentTarget.classList.add(
+      "border",
+      "border-dashed",
+      "border-green-500"
+    );
 
     if (manifestData && manifestData.DestinyInventoryItemDefinition) {
-      let itemDefinition = manifestData.DestinyInventoryItemDefinition[item.itemHash];
+      let itemDefinition =
+        manifestData.DestinyInventoryItemDefinition[item.itemHash];
       if (itemDefinition) {
-        console.log(`Dragging item: ${itemDefinition.displayProperties.name} ${getBucketName(item.bucketHash)} from Vault`);
+        console.log(
+          `Dragging item: ${
+            itemDefinition.displayProperties.name
+          } ${getBucketName(item.bucketHash)} from Vault`
+        );
       } else {
         console.log(`Dragging Unknown item from Vault`);
       }
@@ -53,7 +62,11 @@ const ProfileInventory: React.FC<ProfileInventoryProps> = ({
     setIsDragOver(true);
   };
   const handleDragEnd = (e: React.DragEvent<HTMLDivElement>) => {
-    e.currentTarget.classList.remove('border', 'border-dashed', 'border-green-500');
+    e.currentTarget.classList.remove(
+      "border",
+      "border-dashed",
+      "border-green-500"
+    );
   };
   const handleDragLeave = () => {
     setIsDragOver(false);
@@ -64,7 +77,8 @@ const ProfileInventory: React.FC<ProfileInventoryProps> = ({
     if (!data) return;
 
     const item: DraggableItem = JSON.parse(data);
-    const membershipType = profileData?.Response.profile.data.userInfo.membershipType;
+    const membershipType =
+      profileData?.Response.profile.data.userInfo.membershipType;
 
     if (!manifestData || !membershipId || !membershipType) return;
 
@@ -72,26 +86,33 @@ const ProfileInventory: React.FC<ProfileInventoryProps> = ({
       try {
         await transfer(item, true, item.characterId, membershipType);
         if (manifestData && manifestData.DestinyInventoryItemDefinition) {
-          let itemDefinition = manifestData.DestinyInventoryItemDefinition[item.itemHash];
+          let itemDefinition =
+            manifestData.DestinyInventoryItemDefinition[item.itemHash];
           if (itemDefinition) {
-            toast(`Transferred ${itemDefinition.displayProperties.name} to the vault`);
+            toast(
+              `Transferred ${itemDefinition.displayProperties.name} to the vault`
+            );
           }
         }
       } catch (error) {
         console.error("Transfer to vault failed:", error);
-        toast("Transfer to vault failed", { style: { backgroundColor: 'red', color: 'white' } });
+        toast("Transfer to vault failed", {
+          style: { backgroundColor: "red", color: "white" },
+        });
       }
     }
   };
 
   return (
     <>
-    <Vault className="pl-2" />
-      <div 
-        onDrop={handleDrop} 
-        onDragOver={handleDragOver} 
+      <Vault className="pl-2" />
+      <div
+        onDrop={handleDrop}
+        onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
-        className={`border rounded-xl flex flex-wrap items-top justify-center gap-1 p-2 mb-2 transition-shadow duration-200 ${isDragOver ? 'shadow-inner shadow-green-500/50' : ''}`}
+        className={`border rounded-xl flex flex-wrap items-top justify-center gap-1 p-2 mb-2 transition-shadow duration-200 ${
+          isDragOver ? "shadow-inner shadow-green-500/50" : ""
+        }`}
       >
         {filteredItems.map((item) => (
           <div
@@ -99,7 +120,7 @@ const ProfileInventory: React.FC<ProfileInventoryProps> = ({
             draggable
             onDragStart={(e) => handleDragStart(e, item)}
             onDragEnd={handleDragEnd}
-            className="item cursor-grab active:cursor-grabbing"
+            className="item cursor-grab active:cursor-grabbing transform translate-x-0 translate-y-0"
           >
             <Item
               itemHash={item.itemHash}
