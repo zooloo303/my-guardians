@@ -3,6 +3,7 @@ import { Backpack } from "lucide-react";
 import React, { useState } from "react";
 import Item from "@/components/Item/item";
 import { Badge } from "@/components/ui/badge";
+import { useQueryClient } from "@tanstack/react-query";
 import { useManifestData } from "@/app/hooks/useManifest";
 import { useProfileData } from "@/app/hooks/useProfileData";
 import { useAuthContext } from "@/components/Auth/AuthContext";
@@ -19,6 +20,7 @@ const CharacterInventory: React.FC<CharacterInventoryProps> = ({
   filteredItems,
 }) => {
   const SOURCE = "CharacterInventory";
+  const queryClient = useQueryClient();
   const { membershipId } = useAuthContext();
   const { data: manifestData } = useManifestData();
   const { data: profileData } = useProfileData(membershipId);
@@ -94,6 +96,11 @@ const CharacterInventory: React.FC<CharacterInventoryProps> = ({
       } else if (item.SOURCE === "ProfileInventory") {
         await transfer(item, false, characterId, membershipType);
       }
+      console.log("About to invalidate queries");
+      queryClient.invalidateQueries({
+        queryKey: ["profileData", membershipId],
+      });
+      console.log("Queries invalidated");
     } catch (error) {
       console.error("Transfer or equip operation failed:", error);
     }

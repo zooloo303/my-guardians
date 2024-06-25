@@ -2,13 +2,13 @@
 import { Shield } from "lucide-react";
 import React, { useState } from "react";
 import Item from "@/components/Item/item";
-import { Label } from "@/components/ui/label";
 import { SkeletonGuy } from "@/components/skeleton";
+import { useQueryClient } from "@tanstack/react-query";
 import { useManifestData } from "@/app/hooks/useManifest";
 import { useProfileData } from "@/app/hooks/useProfileData";
-import { useItemOperations } from "@/app/hooks/useItemOperations";
 import { useAuthContext } from "@/components/Auth/AuthContext";
 import CharacterSubclass from "../Character/characterSubclass";
+import { useItemOperations } from "@/app/hooks/useItemOperations";
 import {
   armorBucketHash,
   weaponBucketHash,
@@ -28,10 +28,11 @@ const CharacterEquipment: React.FC<CharacterEquipmentProps> = ({
   showSubclass,
 }) => {
   const SOURCE = "CharacterEquipment";
+  const queryClient = useQueryClient();
   const { membershipId } = useAuthContext();
   const { data: profileData, isLoading } = useProfileData(membershipId);
   const { data: manifestData } = useManifestData();
-  const { transfer, equip, getRandomItem } = useItemOperations();
+  const { transfer, equip } = useItemOperations();
   const [dragOverCharacterId, setDragOverCharacterId] = useState<string | null>(
     null
   );
@@ -120,6 +121,9 @@ const CharacterEquipment: React.FC<CharacterEquipmentProps> = ({
         await transfer(item, false, characterId, membershipType);
         await equip(item, characterId, membershipType);
       }
+      queryClient.invalidateQueries({
+        queryKey: ["profileData", membershipId],
+      });
     } catch (error) {
       console.error("Transfer or equip operation failed:", error);
     }

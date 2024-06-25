@@ -3,11 +3,12 @@ import { toast } from "sonner";
 import { Vault } from "lucide-react";
 import React, { useState } from "react";
 import Item from "@/components/Item/item";
+import { bucketHash } from "@/lib/destinyEnums";
+import { useQueryClient } from "@tanstack/react-query";
 import { useManifestData } from "@/app/hooks/useManifest";
 import { useProfileData } from "@/app/hooks/useProfileData";
-import { useItemOperations } from "@/app/hooks/useItemOperations";
 import { useAuthContext } from "@/components/Auth/AuthContext";
-import { bucketHash } from "@/lib/destinyEnums";
+import { useItemOperations } from "@/app/hooks/useItemOperations";
 import { ProfileInventoryProps, InventoryItem } from "@/lib/interfaces";
 
 type DraggableItem = InventoryItem & { SOURCE: string };
@@ -21,7 +22,7 @@ const ProfileInventory: React.FC<ProfileInventoryProps> = ({
   const { data: profileData } = useProfileData(membershipId);
   const [isDragOver, setIsDragOver] = useState(false);
   const { transfer } = useItemOperations();
-
+  const queryClient = useQueryClient();
   const getBucketName = (hash: number): string => {
     return bucketHash[hash] || "Unknown Bucket";
   };
@@ -94,6 +95,9 @@ const ProfileInventory: React.FC<ProfileInventoryProps> = ({
             );
           }
         }
+        queryClient.invalidateQueries({
+          queryKey: ["profileData", membershipId],
+        });
       } catch (error) {
         console.error("Transfer to vault failed:", error);
         toast("Transfer to vault failed", {
