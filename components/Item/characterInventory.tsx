@@ -1,13 +1,14 @@
 // components/Item/characterInventory.tsx
 import React, { useState } from "react";
 import Item from "@/components/Item/item";
-import { Label } from "@/components/ui/label";
+import { CircleDashed } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { useManifestData } from "@/app/hooks/useManifest";
 import { useProfileData } from "@/app/hooks/useProfileData";
 import { useAuthContext } from "@/components/Auth/AuthContext";
 import { useItemOperations } from "@/app/hooks/useItemOperations";
 import { CharacterInventoryProps, InventoryItem } from "@/lib/interfaces";
-import { weaponBucketHash, armorBucketHash } from "@/lib/destinyEnums";
+import { weaponBucketHash, armorBucketHash, bucketHash, itemOrder } from "@/lib/destinyEnums";
 
 const CharacterInventory: React.FC<CharacterInventoryProps> = ({ filteredItems }) => {
   const SOURCE = "CharacterInventory";
@@ -76,45 +77,66 @@ const CharacterInventory: React.FC<CharacterInventoryProps> = ({ filteredItems }
     e.currentTarget.classList.remove('border', 'border-dashed', 'border-green-500');
   };
   
+  const groupItemsByBucket = (items: InventoryItem[]) => {
+    return items.reduce((acc, item) => {
+      if (!acc[item.bucketHash]) {
+        acc[item.bucketHash] = [];
+      }
+      acc[item.bucketHash].push(item);
+      return acc;
+    }, {} as Record<number, InventoryItem[]>);
+  };
+
   return (
-    <>
-      <Label className="pl-2 pb-1" htmlFor="character">
-        Character Inventory
-      </Label>
-      <div className="flex flex-row gap-1">
-        {Object.entries(filteredItems).map(([characterId, characterInventory]) => (
-          <div
-            key={characterId}
-            className={`w-1/3 p-2 border rounded-xl transition-shadow duration-200 ${
-              dragOverCharacterId === characterId ? 'shadow-inner shadow-green-500/50' : ''
-            }`}
-            onDrop={(e) => handleDrop(characterId, e)}
-            onDragOver={(e) => handleDragOver(e, characterId)}
-            onDragLeave={handleDragLeave}
-          >
-            <div className="flex flex-wrap items-top justify-center gap-1">
-              {characterInventory.items
-                .filter((item) => isWeaponOrArmor(item.bucketHash))
-                .map((item) => (
-                  <div
-                    key={`${characterId}-${item.itemInstanceId}`}
-                    draggable
-                    onDragStart={handleDragStart(item, characterId)}
-                    onDragEnd={handleDragEnd}
-                    className="item cursor-grab active:cursor-grabbing"
-                  >
-                    <Item
-                      itemHash={item.itemHash}
-                      itemInstanceId={item.itemInstanceId}
-                      characterId={characterId}
-                    />
+    <div className="flex flex-row gap-0.5">
+      {Object.entries(filteredItems).map(([characterId, characterInventory]) => (
+        <div
+          key={characterId}
+          className={`flex-1 p-1 rounded-md transition-shadow duration-200 ${
+            dragOverCharacterId === characterId ? 'shadow-inner shadow-green-500/50' : ''
+          }`}
+          onDrop={(e) => handleDrop(characterId, e)}
+          onDragOver={(e) => handleDragOver(e, characterId)}
+          onDragLeave={handleDragLeave}
+        >
+          {Object.entries(groupItemsByBucket(characterInventory.items))
+            .sort(([a], [b]) => itemOrder.indexOf(Number(a)) - itemOrder.indexOf(Number(b)))
+            .map(([bucketHashStr, bucketItems]) => {
+              const bucketHashNum = Number(bucketHashStr);
+              if (isWeaponOrArmor(bucketHashNum)) {
+                return (
+                  <div key={bucketHashStr} className="mb-2">
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-xs font-semibold">{bucketHash[bucketHashNum] || "Unknown"}</span>
+                      <Badge variant="outline" className="text-xs">
+                        {bucketItems.length}/9
+                      </Badge>
+                    </div>
+                    <div className="flex flex-wrap gap-0.5">
+                      {bucketItems.map((item) => (
+                        <div
+                          key={`${characterId}-${item.itemInstanceId}`}
+                          draggable
+                          onDragStart={handleDragStart(item, characterId)}
+                          onDragEnd={handleDragEnd}
+                          className="item cursor-grab active:cursor-grabbing"
+                        >
+                          <Item
+                            itemHash={item.itemHash}
+                            itemInstanceId={item.itemInstanceId}
+                            characterId={characterId}
+                          />
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                ))}
-            </div>
-          </div>
-        ))}
-      </div>
-    </>
+                );
+              }
+              return null;
+            })}
+        </div>
+      ))}
+    </div>
   );
 };
 
