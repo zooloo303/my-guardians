@@ -36,7 +36,7 @@ const CharacterSm: React.FC<CharacterType> = ({ characterId }) => {
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <div className="w-14 h-14 border rounded-xl flex items-center justify-center">
+          <div className="w-14 h-14 flex items-center justify-center">
             <Avatar>
               <AvatarImage
                 src={`http://www.bungie.net${emblemPath}`}

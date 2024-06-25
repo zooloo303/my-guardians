@@ -1,8 +1,8 @@
 "use client";
-import React, { useState } from "react";
 import { toast } from "sonner";
+import { Vault } from "lucide-react";
+import React, { useState } from "react";
 import Item from "@/components/Item/item";
-import { Label } from "@/components/ui/label";
 import { useManifestData } from "@/app/hooks/useManifest";
 import { useProfileData } from "@/app/hooks/useProfileData";
 import { useItemOperations } from "@/app/hooks/useItemOperations";
@@ -85,12 +85,8 @@ const ProfileInventory: React.FC<ProfileInventoryProps> = ({
   };
 
   return (
-    <div>
-      {filteredItems.length > 0 && (
-        <Label className="p-2" htmlFor="profile">
-          ...the rest of your gear
-        </Label>
-      )}
+    <>
+    <Vault className="pl-2" />
       <div 
         onDrop={handleDrop} 
         onDragOver={handleDragOver} 
@@ -112,7 +108,7 @@ const ProfileInventory: React.FC<ProfileInventoryProps> = ({
           </div>
         ))}
       </div>
-    </div>
+    </>
   );
 };
 

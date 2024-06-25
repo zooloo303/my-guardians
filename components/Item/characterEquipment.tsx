@@ -1,4 +1,5 @@
 "use client";
+import { Shield } from "lucide-react"
 import React, { useState } from "react";
 import Item from "@/components/Item/item";
 import { Label } from "@/components/ui/label";
@@ -100,9 +101,7 @@ const CharacterEquipment: React.FC<CharacterEquipmentProps> = ({
 
   return (
     <>
-      <Label className="pl-2" htmlFor="equipped">
-        Equipped Items
-      </Label>
+      <Shield className="pl-2" />
       <div className="flex flex-row justify-between items-center gap-2">
         {Object.entries(equipmentData).map(([characterId, characterEquipment]) => (
           <div

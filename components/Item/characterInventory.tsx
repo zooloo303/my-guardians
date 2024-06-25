@@ -1,7 +1,7 @@
 // components/Item/characterInventory.tsx
+import { Backpack } from "lucide-react";
 import React, { useState } from "react";
 import Item from "@/components/Item/item";
-import { CircleDashed } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useManifestData } from "@/app/hooks/useManifest";
 import { useProfileData } from "@/app/hooks/useProfileData";
@@ -88,11 +88,13 @@ const CharacterInventory: React.FC<CharacterInventoryProps> = ({ filteredItems }
   };
 
   return (
-    <div className="flex flex-row gap-0.5">
+    <>
+    <Backpack className="pl-2" />
+    <div className="flex flex-row gap-2 pt-1">
       {Object.entries(filteredItems).map(([characterId, characterInventory]) => (
         <div
           key={characterId}
-          className={`flex-1 p-1 rounded-md transition-shadow duration-200 ${
+          className={`flex-1 p-1 border rounded-xl transition-shadow duration-200 ${
             dragOverCharacterId === characterId ? 'shadow-inner shadow-green-500/50' : ''
           }`}
           onDrop={(e) => handleDrop(characterId, e)}
@@ -137,6 +139,7 @@ const CharacterInventory: React.FC<CharacterInventoryProps> = ({ filteredItems }
         </div>
       ))}
     </div>
+    </>
   );
 };
 
