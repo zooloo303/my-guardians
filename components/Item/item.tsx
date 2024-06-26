@@ -3,7 +3,6 @@ import { motion } from "framer-motion";
 import Fave from "@/components/Item/Fave";
 import { useFavorites } from "@/app/hooks/useFavorites";
 import { SkeletonGuy } from "@/components/skeleton";
-import { getFavorites } from "@/lib/api/favoriteApi";
 import { ErrorBoundary } from "react-error-boundary";
 import { useItemData } from "@/app/hooks/useItemData";
 import { ItemComponentProps } from "@/lib/interfaces";
