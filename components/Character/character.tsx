@@ -42,8 +42,8 @@ const Character: React.FC<CharacterType> = ({ characterId }) => {
           className="absolute inset-0 bg-cover bg-center rounded-md"
           style={{
             backgroundImage: `url(http://www.bungie.net${emblemBackgroundPath})`,
-            backgroundSize: 'contain',
-            backgroundRepeat: 'no-repeat',
+            backgroundSize: "contain",
+            backgroundRepeat: "no-repeat",
           }}
         ></div>
         <div className="absolute inset-0 flex items-center justify-end p-4 rounded-md">

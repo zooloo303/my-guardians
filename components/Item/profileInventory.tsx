@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { Vault } from "lucide-react";
 import React, { useState } from "react";
 import Item from "@/components/Item/item";
+import { Badge } from "@/components/ui/badge";
 import { bucketHash } from "@/lib/destinyEnums";
 import { useQueryClient } from "@tanstack/react-query";
 import { useManifestData } from "@/app/hooks/useManifest";
@@ -26,6 +27,18 @@ const ProfileInventory: React.FC<ProfileInventoryProps> = ({
   const getBucketName = (hash: number): string => {
     return bucketHash[hash] || "Unknown Bucket";
   };
+
+  // Function to count items recursively
+  const countItems = (items: any[]): number => {
+    return items.reduce((count, item) => {
+      if (Array.isArray(item)) {
+        return count + countItems(item);
+      }
+      return count + 1;
+    }, 0);
+  };
+
+  const totalItems = countItems(filteredItems);
 
   const handleDragStart = (
     e: React.DragEvent<HTMLDivElement>,
@@ -109,7 +122,12 @@ const ProfileInventory: React.FC<ProfileInventoryProps> = ({
 
   return (
     <>
-      <Vault className="pl-2" />
+      <div className="flex flex-row p-1">
+        <Vault className="pl-2" />
+        <Badge variant="outline" className="ml-2 text-xs">
+          {totalItems}/700
+        </Badge>
+      </div>
       <div
         onDrop={handleDrop}
         onDragOver={handleDragOver}

@@ -1,4 +1,4 @@
-// components/Item/characterInventory.tsx
+"use client";
 import { Backpack } from "lucide-react";
 import React, { useState } from "react";
 import Item from "@/components/Item/item";

@@ -25,7 +25,7 @@ const MyCharacters: React.FC = () => {
       {Object.keys(characterData).map((characterId) => {
         const character = characterData[characterId];
         return (
-          <div key={characterId} className="w-1/3">
+          <div key={characterId} className="w-1/3 flex flex-col items-center">
             <Character
               characterId={characterId}
               classType={character.classType}
