@@ -18,7 +18,7 @@ export interface ProfileData {
           itemHash: number;
           bucketHash: number;
           location: number;
-          }>;
+        }>;
         userInfo: {
           bungieGlobalDisplayName: string;
           membershipType: number;
@@ -74,7 +74,7 @@ export interface ProfileData {
             itemHash: number;
             location: number;
             bucketHash: number;
-            }>;
+          }>;
         };
       };
     };
@@ -158,68 +158,7 @@ export interface DestinyInventoryBucketDefinition {
     hasIcon: boolean;
   };
 }
-export interface Weapon {
-  itemHash: number;
-  itemInstanceId?: string;
-  quantity: number;
-  bindStatus: number;
-  location: number;
-  bucketHash: number;
-  transferStatus: number;
-  lockable: boolean;
-  state: number;
-  dismantlePermission: number;
-  isWrapper: boolean;
-  tooltipNotificationIndexes: number[];
-  itemName: string;
-  itemIcon: string;
-  itemTypeDisplayName: string;
-  itemTypeDescription: string;
-  itemSubTypeDescription: string;
-  locationDescription: string;
-  itemCategoryNames: string[];
-  damageTypeName: string;
-  damageTypeIcon: string;
-  tierTypeName: string;
-  powerLevel: number;
-  isFavorite?: boolean;
-}
-export interface Armor {
-  itemHash: number;
-  itemInstanceId?: string;
-  quantity: number;
-  bindStatus: number;
-  location: number;
-  bucketHash: number;
-  transferStatus: number;
-  lockable: boolean;
-  state: number;
-  dismantlePermission: number;
-  isWrapper: boolean;
-  tooltipNotificationIndexes: number[];
-  itemName: string;
-  itemIcon: string;
-  itemTypeDisplayName: string;
-  itemTypeDescription: string;
-  itemSubTypeDescription: string;
-  locationDescription: string;
-  itemCategoryNames: string[];
-  tierTypeName: string;
-  powerLevel: number;
-  isFavorite?: boolean;
-}
-export type CategorizedWeapons = {
-  kinetic: Weapon[];
-  energy: Weapon[];
-  power: Weapon[];
-};
-export type CategorizedArmor = {
-  helmet: Armor[];
-  chest: Armor[];
-  legs: Armor[];
-  arms: Armor[];
-  classItem: Armor[];
-};
+
 export interface TransferData {
   username: string;
   itemReferenceHash: number;
@@ -267,37 +206,53 @@ export interface CharacterInventoryProps {
   filteredItems: { [characterId: string]: { items: InventoryItem[] } };
 }
 export interface ProfileInventoryProps {
-    filteredItems: InventoryItem[];
-  }
+  filteredItems: InventoryItem[];
+}
 export interface CharacterEquipmentProps {
-    showSubclass: boolean;
-  }
+  showSubclass: boolean;
+}
 export interface CharacterEquipmentItem {
-    itemInstanceId: string;
-    bucketHash: number;
-    itemHash: number;
-    location: number;
-  }
-  export interface ItemComponentProps extends ItemProps {
-    alwaysExpanded?: boolean;
-  }
-  export interface FaveProps {
-    username: string;
-    itemInstanceId: string;
-    itemHash: number;
-    initialFavorite?: boolean;
-  }
-  export interface WeaponFiltersProps {
-    onFilterChange: (damageType: string | null, weaponType: string | null) => void;
-    damageOnly?: boolean;
-    weaponOnly?: boolean;
-  }
-  export interface ArmorFiltersProps {
-    onFilterChange: (classType: string | null, armorType: string | null) => void;
-  }
-  export interface FavoritesContextType {
-    favorites: Set<string>;
-    addFavorite: (itemInstanceId: string) => void;
-    removeFavorite: (itemInstanceId: string) => void;
-  }
-  
+  itemInstanceId: string;
+  bucketHash: number;
+  itemHash: number;
+  location: number;
+}
+export interface ItemComponentProps extends ItemProps {
+  alwaysExpanded?: boolean;
+}
+export interface FaveProps {
+  username: string;
+  itemInstanceId: string;
+  itemHash: number;
+  initialFavorite?: boolean;
+}
+export interface WeaponFiltersProps {
+  onFilterChange: (
+    damageType: string | null,
+    weaponType: string | null
+  ) => void;
+  damageOnly?: boolean;
+  weaponOnly?: boolean;
+}
+export interface ArmorFiltersProps {
+  onFilterChange: (classType: string | null, armorType: string | null) => void;
+}
+export interface FavoritesContextType {
+  favorites: Set<string>;
+  addFavorite: (itemInstanceId: string) => void;
+  removeFavorite: (itemInstanceId: string) => void;
+}
+export interface SubclassSelectorProps {
+  characterId: string;
+}
+
+export interface Subclass {
+  itemHash: number;
+  name: string;
+  icon: string;
+}
+export interface SortableStatProps {
+  id: string;
+  icon: string;
+  name: string;
+}

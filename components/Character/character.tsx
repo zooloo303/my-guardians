@@ -23,14 +23,7 @@ const Character: React.FC<CharacterType> = ({ characterId }) => {
   if (!characterData) {
     return <div>Character data not found</div>;
   }
-  const {
-    classType,
-    raceType,
-    light,
-    emblemBackgroundPath,
-    emblemHash,
-    stats,
-  } = characterData;
+  const { classType, raceType, emblemBackgroundPath, stats } = characterData;
 
   const className = classes[classType];
   const raceName = races[raceType];
@@ -41,7 +34,7 @@ const Character: React.FC<CharacterType> = ({ characterId }) => {
         <div
           className="absolute inset-0 bg-cover bg-center rounded-md"
           style={{
-            backgroundImage: `url(http://www.bungie.net${emblemBackgroundPath})`,
+            backgroundImage: `url(https://www.bungie.net${emblemBackgroundPath})`,
             backgroundSize: "contain",
             backgroundRepeat: "no-repeat",
           }}
@@ -63,7 +56,7 @@ const Character: React.FC<CharacterType> = ({ characterId }) => {
               <span className="flex items-center gap-2">
                 <Image
                   src={
-                    "http://www.bungie.net" +
+                    "https://www.bungie.net" +
                     statDefinitions[hash].displayProperties.icon
                   }
                   alt={`${statDefinitions[hash].displayProperties.name} icon`}

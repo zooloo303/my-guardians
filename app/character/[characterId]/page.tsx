@@ -1,13 +1,25 @@
 "use client";
-import { useParams } from 'next/navigation';
-import { useProfileData } from '@/app/hooks/useProfileData';
+import { useParams } from "next/navigation";
+import { useProfileData } from "@/app/hooks/useProfileData";
 import CharacterSm from "@/components/Character/characterSm";
 import { useAuthContext } from "@/components/Auth/AuthContext";
-import SubclassSelector from '@/components/Character/SubclassSelector';
-import CharacterExoticArmor from '@/components/Character/ExoticArmorPicker';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import SubclassSelector from "@/components/Character/SubclassSelector";
+import CharacterExoticArmor from "@/components/Character/ExoticArmorSelector";
+import StatPrioritySelector from "@/components/Character/StatPrioritySelector";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardFooter,
+} from "@/components/ui/card";
 
-export default function CharacterPage() {
+export default function CharacterPage({
+  params,
+}: {
+  params: { characterId: string };
+}) {
   const { characterId } = useParams();
   const { membershipId } = useAuthContext();
   const { data: profileData, isLoading, error } = useProfileData(membershipId);
@@ -15,18 +27,27 @@ export default function CharacterPage() {
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error loading character data</div>;
 
-  const character = profileData?.Response.characters.data[characterId as string];
+  const character =
+    profileData?.Response.characters.data[characterId as string];
 
   if (!character) return <div>Character not found</div>;
 
   const handleSubclassChange = (subclassHash: string | null) => {
-    console.log('Selected subclass:', subclassHash);
+    console.log("Selected subclass:", subclassHash);
     // Add any logic you want to perform when the subclass changes
   };
   return (
     <>
-    <div className="p-4 flex flex-row items-center justify-center h-screen">
-      <CharacterSm
+      <div className="p-4 flex flex-row items-center justify-center space-x-2 h-screen">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>{getClassName(character.classType)}</CardTitle>
+              <CardDescription>
+                {getRaceName(character.raceType)}
+              </CardDescription>
+            </div>
+            <CharacterSm
               characterId={character.characterId}
               classType={character.classType}
               raceType={character.raceType}
@@ -36,25 +57,22 @@ export default function CharacterPage() {
               emblemHash={character.emblemHash}
               stats={character.stats}
             />
-      <Card>
-        <CardHeader>
-          <CardTitle>{getClassName(character.classType)}</CardTitle>
-          <CardDescription>{getRaceName(character.raceType)}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p>Level: {character.baseCharacterLevel}</p>
-          <p>Light: {character.light}</p>
-          <p>Minutes Played: {character.minutesPlayedTotal}</p>
-        </CardContent>
-        <CardFooter>
-          <p>Last Played: {new Date(character.dateLastPlayed).toLocaleString()}</p>
-        </CardFooter>
-      </Card>
-      <SubclassSelector 
-        onSubclassChange={handleSubclassChange}
-      />
-      <CharacterExoticArmor characterId={characterId as string} />
-    </div>
+          </CardHeader>
+          <CardContent>
+            <p>Level: {character.baseCharacterLevel}</p>
+            <p>Light: {character.light}</p>
+            <p>Minutes Played: {character.minutesPlayedTotal}</p>
+          </CardContent>
+          <CardFooter>
+            <p>
+              Last Played: {new Date(character.dateLastPlayed).toLocaleString()}
+            </p>
+          </CardFooter>
+        </Card>
+        <SubclassSelector characterId={params.characterId} />
+        <CharacterExoticArmor characterId={params.characterId} />
+        <StatPrioritySelector />
+      </div>
     </>
   );
 }

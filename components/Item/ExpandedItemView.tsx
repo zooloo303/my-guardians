@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { Socket } from "@/lib/interfaces";
@@ -82,14 +82,15 @@ const ExpandedItemView: React.FC<ExpandedItemViewProps> = ({
       <p>{itemData.flavorText}</p>
       <div className="flex justify-center mt-2">
         {sockets.map((socket: Socket, index: number) => {
-          const socketItem = manifestData.DestinyInventoryItemDefinition[socket.plugHash];
+          const socketItem =
+            manifestData.DestinyInventoryItemDefinition[socket.plugHash];
           return socketItem?.displayProperties.icon ? (
             <Tooltip key={index}>
               <TooltipTrigger asChild>
                 <div className="mx-1">
                   <Image
                     className="rounded-md"
-                    src={`http://www.bungie.net${socketItem.displayProperties.icon}`}
+                    src={`https://www.bungie.net${socketItem.displayProperties.icon}`}
                     alt={socketItem.displayProperties.name}
                     width={32}
                     height={32}

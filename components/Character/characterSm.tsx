@@ -39,7 +39,7 @@ const CharacterSm: React.FC<CharacterType> = ({ characterId }) => {
           <div className="w-14 h-14 flex items-center justify-center">
             <Avatar>
               <AvatarImage
-                src={`http://www.bungie.net${emblemPath}`}
+                src={`https://www.bungie.net${emblemPath}`}
                 alt={"itemData.displayProperties.name"}
               />
               <AvatarFallback>CN</AvatarFallback>

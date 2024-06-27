@@ -63,7 +63,7 @@ const Item: React.FC<ItemComponentProps> = ({
 
   const expandedStyle = useMemo(
     () => ({
-      backgroundImage: `url(http://www.bungie.net${itemData?.itemData.screenshot})`,
+      backgroundImage: `url(https://www.bungie.net${itemData?.itemData.screenshot})`,
       backgroundSize: "cover",
       backgroundPosition: "top",
     }),
@@ -105,7 +105,7 @@ const Item: React.FC<ItemComponentProps> = ({
                   ...(isExpanded
                     ? expandedStyle
                     : {
-                        backgroundImage: `url(http://www.bungie.net${item.displayProperties.icon})`,
+                        backgroundImage: `url(https://www.bungie.net${item.displayProperties.icon})`,
                         backgroundSize: "cover",
                       }),
                   position: "relative",
