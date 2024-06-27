@@ -1,9 +1,11 @@
 "use client";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { useParams } from 'next/navigation';
 import { useProfileData } from '@/app/hooks/useProfileData';
-import { useAuthContext } from "@/components/Auth/AuthContext";
 import CharacterSm from "@/components/Character/characterSm";
+import { useAuthContext } from "@/components/Auth/AuthContext";
+import SubclassSelector from '@/components/Character/SubclassSelector';
+import CharacterExoticArmor from '@/components/Character/ExoticArmorPicker';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 
 export default function CharacterPage() {
   const { characterId } = useParams();
@@ -17,8 +19,13 @@ export default function CharacterPage() {
 
   if (!character) return <div>Character not found</div>;
 
+  const handleSubclassChange = (subclassHash: string | null) => {
+    console.log('Selected subclass:', subclassHash);
+    // Add any logic you want to perform when the subclass changes
+  };
   return (
-    <div className="flex flex-col items-center justify-center h-screen">
+    <>
+    <div className="p-4 flex flex-row items-center justify-center h-screen">
       <CharacterSm
               characterId={character.characterId}
               classType={character.classType}
@@ -43,7 +50,13 @@ export default function CharacterPage() {
           <p>Last Played: {new Date(character.dateLastPlayed).toLocaleString()}</p>
         </CardFooter>
       </Card>
+      <SubclassSelector 
+        characterId={characterId as string} 
+        onSubclassChange={handleSubclassChange}
+      />
+      <CharacterExoticArmor characterId={characterId as string} />
     </div>
+    </>
   );
 }
 
