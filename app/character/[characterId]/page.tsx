@@ -51,7 +51,6 @@ export default function CharacterPage() {
         </CardFooter>
       </Card>
       <SubclassSelector 
-        characterId={characterId as string} 
         onSubclassChange={handleSubclassChange}
       />
       <CharacterExoticArmor characterId={characterId as string} />
