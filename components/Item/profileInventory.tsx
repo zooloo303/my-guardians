@@ -1,158 +1,114 @@
 "use client";
-import { toast } from "sonner";
 import { Vault } from "lucide-react";
-import React, { useState } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import Item from "@/components/Item/item";
 import { Badge } from "@/components/ui/badge";
-import { bucketHash } from "@/lib/destinyEnums";
-import { useQueryClient } from "@tanstack/react-query";
+import { useDragContext } from "@/app/hooks/useDragContext";
 import { useManifestData } from "@/app/hooks/useManifest";
-import { useProfileData } from "@/app/hooks/useProfileData";
-import { useAuthContext } from "@/components/Auth/AuthContext";
-import { useItemOperations } from "@/app/hooks/useItemOperations";
-import { ProfileInventoryProps, InventoryItem } from "@/lib/interfaces";
+import { ProfileInventoryProps, InventoryItem, DraggableItem } from "@/lib/interfaces";
+import { motion, AnimatePresence, PanInfo, useDragControls } from "framer-motion";
 
-type DraggableItem = InventoryItem & { SOURCE: string };
-
-const ProfileInventory: React.FC<ProfileInventoryProps> = ({
-  filteredItems,
-}) => {
-  const SOURCE = "ProfileInventory";
-  const { membershipId } = useAuthContext();
+const ProfileInventory: React.FC<ProfileInventoryProps> = React.memo(({ filteredItems }) => {
+  const { draggedItem, setDraggedItem, handleDrop } = useDragContext();
   const { data: manifestData } = useManifestData();
-  const { data: profileData } = useProfileData(membershipId);
-  const [isDragOver, setIsDragOver] = useState(false);
-  const { transfer } = useItemOperations();
-  const queryClient = useQueryClient();
-  const getBucketName = (hash: number): string => {
-    return bucketHash[hash] || "Unknown Bucket";
-  };
+  const [processingItems, setProcessingItems] = useState<Set<string>>(new Set());
+  const [isUpdating, setIsUpdating] = useState(false);
 
-  // Function to count items recursively
-  const countItems = (items: any[]): number => {
-    return items.reduce((count, item) => {
-      if (Array.isArray(item)) {
-        return count + countItems(item);
-      }
-      return count + 1;
-    }, 0);
-  };
+  const dragControls = useDragControls();
 
-  const totalItems = countItems(filteredItems);
+  const handleDragStart = useCallback((item: InventoryItem) => {
+    setDraggedItem({ ...item, characterId: "", SOURCE: "ProfileInventory" } as DraggableItem);
+  }, [setDraggedItem]);
 
-  const handleDragStart = (
-    e: React.DragEvent<HTMLDivElement>,
-    item: InventoryItem
+  const handleDragEnd = useCallback((
+    event: MouseEvent | TouchEvent | PointerEvent,
+    info: PanInfo
   ) => {
-    e.stopPropagation();
-    const draggableItem: DraggableItem = { ...item, SOURCE };
-    e.dataTransfer.setData("application/json", JSON.stringify(draggableItem));
-    e.dataTransfer.effectAllowed = "move";
-    e.currentTarget.classList.add(
-      "border",
-      "border-dashed",
-      "border-green-500"
-    );
+    if (!draggedItem) return;
 
-    if (manifestData && manifestData.DestinyInventoryItemDefinition) {
-      let itemDefinition =
-        manifestData.DestinyInventoryItemDefinition[item.itemHash];
-      if (itemDefinition) {
-        console.log(
-          `Dragging item: ${
-            itemDefinition.displayProperties.name
-          } ${getBucketName(item.bucketHash)} from Vault`
-        );
-      } else {
-        console.log(`Dragging Unknown item from Vault`);
-      }
-    } else {
-      console.log(`Dragging Unknown item from Vault`);
-    }
-  };
+    const dropZones = document.querySelectorAll("[data-character-id][data-inventory-type]");
+    const targetDropZone = Array.from(dropZones).find((zone) => {
+      const rect = zone.getBoundingClientRect();
+      return (
+        info.point.x >= rect.left &&
+        info.point.x <= rect.right &&
+        info.point.y >= rect.top &&
+        info.point.y <= rect.bottom
+      );
+    });
 
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragOver(true);
-  };
-  const handleDragEnd = (e: React.DragEvent<HTMLDivElement>) => {
-    e.currentTarget.classList.remove(
-      "border",
-      "border-dashed",
-      "border-green-500"
-    );
-  };
-  const handleDragLeave = () => {
-    setIsDragOver(false);
-  };
-  const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    const data = e.dataTransfer.getData("application/json");
-    if (!data) return;
-
-    const item: DraggableItem = JSON.parse(data);
-    const membershipType =
-      profileData?.Response.profile.data.userInfo.membershipType;
-
-    if (!manifestData || !membershipId || !membershipType) return;
-
-    if (item.SOURCE === "CharacterInventory") {
-      try {
-        await transfer(item, true, item.characterId, membershipType);
-        if (manifestData && manifestData.DestinyInventoryItemDefinition) {
-          let itemDefinition =
-            manifestData.DestinyInventoryItemDefinition[item.itemHash];
-          if (itemDefinition) {
-            toast(
-              `Transferred ${itemDefinition.displayProperties.name} to the vault`
-            );
-          }
-        }
-        queryClient.invalidateQueries({
-          queryKey: ["profileData", membershipId],
-        });
-      } catch (error) {
-        console.error("Transfer to vault failed:", error);
-        toast("Transfer to vault failed", {
-          style: { backgroundColor: "red", color: "white" },
+    if (targetDropZone) {
+      const targetCharacterId = targetDropZone.getAttribute("data-character-id");
+      const targetSource = targetDropZone.getAttribute("data-inventory-type");
+      if (targetCharacterId && targetSource) {
+        setProcessingItems(prev => new Set(prev).add(draggedItem.itemInstanceId));
+        setIsUpdating(true);
+        handleDrop(targetCharacterId, targetSource).finally(() => {
+          setProcessingItems(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(draggedItem.itemInstanceId);
+            return newSet;
+          });
+          setIsUpdating(false);
         });
       }
     }
-  };
+    setDraggedItem(null);
+  }, [draggedItem, handleDrop, setDraggedItem]);
+
+  const totalItems = useMemo(() => filteredItems.length, [filteredItems]);
+
+  const sortedItems = useMemo(() => {
+    return [...filteredItems].sort((a, b) => {
+      const itemA = manifestData?.DestinyInventoryItemDefinition[a.itemHash];
+      const itemB = manifestData?.DestinyInventoryItemDefinition[b.itemHash];
+      return (itemA?.itemTypeDisplayName || "").localeCompare(itemB?.itemTypeDisplayName || "");
+    });
+  }, [filteredItems, manifestData]);
+
+  const renderedItems = useMemo(() => (
+    <AnimatePresence>
+      {sortedItems.map((item) => (
+        <motion.div
+          key={item.itemInstanceId}
+          drag
+          dragControls={dragControls}
+          onDragStart={() => handleDragStart(item)}
+          onDragEnd={handleDragEnd}
+          whileDrag={{ scale: 1.1, zIndex: 1 }}
+          className="item cursor-grab active:cursor-grabbing"
+          initial={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.5, transition: { duration: 0.3 } }}
+          animate={processingItems.has(item.itemInstanceId) ? { opacity: 0.5 } : { opacity: 1 }}
+        >
+          <Item
+            itemHash={item.itemHash}
+            itemInstanceId={item.itemInstanceId}
+          />
+        </motion.div>
+      ))}
+    </AnimatePresence>
+  ), [sortedItems, handleDragStart, handleDragEnd, processingItems, dragControls]);
 
   return (
     <>
-      <div className="flex flex-row p-1">
+      <div className="flex flex-row p-1 items-center">
         <Vault className="pl-2" />
+        <span className="font-bold ml-2">Vault</span>
         <Badge variant="outline" className="ml-2 text-xs">
           {totalItems}/700
         </Badge>
       </div>
-      <div
-        onDrop={handleDrop}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        className={`border rounded-xl flex flex-wrap items-top justify-center gap-1 p-2 mb-2 transition-shadow duration-200 ${
-          isDragOver ? "shadow-inner shadow-green-500/50" : ""
-        }`}
+      {isUpdating && <div>Updating inventory...</div>}
+      <motion.div
+        className="border rounded-xl flex flex-wrap items-top justify-center gap-1 p-2 mb-2"
+        data-character-id="vault"
+        data-inventory-type="ProfileInventory"
       >
-        {filteredItems.map((item) => (
-          <div
-            key={item.itemInstanceId}
-            draggable
-            onDragStart={(e) => handleDragStart(e, item)}
-            onDragEnd={handleDragEnd}
-            className="item cursor-grab active:cursor-grabbing transform translate-x-0 translate-y-0"
-          >
-            <Item
-              itemHash={item.itemHash}
-              itemInstanceId={item.itemInstanceId}
-            />
-          </div>
-        ))}
-      </div>
+        {renderedItems}
+      </motion.div>
     </>
   );
-};
+});
 
 export default ProfileInventory;

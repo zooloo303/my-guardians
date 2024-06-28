@@ -1,8 +1,10 @@
+// lib/query-provider.tsx
 "use client";
 import { useState } from "react";
 import { ThemeProvider } from "@/lib/theme-provider";
 import { AuthProvider } from "@/components/Auth/AuthContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { DragProvider } from '@/app/hooks/useDragContext';
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -26,7 +28,9 @@ export default function Providers({ children }: { children: React.ReactNode }) {
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <DragProvider>
+            {children}
+          </DragProvider>
         </ThemeProvider>
       </QueryClientProvider>
     </AuthProvider>

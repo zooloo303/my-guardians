@@ -9,6 +9,26 @@ export interface AuthContextProps {
 export interface ManifestData {
   [key: string]: any;
 }
+
+import { PanInfo } from "framer-motion";
+import { ReactNode } from "react";
+
+export interface DragEndEvent {
+  event: MouseEvent | TouchEvent | PointerEvent;
+  info: PanInfo;
+}
+export type DraggableItem = InventoryItem & { SOURCE: string };
+
+export interface DragContextType {
+  draggedItem: DraggableItem | null;
+  setDraggedItem: (item: DraggableItem | null) => void;
+  handleDrop: (targetCharacterId: string, targetSource: string) => Promise<void>;
+}
+
+export interface DragProviderProps {
+  children: ReactNode;
+}
+
 export interface ProfileData {
   Response: {
     profileInventory: {
@@ -198,6 +218,7 @@ export interface InventoryItem {
   itemHash: number;
   itemInstanceId: string;
   characterId: string;
+  SOURCE?: string;
 }
 export interface VaultProps {
   noOfItems: number;

@@ -69,9 +69,9 @@ export default function CharacterPage({
             </p>
           </CardFooter>
         </Card>
-        <SubclassSelector characterId={params.characterId} />
         <CharacterExoticArmor characterId={params.characterId} />
         <StatPrioritySelector />
+        <SubclassSelector characterId={params.characterId} />
       </div>
     </>
   );

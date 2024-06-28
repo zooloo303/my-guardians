@@ -6,6 +6,7 @@ import { useProfileData } from "@/app/hooks/useProfileData";
 import { transferItem, equipItem } from "@/lib/transferUtils";
 import { useAuthContext } from "@/components/Auth/AuthContext";
 import { InventoryItem, TransferData, EquipData } from "@/lib/interfaces";
+import { classes, races } from "@/lib/destinyEnums";
 
 export const useItemOperations = () => {
   const { membershipId } = useAuthContext();
@@ -22,6 +23,14 @@ export const useItemOperations = () => {
         : "Unknown Item";
     }
     return "Unknown Item";
+  };
+
+  const getCharacterInfo = (characterId: string) => {
+    const character = profileData?.Response.characters.data?.[characterId];
+    if (character) {
+      return `${races[character.raceType]} ${classes[character.classType]}`;
+    }
+    return "Unknown Character";
   };
 
   const transfer = async (
@@ -45,7 +54,8 @@ export const useItemOperations = () => {
     try {
       await transferItem(transferData);
       const itemName = getItemName(item);
-      const location = toVault ? "vault" : "character inventory";
+      const characterInfo = getCharacterInfo(characterId);
+      const location = toVault ? "vault" : `${characterInfo}'s inventory`;
       toast(`Transferred ${itemName} to ${location}`);
       queryClient.invalidateQueries({ queryKey: ["profileData"] });
     } catch (error) {
@@ -73,7 +83,8 @@ export const useItemOperations = () => {
     try {
       await equipItem(equipData);
       const itemName = getItemName(item);
-      toast(`Equipped ${itemName}`);
+      const characterInfo = getCharacterInfo(characterId);
+      toast(`Equipped ${itemName} on ${characterInfo}`);
       queryClient.invalidateQueries({ queryKey: ["profileData"] });
     } catch (error) {
       console.error("Equip failed:", error);

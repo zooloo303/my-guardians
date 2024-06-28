@@ -1,11 +1,12 @@
 "use client";
-import { useState } from "react";
-import { Search, Sparkles } from "lucide-react";
+import { useState, useMemo } from "react";
 import { Button } from "../ui/button";
 import { Input } from "@/components/ui/input";
+import { Search, Sparkles } from "lucide-react";
 import { SkeletonGuy } from "@/components/skeleton";
 import CharacterList from "../Character/characterList";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { DragProvider } from "@/app/hooks/useDragContext";
 import ArmorFilters from "@/components/Item/ArmorFilters";
 import { useManifestData } from "@/app/hooks/useManifest";
 import { useProfileData } from "@/app/hooks/useProfileData";
@@ -30,6 +31,78 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 
+const sortItems = (items: InventoryItem[]): InventoryItem[] => {
+  return items
+    .filter(
+      (item) =>
+        !unwantedBucketHash.includes(item.bucketHash) && item.itemInstanceId
+    )
+    .sort(
+      (a, b) =>
+        itemOrder.indexOf(a.bucketHash) - itemOrder.indexOf(b.bucketHash)
+    );
+};
+
+const filterItems = (
+  items: InventoryItem[],
+  searchQuery: string,
+  searchType: "weapons" | "armor" | null,
+  weaponDamageFilter: string | null,
+  weaponTypeFilter: string | null,
+  armorClassFilter: string | null,
+  armorTypeFilter: string | null,
+  manifestData: any
+): InventoryItem[] => {
+  const sortedItems = sortItems(items);
+
+  if (searchQuery) {
+    return sortedItems.filter((item) => {
+      const itemData =
+        manifestData.DestinyInventoryItemDefinition[item.itemHash];
+      return itemData.displayProperties.name
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase());
+    });
+  }
+
+  if (
+    searchType === null &&
+    !weaponDamageFilter &&
+    !weaponTypeFilter &&
+    !armorClassFilter &&
+    !armorTypeFilter
+  ) {
+    return sortedItems;
+  }
+
+  return sortedItems.filter((item) => {
+    const itemData =
+      manifestData.DestinyInventoryItemDefinition[item.itemHash];
+
+    if (searchType === "weapons" || weaponDamageFilter || weaponTypeFilter) {
+      const matchesDamageType =
+        !weaponDamageFilter ||
+        damageType[itemData.defaultDamageType] === weaponDamageFilter;
+      const matchesWeaponType =
+        !weaponTypeFilter ||
+        itemData.itemTypeDisplayName === weaponTypeFilter;
+      return matchesDamageType && matchesWeaponType;
+    } else if (
+      searchType === "armor" ||
+      armorClassFilter ||
+      armorTypeFilter
+    ) {
+      const matchesClassType =
+        !armorClassFilter || classes[itemData.classType] === armorClassFilter;
+      const matchesArmorType =
+        !armorTypeFilter || itemData.itemTypeDisplayName === armorTypeFilter;
+      return matchesClassType && matchesArmorType;
+    }
+
+    return false;
+  });
+};
+
 const InventorySearch: React.FC = () => {
   const { membershipId } = useAuthContext();
   const { data: profileData, isLoading } = useProfileData(membershipId);
@@ -45,56 +118,49 @@ const InventorySearch: React.FC = () => {
   const [armorClassFilter, setArmorClassFilter] = useState<string | null>(null);
   const [armorTypeFilter, setArmorTypeFilter] = useState<string | null>(null);
 
+  const filteredCharacterInventories = useMemo(() => {
+    if (!profileData || !manifestData) return {};
+    
+    const characterInventoriesData = (profileData as ProfileData).Response.characterInventories.data || {};
+    return Object.entries(characterInventoriesData).reduce(
+      (acc: { [key: string]: { items: InventoryItem[] } }, [characterId, characterInventory]) => {
+        acc[characterId] = {
+          items: filterItems(
+            characterInventory.items.map((item) => ({ ...item, characterId })),
+            searchQuery,
+            searchType,
+            weaponDamageFilter,
+            weaponTypeFilter,
+            armorClassFilter,
+            armorTypeFilter,
+            manifestData
+          ),
+        };
+        return acc;
+      },
+      {}
+    );
+  }, [profileData, manifestData, searchQuery, searchType, weaponDamageFilter, weaponTypeFilter, armorClassFilter, armorTypeFilter]);
+
+  const filteredProfileInventory = useMemo(() => {
+    if (!profileData || !manifestData) return [];
+    
+    const profileInventoryData = (profileData as ProfileData).Response.profileInventory.data.items || [];
+    return filterItems(
+      profileInventoryData.map((item) => ({ ...item, characterId: "" })),
+      searchQuery,
+      searchType,
+      weaponDamageFilter,
+      weaponTypeFilter,
+      armorClassFilter,
+      armorTypeFilter,
+      manifestData
+    );
+  }, [profileData, manifestData, searchQuery, searchType, weaponDamageFilter, weaponTypeFilter, armorClassFilter, armorTypeFilter]);
+
   if (isLoading || !manifestData || !profileData) {
     return <SkeletonGuy />;
   }
-
-  const data = profileData as unknown as ProfileData | null;
-  const characterInventoriesData =
-    data?.Response.characterInventories.data || {};
-  const profileInventoryData = data?.Response.profileInventory.data.items || [];
-
-  const sortItems = (items: InventoryItem[]): InventoryItem[] => {
-    return items
-      .filter(
-        (item) =>
-          !unwantedBucketHash.includes(item.bucketHash) && item.itemInstanceId
-      )
-      .sort(
-        (a, b) =>
-          itemOrder.indexOf(a.bucketHash) - itemOrder.indexOf(b.bucketHash)
-      );
-  };
-  const filterItems = (items: InventoryItem[]): InventoryItem[] => {
-    const sortedItems = sortItems(items);
-  
-    if (searchQuery) {
-      return sortedItems.filter((item) => {
-        const itemData = manifestData.DestinyInventoryItemDefinition[item.itemHash];
-        return itemData.displayProperties.name.toLowerCase().includes(searchQuery.toLowerCase());
-      });
-    }
-  
-    if (searchType === null && !weaponDamageFilter && !weaponTypeFilter && !armorClassFilter && !armorTypeFilter) {
-      return sortedItems;
-    }
-  
-    return sortedItems.filter((item) => {
-      const itemData = manifestData.DestinyInventoryItemDefinition[item.itemHash];
-  
-      if (searchType === "weapons" || weaponDamageFilter || weaponTypeFilter) {
-        const matchesDamageType = !weaponDamageFilter || damageType[itemData.defaultDamageType] === weaponDamageFilter;
-        const matchesWeaponType = !weaponTypeFilter || itemData.itemTypeDisplayName === weaponTypeFilter;
-        return matchesDamageType && matchesWeaponType;
-      } else if (searchType === "armor" || armorClassFilter || armorTypeFilter) {
-        const matchesClassType = !armorClassFilter || classes[itemData.classType] === armorClassFilter;
-        const matchesArmorType = !armorTypeFilter || itemData.itemTypeDisplayName === armorTypeFilter;
-        return matchesClassType && matchesArmorType;
-      }
-  
-      return false;
-    });
-  };
 
   const handleWeaponFilterChange = (
     damageType: string | null,
@@ -124,34 +190,8 @@ const InventorySearch: React.FC = () => {
     setWeaponTypeFilter(null);
   };
 
-  const filteredCharacterInventories = Object.entries(
-    characterInventoriesData
-  ).reduce(
-    (
-      acc: { [key: string]: { items: InventoryItem[] } },
-      [characterId, characterInventory]
-    ) => {
-      acc[characterId] = {
-        items: filterItems(
-          characterInventory.items.map((item) => ({
-            ...item,
-            characterId,
-          }))
-        ),
-      };
-      return acc;
-    },
-    {}
-  );
-
-  const filteredProfileInventory = filterItems(
-    profileInventoryData.map((item) => ({
-      ...item,
-      characterId: "",
-    }))
-  );
-
   return (
+    <>
     <Dialog>
       <DialogTrigger asChild>
         <Button>
@@ -159,48 +199,51 @@ const InventorySearch: React.FC = () => {
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-[90vw] max-h-[80vh] overflow-y-auto">
-        <ScrollArea className="h-full">
-          <DialogHeader>
-            <div className="p-4">
-              <Search className="absolute left-6 top-7 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="text"
-                placeholder="Search items..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-lg bg-background pl-8 md:w-[300px] lg:w-[500px]"
-              />
+        <DragProvider>
+          <ScrollArea className="h-full">
+            <DialogHeader>
+              <div className="p-4">
+                <Search className="absolute left-6 top-7 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="text"
+                  placeholder="Search items..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full rounded-lg bg-background pl-8 md:w-[300px] lg:w-[500px]"
+                />
+              </div>
+            </DialogHeader>
+            <div className="flex w-full px-4 items-center">
+              <div className="w-1/3 flex justify-center">
+                <WeaponFilters
+                  onFilterChange={handleWeaponFilterChange}
+                  damageOnly={true}
+                />
+              </div>
+              <div className="w-1/3 flex justify-center">
+                <WeaponFilters
+                  onFilterChange={handleWeaponFilterChange}
+                  weaponOnly={true}
+                />
+              </div>
+              <div className="w-1/3 flex justify-center">
+                <ArmorFilters onFilterChange={handleArmorFilterChange} />
+              </div>
             </div>
-          </DialogHeader>
-          <div className="flex w-full px-4 items-center">
-            <div className="w-1/3 flex justify-center">
-              <WeaponFilters
-                onFilterChange={handleWeaponFilterChange}
-                damageOnly={true}
-              />
-            </div>
-            <div className="w-1/3 flex justify-center">
-              <WeaponFilters
-                onFilterChange={handleWeaponFilterChange}
-                weaponOnly={true}
-              />
-            </div>
-            <div className="w-1/3 flex justify-center">
-              <ArmorFilters onFilterChange={handleArmorFilterChange} />
-            </div>
-          </div>
-          <CharacterList />
-          <CharacterEquipment showSubclass={false} />
-          <CharacterInventory filteredItems={filteredCharacterInventories} />
-          <ProfileInventory filteredItems={filteredProfileInventory} />
-        </ScrollArea>
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="outline">Close</Button>
-          </DialogClose>
-        </DialogFooter>
+            <CharacterList />
+            <CharacterEquipment showSubclass={false} />
+            <CharacterInventory filteredItems={filteredCharacterInventories} />
+            <ProfileInventory filteredItems={filteredProfileInventory} />
+          </ScrollArea>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="outline">Close</Button>
+            </DialogClose>
+          </DialogFooter>
+        </DragProvider>
       </DialogContent>
     </Dialog>
+    </>
   );
 };
 

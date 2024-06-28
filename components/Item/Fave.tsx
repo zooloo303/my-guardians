@@ -47,7 +47,7 @@ const Fave: React.FC<FaveProps & { onFavoriteChange: (isFavorite: boolean) => vo
       pressed={isFavorite}
       aria-label={isFavorite ? "Unfavorite" : "Favorite"}
       disabled={loading}
-      className="h-6 w-6 p-0"
+      className="h-5 w-5 p-0"
     >
       <Star className={`h-4 w-4 ${isFavorite ? "text-yellow-500 fill-yellow-500" : ""}`} />
     </Toggle>

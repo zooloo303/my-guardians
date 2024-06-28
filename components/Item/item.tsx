@@ -94,7 +94,7 @@ const Item: React.FC<ItemComponentProps> = ({
                 transition={{ layout: { duration: 0.5, type: "spring" } }}
                 layout
                 className={`p-2 rounded-md relative ${
-                  isExpanded ? "w-96 h-auto" : "w-16 h-16"
+                  isExpanded ? "w-96 h-auto" : "w-14 h-14"
                 }`}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -144,8 +144,8 @@ const Item: React.FC<ItemComponentProps> = ({
                         <Image
                           src={`/${damageTypeIcon}`}
                           alt="damage type icon"
-                          width={12}
-                          height={12}
+                          width={10}
+                          height={10}
                         />
                       )}
                     </div>
