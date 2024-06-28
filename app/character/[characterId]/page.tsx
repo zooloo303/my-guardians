@@ -14,6 +14,7 @@ import {
   CardDescription,
   CardFooter,
 } from "@/components/ui/card";
+import CharacterSubclass from "@/components/Character/characterSubclass";
 
 export default function CharacterPage({
   params,
@@ -38,7 +39,7 @@ export default function CharacterPage({
   };
   return (
     <>
-      <div className="p-4 flex flex-row items-center justify-center space-x-2 h-screen">
+      <div className="p-4 flex flex-row items-center justify-center space-x-10 h-screen">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
@@ -59,6 +60,7 @@ export default function CharacterPage({
             />
           </CardHeader>
           <CardContent>
+          <CharacterSubclass characterId={character.characterId} />
             <p>Level: {character.baseCharacterLevel}</p>
             <p>Light: {character.light}</p>
             <p>Minutes Played: {character.minutesPlayedTotal}</p>

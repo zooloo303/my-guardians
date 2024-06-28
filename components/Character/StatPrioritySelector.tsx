@@ -7,6 +7,7 @@ import { SortableStatProps } from "@/lib/interfaces";
 import { defaultStatOrder } from "@/lib/destinyEnums";
 import { useManifestData } from "@/app/hooks/useManifest";
 import { Reorder } from "framer-motion";
+import { Card, CardContent, CardHeader } from "../ui/card";
 
 const SortableStat: React.FC<SortableStatProps> = ({ id, icon, name }) => {
   return (
@@ -40,8 +41,9 @@ const StatPrioritySelector: React.FC = () => {
   }
 
   return (
-    <div className="max-w-lg p-2">
-      <h2 className="text-lg mb-4">Stat Priority</h2>
+    <Card className="max-w-lg p-2">
+      <CardHeader className="items-center">Stat Priority</CardHeader>
+      <CardContent>
       <Reorder.Group axis="y" values={statOrder} onReorder={setStatOrder}>
         {statOrder.map((hash) => (
           <SortableStat
@@ -52,7 +54,8 @@ const StatPrioritySelector: React.FC = () => {
           />
         ))}
       </Reorder.Group>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 

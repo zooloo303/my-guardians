@@ -6,6 +6,7 @@ import { useManifestData } from "@/app/hooks/useManifest";
 import { useAuthContext } from "@/components/Auth/AuthContext";
 import Item from "@/components/Item/item";
 import { InventoryItem } from "@/lib/interfaces";
+import { Card, CardContent, CardHeader } from "../ui/card";
 
 interface CharacterExoticArmorProps {
   characterId: string;
@@ -65,10 +66,10 @@ const CharacterExoticArmor: React.FC<CharacterExoticArmorProps> = ({
     return <div>No exotic armor found for this character.</div>;
 
   return (
-    <div className="max-w-lg mx-auto">
-      <h2>Exotic Armor</h2>
+    <Card className="max-w-lg mx-auto">
+      <CardHeader>Choose an Exotic Armor Item</CardHeader>
       {armorOrder.map((armorType) => (
-        <div key={armorType}>
+        <CardContent key={armorType}>
           <h3>{armorType}</h3>
           <div className="flex flex-wrap gap-2">
             {exoticArmorItems
@@ -85,9 +86,9 @@ const CharacterExoticArmor: React.FC<CharacterExoticArmorProps> = ({
                 />
               ))}
           </div>
-        </div>
+        </CardContent>
       ))}
-    </div>
+    </Card>
   );
 };
 

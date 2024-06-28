@@ -73,7 +73,7 @@ const SubclassSelector: React.FC<SubclassSelectorProps> = ({ characterId }) => {
         type="single"
         value={selectedSubclass?.toString() || ""}
         onValueChange={handleSubclassChange}
-        className="flex flex-col justify-center space-x-2"
+        className="flex flex-col justify-center space-y-4"
       >
         {subclasses.map((subclass: Subclass) => (
           <Tooltip key={subclass.itemHash}>
@@ -88,8 +88,8 @@ const SubclassSelector: React.FC<SubclassSelectorProps> = ({ characterId }) => {
                 <Image
                   src={`https://www.bungie.net${subclass.icon}`}
                   alt={subclass.name}
-                  width={40}
-                  height={40}
+                  width={50}
+                  height={50}
                 />
               </ToggleGroupItem>
             </TooltipTrigger>
