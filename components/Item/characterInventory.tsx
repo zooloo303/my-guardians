@@ -141,4 +141,6 @@ const CharacterInventory: React.FC<CharacterInventoryProps> = React.memo(({ filt
   );
 });
 
-export default CharacterInventory;
+CharacterInventory.displayName = 'CharacterInventory';
+
+export default React.memo(CharacterInventory);

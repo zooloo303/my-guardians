@@ -26,6 +26,7 @@ import {
 const CharacterEquipment: React.FC<CharacterEquipmentProps> = ({
   showSubclass,
 }) => {
+  const dragControls = useDragControls();
   const { membershipId } = useAuthContext();
   const { data: profileData, isLoading } = useProfileData(membershipId);
   const { data: manifestData } = useManifestData();
@@ -109,7 +110,7 @@ const CharacterEquipment: React.FC<CharacterEquipmentProps> = ({
                       <motion.div
                         key={`${characterId}-${item.itemInstanceId}`}
                         drag
-                        dragControls={useDragControls()}
+                        dragControls={dragControls}
                         onDragStart={() => handleDragStart(item, characterId)}
                         onDragEnd={handleDragEnd}
                         whileDrag={{ scale: 1.1, zIndex: 1 }}
@@ -144,7 +145,7 @@ const CharacterEquipment: React.FC<CharacterEquipmentProps> = ({
                       <motion.div
                         key={`${characterId}-${item.itemInstanceId}`}
                         drag
-                        dragControls={useDragControls()}
+                        dragControls={dragControls}
                         onDragStart={() => handleDragStart(item, characterId)}
                         onDragEnd={handleDragEnd}
                         whileDrag={{ scale: 1.1, zIndex: 1 }}

@@ -111,4 +111,6 @@ const ProfileInventory: React.FC<ProfileInventoryProps> = React.memo(({ filtered
   );
 });
 
-export default ProfileInventory;
+ProfileInventory.displayName = 'ProfileInventory';
+
+export default React.memo(ProfileInventory);
