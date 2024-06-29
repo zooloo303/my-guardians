@@ -66,7 +66,7 @@ const CharacterExoticArmor: React.FC<CharacterExoticArmorProps> = ({
     return <div>No exotic armor found for this character.</div>;
 
   return (
-    <Card className="max-w-lg mx-auto">
+    <Card className="max-w-2xl mx-auto">
       <CardHeader>Choose an Exotic Armor Item</CardHeader>
       {armorOrder.map((armorType) => (
         <CardContent key={armorType}>

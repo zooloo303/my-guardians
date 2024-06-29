@@ -1,20 +1,15 @@
 "use client";
+import { Card } from "@/components/ui/card";
 import { useParams } from "next/navigation";
+import SweeperBot from "@/components/Chat/sweeperBot";
 import { useProfileData } from "@/app/hooks/useProfileData";
-import CharacterSm from "@/components/Character/characterSm";
+import MyCharacters from "@/components/Character/myCharacters";
 import { useAuthContext } from "@/components/Auth/AuthContext";
 import SubclassSelector from "@/components/Character/SubclassSelector";
+import CharacterSubclass from "@/components/Character/characterSubclass";
 import CharacterExoticArmor from "@/components/Character/ExoticArmorSelector";
 import StatPrioritySelector from "@/components/Character/StatPrioritySelector";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardFooter,
-} from "@/components/ui/card";
-import CharacterSubclass from "@/components/Character/characterSubclass";
+import BuildPrefs from "@/components/Character/buildPrefs";
 
 export default function CharacterPage({
   params,
@@ -39,41 +34,15 @@ export default function CharacterPage({
   };
   return (
     <>
-      <div className="p-4 flex flex-row items-center justify-center space-x-10 h-screen">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle>{getClassName(character.classType)}</CardTitle>
-              <CardDescription>
-                {getRaceName(character.raceType)}
-              </CardDescription>
-            </div>
-            <CharacterSm
-              characterId={character.characterId}
-              classType={character.classType}
-              raceType={character.raceType}
-              light={character.light}
-              emblemPath={character.emblemPath}
-              emblemBackgroundPath={character.emblemBackgroundPath}
-              emblemHash={character.emblemHash}
-              stats={character.stats}
-            />
-          </CardHeader>
-          <CardContent>
-          <CharacterSubclass characterId={character.characterId} />
-            <p>Level: {character.baseCharacterLevel}</p>
-            <p>Light: {character.light}</p>
-            <p>Minutes Played: {character.minutesPlayedTotal}</p>
-          </CardContent>
-          <CardFooter>
-            <p>
-              Last Played: {new Date(character.dateLastPlayed).toLocaleString()}
-            </p>
-          </CardFooter>
-        </Card>
+      <div className="p-2 flex flex-col items-center">
+
+        <MyCharacters characterId={characterId as string} />
+
+        <div className="p-4 flex flex-row items-top justify-between space-x-5">
         <CharacterExoticArmor characterId={params.characterId} />
-        <StatPrioritySelector />
-        <SubclassSelector characterId={params.characterId} />
+        <BuildPrefs characterId={params.characterId} />
+        <SweeperBot />
+        </div>
       </div>
     </>
   );
@@ -87,9 +56,4 @@ function getClassName(classType: number): string {
 function getRaceName(raceType: number): string {
   const raceNames = ["Human", "Awoken", "Exo"];
   return raceNames[raceType] || "Unknown";
-}
-
-function getGenderName(genderType: number): string {
-  const genderNames = ["Body Type 1", "Body Type 2"];
-  return genderNames[genderType] || "Unknown";
 }

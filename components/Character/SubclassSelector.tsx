@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { useState, useEffect, useMemo } from "react";
 import { useManifestData } from "@/app/hooks/useManifest";
+import { Card, CardContent, CardHeader } from "../ui/card";
 import { useProfileData } from "@/app/hooks/useProfileData";
 import { useAuthContext } from "@/components/Auth/AuthContext";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
@@ -68,6 +69,9 @@ const SubclassSelector: React.FC<SubclassSelectorProps> = ({ characterId }) => {
   };
 
   return (
+    <Card>
+       <CardHeader className="items-center">SubClass</CardHeader>
+       <CardContent>
     <TooltipProvider>
       <ToggleGroup
         type="single"
@@ -100,6 +104,8 @@ const SubclassSelector: React.FC<SubclassSelectorProps> = ({ characterId }) => {
         ))}
       </ToggleGroup>
     </TooltipProvider>
+    </CardContent>
+    </Card>
   );
 };
 
