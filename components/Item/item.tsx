@@ -26,6 +26,8 @@ const Item: React.FC<ItemComponentProps> = ({
   itemHash,
   itemInstanceId,
   alwaysExpanded = false,
+  isSelected = false,
+  onClick,
 }) => {
   const { membershipId } = useAuthContext();
   const [isExpanded, setIsExpanded] = useState(alwaysExpanded);
@@ -44,11 +46,14 @@ const Item: React.FC<ItemComponentProps> = ({
     }
   }, []);
 
-  const toggleExpand = useCallback(() => {
+  const toggleExpand = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
     if (!alwaysExpanded) {
       setIsExpanded((prev) => !prev);
     }
-  }, [alwaysExpanded]);
+    onClick && onClick(itemHash, itemInstanceId);
+  }, [alwaysExpanded, onClick, itemHash, itemInstanceId]);
+
 
   useEffect(() => {
     if (isExpanded && !alwaysExpanded) {
@@ -93,13 +98,12 @@ const Item: React.FC<ItemComponentProps> = ({
                 ref={itemRef}
                 transition={{ layout: { duration: 0.5, type: "spring" } }}
                 layout
-                className={`p-2 rounded-md relative ${
-                  isExpanded ? "w-96 h-auto" : "w-14 h-14"
-                }`}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  toggleExpand();
-                }}
+                className={`
+                  p-2 rounded-md relative
+                  ${isExpanded ? "w-96 h-auto" : "w-14 h-14"}
+                  ${isSelected ? 'animate-subtle-glow' : ''}
+                `}
+                onClick={toggleExpand}
                 style={{
                   zIndex: isExpanded ? 10 : "auto",
                   ...(isExpanded
@@ -110,6 +114,8 @@ const Item: React.FC<ItemComponentProps> = ({
                       }),
                   position: "relative",
                 }}
+                aria-selected={isSelected}
+                aria-label={`${item.displayProperties.name} - ${item.itemTypeDisplayName}${isSelected ? ' (Selected)' : ''}`}
               >
                 {isExpanded && (
                   <ExpandedItemView
@@ -169,6 +175,7 @@ const Item: React.FC<ItemComponentProps> = ({
           <TooltipContent>
             <div className="flex flex-col font-xs">
               {item.displayProperties.name} - {item.itemTypeDisplayName}
+              {isSelected && <span className="text-green-500">Selected</span>}
             </div>
           </TooltipContent>
         </Tooltip>

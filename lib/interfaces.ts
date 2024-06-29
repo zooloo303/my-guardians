@@ -238,8 +238,12 @@ export interface CharacterEquipmentItem {
   itemHash: number;
   location: number;
 }
-export interface ItemComponentProps extends ItemProps {
+export interface ItemComponentProps {
+  itemHash: number;
+  itemInstanceId: string;
   alwaysExpanded?: boolean;
+  isSelected?: boolean;
+  onClick?: (itemHash: number, itemInstanceId: string) => void;
 }
 export interface FaveProps {
   username: string;
@@ -265,6 +269,7 @@ export interface FavoritesContextType {
 }
 export interface SubclassSelectorProps {
   characterId: string;
+  onSelect?: (subclass: string) => void;
 }
 
 export interface Subclass {
@@ -276,4 +281,16 @@ export interface SortableStatProps {
   id: string;
   icon: string;
   name: string;
+}
+export interface CharacterExoticArmorProps {
+  characterId: string;
+  onSelect?: (exotic: string) => void;
+}
+export interface BuildPrefsProps {
+  characterId: string;
+  onStatPrioritiesChange?: (priorities: string[]) => void;
+  onSubclassSelect?: (subclass: string) => void;
+}
+export interface StatPrioritySelectorProps {
+  onPrioritiesChange?: (priorities: string[]) => void;
 }

@@ -1,16 +1,16 @@
-// components/Character/CharacterExoticArmor.tsx
-
-import React, { useMemo } from "react";
-import { useProfileData } from "@/app/hooks/useProfileData";
-import { useManifestData } from "@/app/hooks/useManifest";
-import { useAuthContext } from "@/components/Auth/AuthContext";
+import React, { useState, useMemo } from "react";
 import Item from "@/components/Item/item";
-import { InventoryItem } from "@/lib/interfaces";
+import { useManifestData } from "@/app/hooks/useManifest";
 import { Card, CardContent, CardHeader } from "../ui/card";
-
-interface CharacterExoticArmorProps {
-  characterId: string;
-}
+import { useProfileData } from "@/app/hooks/useProfileData";
+import { useAuthContext } from "@/components/Auth/AuthContext";
+import { CharacterExoticArmorProps, InventoryItem } from "@/lib/interfaces";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 const armorOrder = [
   "Helmet",
@@ -22,11 +22,17 @@ const armorOrder = [
 
 const CharacterExoticArmor: React.FC<CharacterExoticArmorProps> = ({
   characterId,
+  onSelect,
 }) => {
   const { membershipId } = useAuthContext();
   const { data: profileData } = useProfileData(membershipId);
   const { data: manifestData } = useManifestData();
+  const [selectedExotic, setSelectedExotic] = useState<string | null>(null);
 
+  const handleExoticSelect = (itemHash: number, itemInstanceId: string) => {
+    setSelectedExotic(itemInstanceId);
+    onSelect && onSelect(itemHash.toString());
+  };
   const exoticArmorItems = useMemo(() => {
     if (!profileData || !manifestData) return [];
 
@@ -66,28 +72,37 @@ const CharacterExoticArmor: React.FC<CharacterExoticArmorProps> = ({
     return <div>No exotic armor found for this character.</div>;
 
   return (
-    <Card className="max-w-2xl mx-auto">
+    <Card className="max-w-xl mx-auto">
       <CardHeader>Choose an Exotic Armor Item</CardHeader>
-      {armorOrder.map((armorType) => (
-        <CardContent key={armorType}>
-          <h3>{armorType}</h3>
-          <div className="flex flex-wrap gap-2">
-            {exoticArmorItems
-              .filter(
-                (item) =>
-                  manifestData?.DestinyInventoryItemDefinition[item.itemHash]
-                    .itemTypeDisplayName === armorType
-              )
-              .map((item) => (
-                <Item
-                  key={item.itemInstanceId}
-                  itemHash={item.itemHash}
-                  itemInstanceId={item.itemInstanceId}
-                />
-              ))}
-          </div>
-        </CardContent>
-      ))}
+      <CardContent>
+        <Accordion type="multiple" className="w-full">
+          {armorOrder.map((armorType) => (
+            <AccordionItem value={armorType} key={armorType}>
+              <AccordionTrigger>{armorType}</AccordionTrigger>
+              <AccordionContent>
+                <div className="grid grid-cols-6 gap-4 cursor-pointer">
+                  {exoticArmorItems
+                    .filter(
+                      (item) =>
+                        manifestData?.DestinyInventoryItemDefinition[
+                          item.itemHash
+                        ].itemTypeDisplayName === armorType
+                    )
+                    .map((item) => (
+                      <Item
+                        key={item.itemInstanceId}
+                        itemHash={item.itemHash}
+                        itemInstanceId={item.itemInstanceId}
+                        isSelected={selectedExotic === item.itemInstanceId}
+                        onClick={handleExoticSelect}
+                      />
+                    ))}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
+      </CardContent>
     </Card>
   );
 };

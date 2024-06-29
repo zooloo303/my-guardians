@@ -77,10 +77,21 @@ const config = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        subtleGlow: {
+          '0%, 100%': { 
+            boxShadow: '0 0 5px 2px rgba(34,197,94,0.3)',
+            opacity: '0.9'
+          },
+          '50%': { 
+            boxShadow: '0 0 8px 3px rgba(34,197,94,0.4)',
+            opacity: '1'
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "subtle-glow": "subtleGlow 4s ease-in-out infinite",
       },
     },
   },

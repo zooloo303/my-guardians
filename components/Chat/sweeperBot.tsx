@@ -2,6 +2,7 @@
 import { useState } from "react";
 import ChatInput from "./chatInput";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface Message {
@@ -11,7 +12,7 @@ interface Message {
 
 function SweeperBot() {
   const [messages, setMessages] = useState<Message[]>([
-    { sender: "bot", content: "Hello Guardian! I'm SweeperBot. How can I assist you today?" }
+    { sender: "bot", content: "This is not a combat zone. Move along!" }
   ]);
 
   const handleSendMessage = (message: string) => {
@@ -24,9 +25,16 @@ function SweeperBot() {
   };
 
   return (
-    <Card className="w-[350px] h-[500px] flex flex-col">
-      <CardHeader>
+    <Card className="max-w-xl h-[580px] flex flex-col">
+      <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>SweeperBot</CardTitle>
+        <Avatar>
+              <AvatarImage
+                src={"/sweeperBotAvatar.jpg"}
+                alt={"sba"}
+              />
+              <AvatarFallback>CN</AvatarFallback>
+            </Avatar>
       </CardHeader>
       <CardContent className="flex-grow flex flex-col p-0">
         <ScrollArea className="flex-grow p-4">

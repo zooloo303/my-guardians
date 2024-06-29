@@ -39,7 +39,7 @@ export default function ChatInput({ onSendMessage }: ChatInputProps) {
           id="message"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          placeholder="Type your message here..."
+          placeholder="Can you help me ..."
           className="min-h-12 resize-none border-0 p-3 shadow-none focus-visible:ring-0"
         />
         <div className="flex items-center p-3 pt-0">
@@ -47,19 +47,10 @@ export default function ChatInput({ onSendMessage }: ChatInputProps) {
             <TooltipTrigger asChild>
               <Button type="button" variant="ghost" size="icon">
                 <Paperclip className="size-4" />
-                <span className="sr-only">Attach file</span>
+                <span className="sr-only">Attach Choices</span>
               </Button>
             </TooltipTrigger>
-            <TooltipContent side="top">Attach File</TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button type="button" variant="ghost" size="icon">
-                <Mic className="size-4" />
-                <span className="sr-only">Use Microphone</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="top">Use Microphone</TooltipContent>
+            <TooltipContent side="top">Attach Choices</TooltipContent>
           </Tooltip>
           <Button type="submit" size="sm" className="ml-auto gap-1.5">
             Send Message

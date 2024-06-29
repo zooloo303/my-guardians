@@ -1,17 +1,22 @@
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import StatPrioritySelector from './StatPrioritySelector';
 import SubclassSelector from './SubclassSelector';
+import { BuildPrefsProps } from "@/lib/interfaces";
 
-interface CharacterCustomizationProps {
-  characterId: string;
-}
-
-const BuildPrefs: React.FC<CharacterCustomizationProps> = ({ characterId }) => {
+const BuildPrefs: React.FC<BuildPrefsProps> = ({ 
+  characterId, 
+  onStatPrioritiesChange, 
+  onSubclassSelect 
+}) => {
   return (
-    <Card className="max-w-lg p-4">
-      <CardContent className="space-y-6">
-        <StatPrioritySelector />
-        <SubclassSelector characterId={characterId} />
+    <Card className="max-w-xl mx-auto">
+      <CardHeader>Choose Build Preferences</CardHeader>
+      <CardContent className="flex flex-row items-center space-x-6">
+        <StatPrioritySelector onPrioritiesChange={onStatPrioritiesChange} />
+        <SubclassSelector 
+          characterId={characterId} 
+          onSelect={onSubclassSelect}
+        />
       </CardContent>
     </Card>
   );

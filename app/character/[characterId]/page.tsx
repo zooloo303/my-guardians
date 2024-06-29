@@ -1,15 +1,13 @@
 "use client";
-import { Card } from "@/components/ui/card";
 import { useParams } from "next/navigation";
+import { SkeletonGuy } from "@/components/skeleton";
 import SweeperBot from "@/components/Chat/sweeperBot";
 import { useProfileData } from "@/app/hooks/useProfileData";
+import BuildPrefs from "@/components/Character/buildPrefs";
 import MyCharacters from "@/components/Character/myCharacters";
 import { useAuthContext } from "@/components/Auth/AuthContext";
-import SubclassSelector from "@/components/Character/SubclassSelector";
-import CharacterSubclass from "@/components/Character/characterSubclass";
 import CharacterExoticArmor from "@/components/Character/ExoticArmorSelector";
-import StatPrioritySelector from "@/components/Character/StatPrioritySelector";
-import BuildPrefs from "@/components/Character/buildPrefs";
+import { useState, useEffect } from 'react';
 
 export default function CharacterPage({
   params,
@@ -18,42 +16,33 @@ export default function CharacterPage({
 }) {
   const { characterId } = useParams();
   const { membershipId } = useAuthContext();
-  const { data: profileData, isLoading, error } = useProfileData(membershipId);
+  const { data: profileData, isLoading, error, isFetching } = useProfileData(membershipId);
+  const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
 
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error loading character data</div>;
+  useEffect(() => {
+    if (profileData && !isLoading && !hasLoadedOnce) {
+      setHasLoadedOnce(true);
+    }
+  }, [profileData, isLoading, hasLoadedOnce]);
 
-  const character =
-    profileData?.Response.characters.data[characterId as string];
+  if (isLoading && !hasLoadedOnce) return <SkeletonGuy />;
+  
+  if (error && !isFetching) return <div>Error loading character data. Please try again.</div>;
 
-  if (!character) return <div>Character not found</div>;
+  const character = profileData?.Response.characters.data[characterId as string];
 
-  const handleSubclassChange = (subclassHash: string | null) => {
-    console.log("Selected subclass:", subclassHash);
-    // Add any logic you want to perform when the subclass changes
-  };
+  if (!character && !isFetching) return console.log("Character not found...yet");
+
   return (
     <>
       <div className="p-2 flex flex-col items-center">
-
         <MyCharacters characterId={characterId as string} />
-
-        <div className="p-4 flex flex-row items-top justify-between space-x-5">
-        <CharacterExoticArmor characterId={params.characterId} />
-        <BuildPrefs characterId={params.characterId} />
-        <SweeperBot />
+        <div className="p-2 flex flex-row items-top justify-between space-x-5">
+          <CharacterExoticArmor characterId={params.characterId} />
+          <BuildPrefs characterId={params.characterId} />
+          <SweeperBot />
         </div>
       </div>
     </>
   );
-}
-
-function getClassName(classType: number): string {
-  const classNames = ["Titan", "Hunter", "Warlock"];
-  return classNames[classType] || "Unknown";
-}
-
-function getRaceName(raceType: number): string {
-  const raceNames = ["Human", "Awoken", "Exo"];
-  return raceNames[raceType] || "Unknown";
 }

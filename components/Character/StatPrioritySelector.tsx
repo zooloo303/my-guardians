@@ -1,9 +1,9 @@
 // components/StatPrioritySelector.tsx
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { SkeletonGuy } from "@/components/skeleton";
-import { SortableStatProps } from "@/lib/interfaces";
+import { StatPrioritySelectorProps, SortableStatProps } from "@/lib/interfaces";
 import { defaultStatOrder } from "@/lib/destinyEnums";
 import { useManifestData } from "@/app/hooks/useManifest";
 import { Reorder } from "framer-motion";
@@ -27,10 +27,13 @@ const SortableStat: React.FC<SortableStatProps> = ({ id, icon, name }) => {
   );
 };
 
-const StatPrioritySelector: React.FC = () => {
+const StatPrioritySelector: React.FC<StatPrioritySelectorProps> = ({ onPrioritiesChange }) => {
   const { data: manifestData } = useManifestData();
   const [statOrder, setStatOrder] = useState<string[]>(defaultStatOrder);
 
+  useEffect(() => {
+    onPrioritiesChange && onPrioritiesChange(statOrder);
+  }, [statOrder, onPrioritiesChange]);
   if (!manifestData) {
     return <SkeletonGuy />;
   }

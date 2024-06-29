@@ -14,6 +14,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
           queries: {
             staleTime: 60000,
             gcTime: 10 * (60 * 1000),
+            // networkMode: 'online'
           },
         },
       })

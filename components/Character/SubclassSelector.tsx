@@ -20,12 +20,14 @@ import {
 
 const SUBCLASS_BUCKET_HASH = 3284755031;
 
-const SubclassSelector: React.FC<SubclassSelectorProps> = ({ characterId }) => {
+const SubclassSelector: React.FC<SubclassSelectorProps> = ({ 
+  characterId,
+  onSelect }) => {
   const { membershipId } = useAuthContext();
   const { data: profileData } = useProfileData(membershipId);
   const { data: manifestData } = useManifestData();
   const [selectedSubclass, setSelectedSubclass] = useState<number | null>(null);
-
+  
   const subclasses = useMemo(() => {
     if (!profileData || !manifestData) return [];
 
@@ -66,7 +68,9 @@ const SubclassSelector: React.FC<SubclassSelectorProps> = ({ characterId }) => {
 
   const handleSubclassChange = (value: string) => {
     setSelectedSubclass(Number(value));
+    onSelect && onSelect(value);
   };
+
 
   return (
     <Card>
