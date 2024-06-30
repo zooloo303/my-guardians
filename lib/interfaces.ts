@@ -241,6 +241,7 @@ export interface CharacterEquipmentItem {
 export interface ItemComponentProps {
   itemHash: number;
   itemInstanceId: string;
+  characterId?: string;
   alwaysExpanded?: boolean;
   isSelected?: boolean;
   onClick?: (itemHash: number, itemInstanceId: string) => void;
