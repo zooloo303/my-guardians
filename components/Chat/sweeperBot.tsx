@@ -2,6 +2,7 @@ import ChatInput from "./chatInput";
 import { Loader2 } from "lucide-react";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import OptimizationResult from "./optimizationResult"
 import { ScrollArea } from "@/components/ui/scroll-area";
 import React, { useState, useRef, useEffect } from "react";
 import { useAuthContext } from "@/components/Auth/AuthContext";
@@ -11,7 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface Message {
   sender: "user" | "bot";
-  content: string;
+  content: string | React.ReactNode;
   isOptimizationRequest?: boolean;
 }
 interface SweeperBotProps {
@@ -64,7 +65,7 @@ function SweeperBot({ optimizationData }: SweeperBotProps) {
         setMessages(prev => [
           ...prev, 
           { sender: "bot", content: "Optimization complete! Here's the result:" },
-          { sender: "bot", content: response.suggestion }
+          { sender: "bot", content: <OptimizationResult result={response} /> }
         ]);
       } else {
         // Handle general chat
@@ -90,7 +91,7 @@ function SweeperBot({ optimizationData }: SweeperBotProps) {
   };
 
   return (
-    <Card className="max-w-xl h-[600px] flex flex-col">
+    <Card className="max-w-xl mx-auto flex flex-col">
       <CardHeader className="flex-shrink-0 flex flex-row items-center justify-between">
         <CardTitle>SweeperBot</CardTitle>
         <Avatar>
