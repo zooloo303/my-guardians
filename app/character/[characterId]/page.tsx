@@ -25,6 +25,7 @@ export default function CharacterPage({
     exoticId: { instanceId: '', itemHash: '' },
     statPriorities: [],
     subclass: '',
+    characterId: characterId as string,
   });
 
   useEffect(() => {
