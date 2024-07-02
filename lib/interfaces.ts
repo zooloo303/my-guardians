@@ -285,7 +285,7 @@ export interface SortableStatProps {
 }
 export interface CharacterExoticArmorProps {
   characterId: string;
-  onSelect?: (exotic: string) => void;
+  onSelect?: (instanceId: string, itemHash: string) => void;
 }
 export interface BuildPrefsProps {
   characterId: string;

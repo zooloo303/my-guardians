@@ -3,6 +3,7 @@ import apiService from './apiService';
 export interface ArmorOptimizationData {
   username: string;
   chatInput: string;
+  characterId: string;
   exoticId: {
     instanceId: string;
     itemHash: string;

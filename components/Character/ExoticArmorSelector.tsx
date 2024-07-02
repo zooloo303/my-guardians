@@ -31,8 +31,9 @@ const CharacterExoticArmor: React.FC<CharacterExoticArmorProps> = ({
 
   const handleExoticSelect = (itemHash: number, itemInstanceId: string) => {
     setSelectedExotic(itemInstanceId);
-    onSelect && onSelect(itemHash.toString());
+    onSelect && onSelect(itemInstanceId, itemHash.toString());
   };
+
   const exoticArmorItems = useMemo(() => {
     if (!profileData || !manifestData) return [];
 

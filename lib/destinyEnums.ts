@@ -32,7 +32,14 @@ export const classes: { [key: number]: string } = {
   [TITAN]: "Titan",
   [HUNTER]: "Hunter",
 };
-
+export const subClasses: { [key: number]: string } = {
+  1: "Prismatic",
+  2: "Arc",
+  3: "Solar",
+  4: "Void",
+  5: "Stasis",
+  6: "Strand",
+};
 export const races: { [key: number]: string } = {
   [HUMAN]: "Human",
   [AWOKEN]: "Awoken",
