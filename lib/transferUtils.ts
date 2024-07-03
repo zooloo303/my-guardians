@@ -1,5 +1,5 @@
 "use client";
-import { TransferData, EquipData } from "./interfaces";
+import { TransferData, EquipData, EquipDataMulti } from "./interfaces";
 
 export const transferItem = async (
   transferData: TransferData
@@ -36,3 +36,21 @@ export const equipItem = async (equipData: EquipData): Promise<void> => {
     throw new Error("Equip failed");
   }
 };
+
+export const equipItems = async (equipData: EquipDataMulti): Promise<void> => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_HOST}/api/user/bungie/post/equip-multi/`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(equipData),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Equip failed");
+  }
+};
+

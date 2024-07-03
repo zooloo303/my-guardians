@@ -194,6 +194,12 @@ export interface EquipData {
   characterId: string;
   membershipType: number;
 }
+export interface EquipDataMulti {
+  username: string;
+  itemIds: string[];
+  characterId: string;
+  membershipType: number;
+}
 export interface ItemProps {
   itemInstanceId: string;
   itemHash: number;

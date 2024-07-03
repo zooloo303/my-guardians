@@ -1,12 +1,12 @@
 // hooks/useItemOperations.ts
 import { toast } from "sonner";
+import { classes, races } from "@/lib/destinyEnums";
 import { useQueryClient } from "@tanstack/react-query";
 import { useManifestData } from "@/app/hooks/useManifest";
 import { useProfileData } from "@/app/hooks/useProfileData";
-import { transferItem, equipItem } from "@/lib/transferUtils";
 import { useAuthContext } from "@/components/Auth/AuthContext";
-import { InventoryItem, TransferData, EquipData } from "@/lib/interfaces";
-import { classes, races } from "@/lib/destinyEnums";
+import { transferItem, equipItem, equipItems } from "@/lib/transferUtils";
+import { InventoryItem, TransferData, EquipData, EquipDataMulti } from "@/lib/interfaces";
 
 export const useItemOperations = () => {
   const { membershipId } = useAuthContext();
@@ -93,6 +93,33 @@ export const useItemOperations = () => {
       });
     }
   };
+  
+  // In useItemOperations.ts
+const equipMultipleItems = async (
+  itemIds: string[],
+  characterId: string,
+  membershipType: number
+) => {
+  if (!membershipId) return;
+
+  const equipDataMulti: EquipDataMulti = {
+    username: membershipId,
+    itemIds: itemIds,
+    characterId: characterId,
+    membershipType: membershipType,
+  };
+
+  try {
+    await equipItems(equipDataMulti);
+    toast(`Equipped ${itemIds.length} items`);
+    queryClient.invalidateQueries({ queryKey: ["profileData"] });
+  } catch (error) {
+    console.error("Equip multiple items failed:", error);
+    toast(`Failed to equip items`, {
+      style: { backgroundColor: "red", color: "white" },
+    });
+  }
+};
 
   const getRandomItem = (
     characterId: string,
@@ -103,5 +130,5 @@ export const useItemOperations = () => {
     ]?.items.find((item: InventoryItem) => item.bucketHash === bucketType);
   };
 
-  return { transfer, equip, getRandomItem };
+  return { transfer, equip, getRandomItem, equipMultipleItems };
 };

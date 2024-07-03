@@ -35,9 +35,9 @@ const MyCharacters: React.FC<MyCharactersProps> = ({ characterId }) => {
   }
 
   return (
-    <div className={`flex ${characterId ? 'justify-center' : 'justify-between'} items-center gap-2`}>
+    <div className={`flex ${characterId ? 'flex-col justify-center' : 'justify-between'} items-center gap-2`}>
       {Object.entries(charactersToRender).map(([id, character]) => (
-        <div key={id} className={characterId ? 'w-full' : 'w-1/3'}>
+        <div key={id} className={characterId ? 'w-full' : 'w-1/3 flex flex-col items-center'}>
           <Character
             characterId={id}
             classType={character.classType}

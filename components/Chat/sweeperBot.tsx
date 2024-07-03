@@ -65,7 +65,7 @@ function SweeperBot({ optimizationData }: SweeperBotProps) {
         setMessages(prev => [
           ...prev, 
           { sender: "bot", content: "Optimization complete! Here's the result:" },
-          { sender: "bot", content: <OptimizationResult result={response} /> }
+          { sender: "bot", content: <OptimizationResult result={response} characterId={characterId as string}/> }
         ]);
       } else {
         // Handle general chat

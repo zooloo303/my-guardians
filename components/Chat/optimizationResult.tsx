@@ -1,8 +1,12 @@
-import React, { useState } from 'react';
 import Image from "next/image";
+import { useState } from 'react';
 import Item from '@/components/Item/item';
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronUp } from 'lucide-react';
+import { useProfileData } from "@/app/hooks/useProfileData";
+import { useAuthContext } from "@/components/Auth/AuthContext";
+import { useItemOperations } from '@/app/hooks/useItemOperations';
 
 interface OptimizationResultProps {
   result: {
@@ -12,6 +16,7 @@ interface OptimizationResultProps {
     total_stats: Record<string, number>;
     explanation: string;
   };
+  characterId: string;
 }
 
 const statIcons: Record<string, string> = {
@@ -23,8 +28,19 @@ const statIcons: Record<string, string> = {
   strength: "/strength.png",
 };
 
-const OptimizationResult: React.FC<OptimizationResultProps> = ({ result }) => {
+
+const OptimizationResult: React.FC<OptimizationResultProps> = ({ result, characterId }) => {
   const [isExplanationExpanded, setIsExplanationExpanded] = useState(false);
+  const { equipMultipleItems } = useItemOperations();
+  const { membershipId } = useAuthContext();
+  const { data: profileData } = useProfileData(membershipId);
+
+  const handleEquipAll = async () => {
+    if (!profileData) return;
+    const membershipType = profileData.Response.profile.data.userInfo.membershipType;
+    const itemIds = result.armor_pieces.map(piece => piece.instanceId);
+    await equipMultipleItems(itemIds, characterId, membershipType);
+  };
 
   return (
     <div className="bg-gray-800 p-2 rounded-lg text-white text-sm">
@@ -37,6 +53,7 @@ const OptimizationResult: React.FC<OptimizationResultProps> = ({ result }) => {
           />
         ))}
       </div>
+      <Button onClick={handleEquipAll} className="mb-2">Equip All</Button>
       <div className="flex justify-between mb-2">
         <div className="grid grid-cols-3 gap-1">
           {result.fragments.map((fragment) => (
