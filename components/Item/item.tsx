@@ -1,11 +1,11 @@
 import Image from "next/image";
 import { motion } from "framer-motion";
 import Fave from "@/components/Item/Fave";
-import { useFavorites } from "@/app/hooks/useFavorites";
 import { SkeletonGuy } from "@/components/skeleton";
 import { ErrorBoundary } from "react-error-boundary";
 import { useItemData } from "@/app/hooks/useItemData";
 import { ItemComponentProps } from "@/lib/interfaces";
+import { useFavorites } from "@/app/hooks/useFavorites";
 import { useAuthContext } from "@/components/Auth/AuthContext";
 import ExpandedItemView from "@/components/Item/ExpandedItemView";
 import React, {
@@ -64,6 +64,15 @@ const Item: React.FC<ItemComponentProps> = ({
     };
   }, [isExpanded, alwaysExpanded, handleClickOutside]);
 
+  const expandedStyle = useMemo(() => {
+    if (!itemData) return {};
+    return {
+      backgroundImage: `url(https://www.bungie.net${itemData.screenshot})`,
+      backgroundSize: "cover",
+      backgroundPosition: "top",
+    };
+  }, [itemData]);
+
   if (!itemData) {
     return <SkeletonGuy />;
   }
@@ -84,14 +93,7 @@ const Item: React.FC<ItemComponentProps> = ({
     ? manifestData.DestinyInventoryItemDefinition[overrideStyleItemHash]?.displayProperties.icon
     : item.displayProperties.icon;
 
-  const expandedStyle = useMemo(
-    () => ({
-      backgroundImage: `url(https://www.bungie.net${item.screenshot})`,
-      backgroundSize: "cover",
-      backgroundPosition: "top",
-    }),
-    [item.screenshot]
-  );
+  
 
   return (
     <ErrorBoundary fallback={<div>Error loading item</div>}>

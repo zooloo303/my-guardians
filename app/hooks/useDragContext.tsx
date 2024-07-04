@@ -1,4 +1,3 @@
-// useDragContext.tsx
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { useManifestData } from "@/app/hooks/useManifest";
@@ -27,12 +26,12 @@ export const DragProvider: React.FC<DragProviderProps> = ({ children }) => {
   const { transfer, equip, getRandomItem } = useItemOperations();
 
   const handleDrop = async (targetCharacterId: string, targetSource: string) => {
-    if (!draggedItem) return;
+    if (!draggedItem || !membershipId) return;
   
     const sourceCharacterId = draggedItem.characterId;
     const membershipType = profileData?.Response.profile.data.userInfo.membershipType;
   
-    if (!manifestData || !membershipId || !membershipType) return;
+    if (!manifestData || !membershipType) return;
   
     try {
       // Same character, same source (inventory to inventory or equipment to equipment)
@@ -55,7 +54,7 @@ export const DragProvider: React.FC<DragProviderProps> = ({ children }) => {
         }
       }
       // Different character
-      else if (sourceCharacterId !== targetCharacterId) {
+      else if (sourceCharacterId && sourceCharacterId !== targetCharacterId) {
         if (draggedItem.SOURCE === "CharacterEquipment") {
           const randomItem = getRandomItem(sourceCharacterId, draggedItem.bucketHash);
           if (randomItem) {
@@ -79,7 +78,7 @@ export const DragProvider: React.FC<DragProviderProps> = ({ children }) => {
         }
       }
       // From character inventory to vault
-      else if (draggedItem.SOURCE === "CharacterInventory" && targetSource === "ProfileInventory") {
+      else if (draggedItem.SOURCE === "CharacterInventory" && targetSource === "ProfileInventory" && sourceCharacterId) {
         await transfer(draggedItem, true, sourceCharacterId, membershipType);
       }
 

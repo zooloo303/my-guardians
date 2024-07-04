@@ -17,8 +17,11 @@ export interface DragEndEvent {
   event: MouseEvent | TouchEvent | PointerEvent;
   info: PanInfo;
 }
-export type DraggableItem = InventoryItem & { SOURCE: string };
 
+export type DraggableItem = InventoryItem & { 
+  SOURCE: string;
+  characterId?: string;
+};
 export interface DragContextType {
   draggedItem: DraggableItem | null;
   setDraggedItem: (item: DraggableItem | null) => void;
