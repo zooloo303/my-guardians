@@ -81,7 +81,7 @@ const CharacterExoticArmor: React.FC<CharacterExoticArmorProps> = ({
             <AccordionItem value={armorType} key={armorType}>
               <AccordionTrigger>{armorType}</AccordionTrigger>
               <AccordionContent>
-                <div className="grid grid-cols-6 gap-4 cursor-pointer">
+                <div className="grid grid-cols-8 gap-4 cursor-pointer">
                   {exoticArmorItems
                     .filter(
                       (item) =>

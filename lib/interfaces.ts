@@ -52,6 +52,25 @@ export interface ProfileData {
             primaryStat: {
               value: number;
             };
+            damageType?: number;
+          };
+        };
+      };
+      sockets?: {
+        data: {
+          [itemInstanceId: string]: {
+            sockets: Socket[];
+          };
+        };
+      };
+      stats?: {
+        data: {
+          [itemInstanceId: string]: {
+            stats: {
+              [statHash: string]: {
+                value: number;
+              };
+            };
           };
         };
       };
@@ -223,7 +242,8 @@ export interface InventoryItem {
   bucketHash: number;
   itemHash: number;
   itemInstanceId: string;
-  characterId: string;
+  characterId?: string;
+  overrideStyleItemHash?: number; 
   SOURCE?: string;
 }
 export interface VaultProps {
@@ -300,4 +320,19 @@ export interface BuildPrefsProps {
 }
 export interface StatPrioritySelectorProps {
   onPrioritiesChange?: (priorities: string[]) => void;
+}
+export interface DestinyInventoryBucketDefinition {
+  displayProperties: {
+    description: string;
+    name: string;
+    hasIcon: boolean;
+  };
+  scope: number;
+  category: number;
+  bucketOrder: number;
+  itemCount: number;
+  location: number;
+  hasTransferDestination: boolean;
+  enabled: boolean;
+  fifo: boolean;
 }

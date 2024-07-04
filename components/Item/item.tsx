@@ -31,14 +31,12 @@ const Item: React.FC<ItemComponentProps> = ({
 }) => {
   const { membershipId } = useAuthContext();
   const [isExpanded, setIsExpanded] = useState(alwaysExpanded);
-
-  const { favorites, addFavorite, removeFavorite } = useFavorites();
+  const { favorites, addFavorite, removeFavorite } = useFavorites(); 
+  const itemRef = useRef<HTMLDivElement>(null);
+  const itemData = useItemData(itemHash, itemInstanceId);
   const isFavorite = favorites.some(
     (fav: any) => fav.itemInstanceId === itemInstanceId
   );
-
-  const itemRef = useRef<HTMLDivElement>(null);
-  const itemData = useItemData(itemHash, itemInstanceId);
 
   const handleClickOutside = useCallback((event: MouseEvent) => {
     if (itemRef.current && !itemRef.current.contains(event.target as Node)) {
@@ -66,19 +64,9 @@ const Item: React.FC<ItemComponentProps> = ({
     };
   }, [isExpanded, alwaysExpanded, handleClickOutside]);
 
-  const expandedStyle = useMemo(
-    () => ({
-      backgroundImage: `url(https://www.bungie.net${itemData?.itemData.screenshot})`,
-      backgroundSize: "cover",
-      backgroundPosition: "top",
-    }),
-    [itemData?.itemData.screenshot]
-  );
-
   if (!itemData) {
     return <SkeletonGuy />;
   }
-
   const {
     itemData: item,
     primaryStatValue,
@@ -86,7 +74,24 @@ const Item: React.FC<ItemComponentProps> = ({
     shouldShowPrimaryStat,
     sockets,
     statData,
+    manifestData,
+    overrideStyleItemHash,
+    screenshot
   } = itemData;
+  
+  // Get the correct icon based on overrideStyleItemHash
+  const iconPath = overrideStyleItemHash
+    ? manifestData.DestinyInventoryItemDefinition[overrideStyleItemHash]?.displayProperties.icon
+    : item.displayProperties.icon;
+
+  const expandedStyle = useMemo(
+    () => ({
+      backgroundImage: `url(https://www.bungie.net${item.screenshot})`,
+      backgroundSize: "cover",
+      backgroundPosition: "top",
+    }),
+    [item.screenshot]
+  );
 
   return (
     <ErrorBoundary fallback={<div>Error loading item</div>}>
@@ -107,9 +112,9 @@ const Item: React.FC<ItemComponentProps> = ({
                 style={{
                   zIndex: isExpanded ? 10 : "auto",
                   ...(isExpanded
-                    ? expandedStyle
+                    ? { backgroundImage: `url(https://www.bungie.net${screenshot})` }
                     : {
-                        backgroundImage: `url(https://www.bungie.net${item.displayProperties.icon})`,
+                        backgroundImage: `url(https://www.bungie.net${iconPath})`,
                         backgroundSize: "cover",
                       }),
                   position: "relative",
@@ -124,7 +129,8 @@ const Item: React.FC<ItemComponentProps> = ({
                     damageTypeIcon={damageTypeIcon}
                     sockets={sockets}
                     statData={statData}
-                    manifestData={itemData.manifestData}
+                    manifestData={manifestData}
+                    screenshot={screenshot}
                   />
                 )}
               </motion.div>

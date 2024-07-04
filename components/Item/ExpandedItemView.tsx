@@ -16,6 +16,7 @@ interface ExpandedItemViewProps {
   sockets: Socket[];
   statData: any;
   manifestData: any;
+  screenshot: string;
 }
 
 const ExpandedItemView: React.FC<ExpandedItemViewProps> = ({
@@ -25,6 +26,7 @@ const ExpandedItemView: React.FC<ExpandedItemViewProps> = ({
   sockets,
   statData,
   manifestData,
+  screenshot,
 }) => {
   return (
     <motion.div
@@ -32,6 +34,11 @@ const ExpandedItemView: React.FC<ExpandedItemViewProps> = ({
       animate={{ opacity: 1 }}
       transition={{ duration: 1 }}
       className="text-left text-sm mt-2 text-white"
+      style={{
+        backgroundImage: `url(https://www.bungie.net${screenshot})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
     >
       <div className="flex flex-row justify-between">
         <motion.div

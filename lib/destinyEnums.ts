@@ -207,3 +207,26 @@ export const itemOrder = [
   375726501, //Engrams
   1345459588, //Quests
 ];
+export const bucketIcons: { [key: string]: string } = {
+  'kinetic': 'ammo-primary',
+  'energy': 'ammo-special',
+  'power': 'ammo-heavy',
+  'ghost': 'ghost',
+  'helmet': 'helmet',
+  'gauntlets': 'arms',
+  'chest': 'chest',
+  'legs': 'legs',
+  'class': 'class'
+};
+
+export const bucketHashToType: { [key: number]: string } = {
+  1498876634: 'kinetic',
+  2465295065: 'energy',
+  953998645: 'power',
+  4023194814: 'ghost',
+  3448274439: 'helmet',
+  3551918588: 'gauntlets',
+  14239492: 'chest',
+  20886954: 'legs',
+  1585787867: 'class'
+};
