@@ -38,6 +38,11 @@ const Item: React.FC<ItemComponentProps> = ({
     (fav: any) => fav.itemInstanceId === itemInstanceId
   );
 
+  const renderCount = useRef(0);
+  useEffect(() => {
+    renderCount.current += 1;
+  });
+
   const handleClickOutside = useCallback((event: MouseEvent) => {
     if (itemRef.current && !itemRef.current.contains(event.target as Node)) {
       setIsExpanded(false);
@@ -51,7 +56,6 @@ const Item: React.FC<ItemComponentProps> = ({
     }
     onClick && onClick(itemHash, itemInstanceId);
   }, [alwaysExpanded, onClick, itemHash, itemInstanceId]);
-
 
   useEffect(() => {
     if (isExpanded && !alwaysExpanded) {
@@ -93,14 +97,12 @@ const Item: React.FC<ItemComponentProps> = ({
     ? manifestData.DestinyInventoryItemDefinition[overrideStyleItemHash]?.displayProperties.icon
     : item.displayProperties.icon;
 
-  
-
   return (
     <ErrorBoundary fallback={<div>Error loading item</div>}>
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <motion.div className="flex flex-col items-center justify-center">
+            <motion.div className="border p-2 rounded-xl flex flex-col items-center justify-center">
               <motion.div
                 ref={itemRef}
                 transition={{ layout: { duration: 0.5, type: "spring" } }}

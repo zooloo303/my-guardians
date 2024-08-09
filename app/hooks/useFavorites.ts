@@ -16,15 +16,17 @@ export function useFavorites() {
   const addFavoriteMutation = useMutation({
     mutationFn: ({ itemInstanceId, itemHash }: { itemInstanceId: string, itemHash: number }) => 
       setFavorite(membershipId!, itemInstanceId, itemHash),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['favorites', membershipId] });
+    onSuccess: (data, variables) => {
+      queryClient.setQueryData(['favorites', membershipId], (oldData: any) => [...oldData, variables]);
     },
   });
 
   const removeFavoriteMutation = useMutation({
     mutationFn: (itemInstanceId: string) => unsetFavorite(membershipId!, itemInstanceId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['favorites', membershipId] });
+    onSuccess: (_, itemInstanceId) => {
+      queryClient.setQueryData(['favorites', membershipId], (oldData: any) => 
+        oldData.filter((fav: any) => fav.itemInstanceId !== itemInstanceId)
+      );
     },
   });
 

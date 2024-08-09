@@ -94,7 +94,7 @@ const ProfileInventory: React.FC<ProfileInventoryProps> = React.memo(({ filtered
     <>
       <div className="flex flex-row p-1 items-center">
         <Vault className="pl-2" />
-        <span className="font-bold ml-2">Vault</span>
+        {/* <span className="font-bold ml-2">Vault</span> */}
         <Badge variant="outline" className="ml-2 text-xs">
           {totalItems}/700
         </Badge>

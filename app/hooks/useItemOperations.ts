@@ -7,6 +7,7 @@ import { useProfileData } from "@/app/hooks/useProfileData";
 import { useAuthContext } from "@/components/Auth/AuthContext";
 import { transferItem, equipItem, equipItems } from "@/lib/transferUtils";
 import { InventoryItem, TransferData, EquipData, EquipDataMulti } from "@/lib/interfaces";
+import { useMutation } from "@tanstack/react-query";
 
 export const useItemOperations = () => {
   const { membershipId } = useAuthContext();
@@ -33,6 +34,27 @@ export const useItemOperations = () => {
     return "Unknown Character";
   };
 
+  const transferMutation = useMutation({
+    mutationFn: transferItem,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["profileData"] });
+    },
+  });
+
+  const equipMutation = useMutation({
+    mutationFn: equipItem,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["profileData"] });
+    },
+  });
+
+  const equipMultipleMutation = useMutation({
+    mutationFn: equipItems,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["profileData"] });
+    },
+  });
+
   const transfer = async (
     item: InventoryItem,
     toVault: boolean,
@@ -52,12 +74,11 @@ export const useItemOperations = () => {
     };
 
     try {
-      await transferItem(transferData);
+      await transferMutation.mutateAsync(transferData);
       const itemName = getItemName(item);
       const characterInfo = getCharacterInfo(characterId);
       const location = toVault ? "vault" : `${characterInfo}'s inventory`;
       toast(`Transferred ${itemName} to ${location}`);
-      queryClient.invalidateQueries({ queryKey: ["profileData"] });
     } catch (error) {
       console.error("Transfer failed:", error);
       toast(`Failed to transfer item`, {
@@ -81,11 +102,10 @@ export const useItemOperations = () => {
     };
 
     try {
-      await equipItem(equipData);
+      await equipMutation.mutateAsync(equipData);
       const itemName = getItemName(item);
       const characterInfo = getCharacterInfo(characterId);
       toast(`Equipped ${itemName} on ${characterInfo}`);
-      queryClient.invalidateQueries({ queryKey: ["profileData"] });
     } catch (error) {
       console.error("Equip failed:", error);
       toast(`Failed to equip item`, {
@@ -93,33 +113,31 @@ export const useItemOperations = () => {
       });
     }
   };
-  
-  // In useItemOperations.ts
-const equipMultipleItems = async (
-  itemIds: string[],
-  characterId: string,
-  membershipType: number
-) => {
-  if (!membershipId) return;
 
-  const equipDataMulti: EquipDataMulti = {
-    username: membershipId,
-    itemIds: itemIds,
-    characterId: characterId,
-    membershipType: membershipType,
+  const equipMultipleItems = async (
+    itemIds: string[],
+    characterId: string,
+    membershipType: number
+  ) => {
+    if (!membershipId) return;
+
+    const equipDataMulti: EquipDataMulti = {
+      username: membershipId,
+      itemIds: itemIds,
+      characterId: characterId,
+      membershipType: membershipType,
+    };
+
+    try {
+      await equipMultipleMutation.mutateAsync(equipDataMulti);
+      toast(`Equipped ${itemIds.length} items`);
+    } catch (error) {
+      console.error("Equip multiple items failed:", error);
+      toast(`Failed to equip items`, {
+        style: { backgroundColor: "red", color: "white" },
+      });
+    }
   };
-
-  try {
-    await equipItems(equipDataMulti);
-    toast(`Equipped ${itemIds.length} items`);
-    queryClient.invalidateQueries({ queryKey: ["profileData"] });
-  } catch (error) {
-    console.error("Equip multiple items failed:", error);
-    toast(`Failed to equip items`, {
-      style: { backgroundColor: "red", color: "white" },
-    });
-  }
-};
 
   const getRandomItem = (
     characterId: string,

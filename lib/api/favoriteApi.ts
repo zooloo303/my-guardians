@@ -1,7 +1,7 @@
 import apiService from './apiService';
 
 export async function setFavorite(username: string, itemInstanceId: string, itemHash: number) {
-  return apiService.post('/api/user/faveItem/set', { username, itemInstanceId, itemHash });
+    return apiService.post('/api/user/faveItem/set', { username, itemInstanceId, itemHash });
 }
 
 export async function unsetFavorite(username: string, itemInstanceId: string) {
