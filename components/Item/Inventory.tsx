@@ -185,31 +185,33 @@ const Inventory: React.FC = () => {
     <div className="w-full h-full overflow-hidden">
       <DragProvider>
         <ScrollArea className="h-full">
-          <div className="p-4">
-            <Search className="absolute left-6 top-7 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="text"
-              placeholder="Search items..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-lg bg-background pl-8 md:w-[300px] lg:w-[500px]"
-            />
-          </div>
-          <div className="flex w-full px-4 items-center">
-            <div className="w-1/3 flex justify-center">
-              <WeaponFilters
-                onFilterChange={handleWeaponFilterChange}
-                damageOnly={true}
+          <div className="p-2 space-y-2">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={16} />
+              <Input
+                type="text"
+                placeholder="Search items..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full rounded-md bg-background pl-9 pr-3 py-1 text-sm"
               />
             </div>
-            <div className="w-1/3 flex justify-center">
-              <WeaponFilters
-                onFilterChange={handleWeaponFilterChange}
-                weaponOnly={true}
-              />
-            </div>
-            <div className="w-1/3 flex justify-center">
-              <ArmorFilters onFilterChange={handleArmorFilterChange} />
+            <div className="flex w-full space-x-2 items-center">
+              <div className="flex-1">
+                <WeaponFilters
+                  onFilterChange={handleWeaponFilterChange}
+                  damageOnly={true}
+                />
+              </div>
+              <div className="flex-1">
+                <WeaponFilters
+                  onFilterChange={handleWeaponFilterChange}
+                  weaponOnly={true}
+                />
+              </div>
+              <div className="flex-1">
+                <ArmorFilters onFilterChange={handleArmorFilterChange} />
+              </div>
             </div>
           </div>
           <CharacterList />
