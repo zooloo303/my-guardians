@@ -1,11 +1,10 @@
 "use client";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useAuthContext } from "@/components/Auth/AuthContext";
 import ApiCheck from "@/components/apiCheck";
+import { useAuthContext } from "@/components/Auth/AuthContext";
 import MyCharacters from "@/components/Character/myCharacters";
 import CharacterEquipment from "@/components/Item/characterEquipment";
-import InventorySearch from "@/components/Item/InventorySearch";
 
 export default function Home() {
   const router = useRouter();
@@ -26,7 +25,6 @@ export default function Home() {
       <ApiCheck />
       <MyCharacters />
       <CharacterEquipment showSubclass={true} />
-      <InventorySearch />
     </main>
   );
 }

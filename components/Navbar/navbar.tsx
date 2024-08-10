@@ -1,6 +1,8 @@
 "use client";
+
 import Image from "next/image";
 import { useState } from "react";
+import { NavbarTabs } from "./tabs";
 import { Button } from "../ui/button";
 import { motion } from "framer-motion";
 import { CircleUser } from "lucide-react";
@@ -58,24 +60,18 @@ const Navbar: React.FC = () => {
       }
     }
   };
-  const goHome = () => {
-    router.push("/");
-  };
 
   return (
     <header className="sticky top-0 flex p-2 h-16 items-center gap-4 border-b bg-background bg-opacity-50 backdrop-blur z-10">
-      <nav className="cursor-pointer">
         <Image
           src="/destiny-logo.svg"
           alt="dsnLogo"
           height={40}
           width={40}
-          onClick={goHome}
         />
-      </nav>
-
       <div className="flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
         <span className="text-base">Hi, {displayName}</span>{" "}
+        <NavbarTabs />
         <div className="ml-auto flex-1 sm:flex-initial animate-pulse">
           my-guardians.com
         </div>
